@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.salesforce.maven</groupId>
+        <artifactId>MavenParent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>com.salesforce.aptspring</groupId>
+    <artifactId>AptSpringParent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <modules>
+        <module>AptSpringModel</module>
+        <module>AptSpringAPI</module>
+        <module>AptSpringProcessor</module>
+    </modules>
+    <properties>
+        <assertj.version>3.3.0</assertj.version>
+        <compare.prior.release.api>true</compare.prior.release.api>
+        <disable.semantic.versioning>true</disable.semantic.versioning>
+        <github.domain>github.com</github.domain>
+        <github.owner>SpringContext</github.owner>
+        <github.project>AptSpring</github.project>
+        <github.site.location>${project.version}/</github.site.location>
+        <junit.version>4.12</junit.version>
+        <slf4j.version>1.7.10</slf4j.version>
+        <spring.version>4.3.9.RELEASE</spring.version>
+    </properties>
+    <licenses>
+        <license>
+            <name>BSD-3</name>
+            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git:${github.domain}:${github.owner}/${github.project}.git</connection>
+        <developerConnection>scm:git:git:${git.domain}:${github.owner}/${github.project}.git</developerConnection>
+        <url>https://${github.domain}/${github.owner}/${github.project}/blob/master/</url>
+    </scm>
+</project>

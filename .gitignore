@@ -1,0 +1,13 @@
+**/.settings/
+**/.project
+**/target/
+**/.pmd
+**/.pmdruleset.xml
+**/.checkstyle
+**/.classpath
+**/.factorypath
+**/.springBeans
+**/dependency-reduced-pom.xml
+.drone.sec.yml
+.DS_Store
+hs_err_pid*.log

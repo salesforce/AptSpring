@@ -1,0 +1,95 @@
+/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.types.impl;
+
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
+import com.salesforce.apt.graph.model.InstanceModel;
+import com.salesforce.apt.graph.types.AssignabilityUtils;
+
+/**
+ * Compares types stored in the DefinitionGraph with the best available utils, Types and Elements in the case of apt.
+ */
+public class AptAssignabilityUtils implements AssignabilityUtils {
+
+  private Types typeUtils;
+  private Elements elementUtils;
+  
+  public AptAssignabilityUtils(Types types, Elements elements) {
+    typeUtils = types;
+    elementUtils = elements;
+  }
+  
+  public boolean isAssignableFrom(InstanceModel subject, InstanceModel target) {
+    TypeMirror subjectElementType = lookUpElement(subject).getReturnType();
+    int count = 0;
+    while (!target.getDependencies().get(count).getIdentity().equals(subject.getIdentity())) {
+      count ++;
+    }
+    TypeMirror targetElementType = lookUpElement(target).getParameters().get(count).asType();
+    return typeUtils.isAssignable(subjectElementType, targetElementType);
+  }
+  
+  /**
+   * Find's the executable element that will have the necessary type
+   * information extracted from it.
+   * 
+   * @param target the instance model that is our target
+   * @return the element in question
+   */
+  public ExecutableElement lookUpElement(final InstanceModel target) {
+    if (target.getSourceElement().isPresent()) {
+      return (ExecutableElement) target.getSourceElement().get();
+    } else {
+      String removeParms = target.getElementLocation().replaceAll("\\(.*\\)", "");
+      String method = removeParms.substring(removeParms.lastIndexOf('.') + 1);
+      TypeElement type = elementUtils.getTypeElement(target.getOwningDefinition());
+      return (ExecutableElement) type.getEnclosedElements().stream().filter(e -> 
+        e.getSimpleName().toString().replaceAll("\\(.*\\)", "").equals(method) 
+          && ExecutableElement.class.isAssignableFrom(e.getClass())).findFirst().get();
+    }
+  }  
+  
+  /* If the above doesn't work, this handles all but ?, &, | in types.
+   * 
+  public boolean isAssignableFrom(String subject, String target) {
+    ParseType subjectType = ParseType.parse(subject);
+    ParseType targetType = ParseType.parse(target);
+    return typeUtils.isAssignable(from(subjectType),
+        from(targetType));
+  }
+  
+  public TypeMirror from(ParseType parsed) {
+    return typeUtils.getDeclaredType(elementUtils.getTypeElement(parsed.getType()),
+        parsed.getParameters().stream().map(p -> from(p)).toArray(i -> new TypeMirror[i]));
+  }
+  */
+}
