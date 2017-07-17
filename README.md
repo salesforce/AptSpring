@@ -59,6 +59,5 @@ No guarantee you wont have runtime problems.
 The guarantee is that those problems will be a lot simpler than the one you would otherwise get out of spring.
 
 ### Enforcement ###
-
-Please see [@Verified Annotation](./AptSpringProcessor/src/main/java/com/salesforce/aptspring/Verified.java) for a full list of the
+Please see [@Verified Annotation](./AptSpringAPI/src/main/java/com/salesforce/aptspring/Verified.java#L35) for a full list of the
 constraints the ForceInjectSpringAPT processor enforces, and what it may enforce in the future.
