@@ -2,22 +2,22 @@
 
 ### About AptSpring ###
 
-This project checks that spring beans in your project adhere to certain properties when you add the @Verified annotation to your @Configuration class.
+This project checks that spring beans in your project adhere to certain properties when you add the ```@Verified``` annotation to your ```@Configuration``` class.
 
 #### Duplicate bean name and cycle free ####
 
-Some of those properties include all beans being explicitly named, all names are unique, and all autowiring includes names via @Qualified annotations.  Cycles are prevented as well as duplicate bean names.  
+Some of those properties include all beans being explicitly named, all names are unique, and all autowiring includes names via ```@Qualified``` annotations.  Cycles are prevented as well as duplicate bean names.  
 
 #### Type Safety ####
 
-Return types of @Bean methods are verified against @Autowired inputs to bean methods.
+Return types of ```@Bean``` methods are verified against ```@Autowired``` inputs to bean methods.
 
 #### Disallows "Interesting" practices ####
 
-No autowiring in to @Configuration instances.
-No non literal static member variables on @Configuration instances.
+No autowiring in to ```@Configuration``` instances.
+No non literal static member variables on ```@Configuration``` instances.
 No autowiring an unknown list of instances by type... instead encourages the construction of named lists.
-No @ComponentScan, instead use @Import to allow the annotation processor to analyze your graph.
+No ```@ComponentScan```, instead use ```@Import``` to allow the annotation processor to analyze your graph.
 
 #### Safety ####
 
@@ -43,14 +43,14 @@ Include these dependencies:
         </dependency>
 ```
 
-Include the <code>@Verified</code> annotation on your spring <code>@Configuration</code> classes.
+Include the ```@Verified``` annotation on your spring ```@Configuration``` classes.
 
 Use the takari lifecycle and takari-m2e support for best performance and file handling.
-You can also configure the APT manually in eclipse if you are not using m2e, but eclipse's default APT handling will not support referencing a <code>@Configuration</code> class in another eclipse project/maven module.   You would be limited to having on one eclipse project.
+You can also configure the APT manually in eclipse if you are not using m2e, but eclipse's default APT handling will not support referencing a ```@Configuration``` class in another eclipse project/maven module.   You would be limited to having on one eclipse project.
 
 The error messages will help clean up your code and keep it clean.
 
-A full list of checks can be found on the javadoc of the <code>@Verified</code> annotation class.
+A full list of checks can be found on the javadoc of the ```@Verified``` annotation class.
 
 In short, no cycles, fully defined decoupled spring graphs, with clear entry point for all system properties.
 
