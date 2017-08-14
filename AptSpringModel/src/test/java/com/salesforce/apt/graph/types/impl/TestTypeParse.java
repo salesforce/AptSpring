@@ -80,7 +80,6 @@ public class TestTypeParse {
     assertThat(calc.hashCode()).isEqualTo(expectedType.hashCode());
   } 
 
-  @SuppressWarnings("unlikely-arg-type")
   @Test
   public void testEquality() {
     String name = "java.util.Map<java.lang.String,java.util.List<java.lang.Integer>>";

@@ -282,7 +282,6 @@ public class SpringAnnotationParser {
         ExecutableElement execelement = (ExecutableElement) enclosed;
         String[] beanNames = getAnnotationValue(execelement, "org.springframework.context.annotation.Bean", "name");
         
-        //Bean beanElement = execelement.getAnnotation(Bean.class);
         if (beanNames != null) {
           List<InstanceDependencyModel> dependencies = new ArrayList<>();
           boolean hasValues = false;
@@ -357,8 +356,8 @@ public class SpringAnnotationParser {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "The class must be a top level class, not an internal class", te);
     }
-    if (getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null ||
-        getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
+    if (getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
+        || getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "You may not use @ComponentScan(s) on @Verified classes", te);
     }
