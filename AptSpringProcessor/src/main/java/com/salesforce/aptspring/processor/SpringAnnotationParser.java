@@ -54,68 +54,6 @@ import com.salesforce.aptspring.Verified;
 
 public class SpringAnnotationParser {
   
-  private static class AliasData {
-    private String targetAnnotation = null;
-    private String targetField = null;
-  }
-  
-  /**
-   * On an executable element (that is a value holder on annotation) extract any
-   * direct uses of @AlaisFor
-   * 
-   * @param annotationParameter the annotation's parameter to inspect for uses of @AliasFor
-   * @return an AliasData if the the annotation is found, null otherwise.
-   */
-  public static AliasData getAlias(ExecutableElement annotationParameter) {
-    AliasData output = null;
-    for (AnnotationMirror am : annotationParameter.getAnnotationMirrors()) {
-      if (ALIAS_TYPE.equals(am.getAnnotationType().asElement().toString())) {
-        output = new AliasData();
-        for (Entry<? extends ExecutableElement, ? extends AnnotationValue> ev : am.getElementValues().entrySet()) {
-          String fieldName = ev.getKey().getSimpleName().toString();
-          if (ALIAS_TARGET_TYPE.equals(fieldName)) {
-            if (ev.getValue() != null && ev.getValue().getValue() != null) {
-              output.targetAnnotation = ev.getValue().getValue().toString();
-            } else {
-              return null;
-            }
-          }
-          if (ALIAS_TARGET_FIELD.equals(fieldName)) {
-            if (ev.getValue() != null && ev.getValue().getValue() != null) {
-              output.targetField = ev.getValue().getValue().toString();
-            }
-          }
-          if (DEFAULT_ANNOTATION_VALUE.equals(fieldName)) {
-            if (ev.getValue() != null && ev.getValue().getValue() != null) {
-              output.targetField = ev.getValue().getValue().toString();
-            }
-          }
-        }
-      }
-    }
-    return output;
-  }
-  
-  /**
-   *  Checks to see if the aliasData matches the targetType and targetField.   The aliasData may have a null
-   *  targetType and if so, the currentAnnotation is used to determine if the targetType Matches.
-   *  This indicates that the AliasFor annotation is on an element in the targetType annotation itself.
-   */
-  private static boolean aliasMatch(AliasData aliasData, String targetType, String targetField, String currentAnnotation) {
-    if (aliasData == null) {
-      return false;
-    }
-    //types match
-    if (targetType.equals(aliasData.targetAnnotation)
-        || (aliasData.targetAnnotation == null && targetType.equals(currentAnnotation))) {
-      //fields match
-      if (targetField.equals(aliasData.targetField)) {
-        return true;
-      }
-    }
-    return false;
-  }
-  
   private static final String QUALIFIER_TYPE = "org.springframework.beans.factory.annotation.Qualifier";
   
   private static final String VALUE_TYPE = "org.springframework.beans.factory.annotation.Value";
@@ -125,80 +63,9 @@ public class SpringAnnotationParser {
   private static final String COMPONENTSCANS_TYPE = "org.springframework.context.annotation.ComponentScans";
   
   private static final String CONFIGURATION_TYPE = "org.springframework.context.annotation.Configuration";
-  
-  private static final String ALIAS_TYPE = "org.springframework.core.annotation.AliasFor";
     
-  private static final String ALIAS_TARGET_TYPE = "annotation";
-
-  private static final String ALIAS_TARGET_FIELD = "attribute";
-  
   private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
-
-  /**
-   * Utility method to extract the value of annotation on a class.
-   * Hooks to honor spring's @Verifed annotation.
-   * 
-   * @param e the element to inspect
-   * @param annotationTypeName the fully qualified name of the annotation class.
-   * @param methodName the name of the annotation value
-   * @return an array of Strings representing the value of annotation parameter or it's alias.
-   */
-  public static String[] getAnnotationValue(Element e, String annotationTypeName, String methodName) {
-    if (e instanceof TypeElement) {
-      //TODO: do recursive call in to 
-      ((TypeElement) e).getSuperclass();
-      ((TypeElement) e).getInterfaces();
-    }
-    for (AnnotationMirror a : e.getAnnotationMirrors()) {
-      String[] returned = getAnnotationValue(a, annotationTypeName, methodName);
-      if (returned != null) {
-        return returned;
-      }
-    }
-    return null;
-  }
-  
-  /**
-   * Any empty array will be returned as long as the annotation is found (regardless of whether the value is set or not).
-   * A null value is returned if the (meta) annotation is not found. Currently only supports one level of indirection through
-   * spring's AliasFor.
-   *
-   * @param am the annotation to parse for a value.
-   * @param annotationTypeName the type of the annotation we are interested in, necessary for meta-annotation processing.
-   * @param methodName the name of the parameter designating the value 
-   * @return if the annotation or meta annotation is found, the AnnotationValues are converted to strings by 
-   *    {@link AnnotationValueExtractor} and returned in an array.  
-   */
-  public static String[] getAnnotationValue(AnnotationMirror am, String annotationTypeName, String methodName) {
-    String currentType = am.getAnnotationType().toString();
-    for (Entry<? extends ExecutableElement, ? extends AnnotationValue> ev : am.getElementValues().entrySet()) {
-      boolean aliasMatch = aliasMatch(getAlias(ev.getKey()), annotationTypeName, methodName, currentType);
-      boolean foundField = ev.getKey().getSimpleName().toString().equals(methodName);
-      if (aliasMatch || (foundField && currentType.equals(annotationTypeName))) {
-        AnnotationValueExtractor ex = new AnnotationValueExtractor();
-        List<String> values = new ArrayList<>();
-        ex.visit(ev.getValue(), values);
-        return values.toArray(new String[values.size()]); 
-      }
-    }
-    if (currentType.equals(annotationTypeName)) {
-      //no field matched
-      return new String[]{};
-    }
-    
-    for (AnnotationMirror a : am.getAnnotationType().getAnnotationMirrors()) {
-      //cachable here...
-      if (!a.getAnnotationType().asElement().toString().startsWith("java.lang.annotation")) {
-        String[] output = getAnnotationValue(a, annotationTypeName, methodName);
-        if (output != null) {
-          return output;
-        }
-      }
-    }
-    return null;
-  }
-  
   /**
    * Read a TypeElement to get application structure.
    * 
@@ -212,7 +79,8 @@ public class SpringAnnotationParser {
     errorIfInvalidClass(te, messager);
     
     model.addDependencyNames(getImportsTypes(te));
-    String[] configurationBeanNames  = getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
+    String[] configurationBeanNames  = AnnotationValueExtractor
+        .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
     if (configurationBeanNames != null) {
       for (Element enclosed : te.getEnclosedElements()) {
         handleEnclosedElements(messager, model, enclosed);
@@ -280,7 +148,8 @@ public class SpringAnnotationParser {
     switch (enclosed.getKind()) {
       case METHOD: 
         ExecutableElement execelement = (ExecutableElement) enclosed;
-        String[] beanNames = getAnnotationValue(execelement, "org.springframework.context.annotation.Bean", "name");
+        String[] beanNames = AnnotationValueExtractor
+            .getAnnotationValue(execelement, "org.springframework.context.annotation.Bean", "name");
         
         if (beanNames != null) {
           List<InstanceDependencyModel> dependencies = new ArrayList<>();
@@ -288,8 +157,10 @@ public class SpringAnnotationParser {
           boolean hasQualifiers = false;
           for (VariableElement varelement : execelement.getParameters()) {
             
-            String[] qualifierNames = getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);
-            String[] valueNames = getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
+            String[] qualifierNames = AnnotationValueExtractor
+                .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);
+            String[] valueNames = AnnotationValueExtractor
+                .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
             
             if (qualifierNames == null && valueNames == null) {
               messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
@@ -356,8 +227,8 @@ public class SpringAnnotationParser {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "The class must be a top level class, not an internal class", te);
     }
-    if (getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
-        || getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
+    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
+        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "You may not use @ComponentScan(s) on @Verified classes", te);
     }
