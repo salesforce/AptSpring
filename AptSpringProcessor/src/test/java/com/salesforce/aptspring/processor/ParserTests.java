@@ -350,7 +350,7 @@ public class ParserTests {
         "public class TestClass {",
         "",
         "  @Bean(name=\"stuff\")",
-        "  public static String getValue() { return \"\"; }",
+        "  public String getValue() { return \"\"; }",
         "",
         "}");
 
@@ -380,7 +380,7 @@ public class ParserTests {
         "public class TestClass {",
         "",
         "  @Bean(name=\"stuff\")",
-        "  public static String getValue() { return \"\"; }",
+        "  public String getValue() { return \"\"; }",
         "",
         "}");
 

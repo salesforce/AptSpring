@@ -32,7 +32,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.salesforce.aptspring.Verified;
 import com.salesforce.aptspring.objects.ItemType;
 
 @Verified(root = true)

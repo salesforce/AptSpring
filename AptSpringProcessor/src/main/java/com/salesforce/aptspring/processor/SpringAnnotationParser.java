@@ -46,12 +46,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScans;
-import org.springframework.context.annotation.Configuration;
-
 import com.salesforce.apt.graph.model.DefinitionModel;
 import com.salesforce.apt.graph.model.ExpectedModel;
 import com.salesforce.apt.graph.model.InstanceDependencyModel;
@@ -91,7 +85,7 @@ public class SpringAnnotationParser {
               output.targetField = ev.getValue().getValue().toString();
             }
           }
-          if ("value".equals(fieldName)) {
+          if (DEFAULT_ANNOTATION_VALUE.equals(fieldName)) {
             if (ev.getValue() != null && ev.getValue().getValue() != null) {
               output.targetField = ev.getValue().getValue().toString();
             }
@@ -122,11 +116,24 @@ public class SpringAnnotationParser {
     return false;
   }
   
-  private static final String ALIAS_TYPE = "org.springframework.core.annotation.AliasFor";
+  private static final String QUALIFIER_TYPE = "org.springframework.beans.factory.annotation.Qualifier";
   
+  private static final String VALUE_TYPE = "org.springframework.beans.factory.annotation.Value";
+  
+  private static final String COMPONENTSCAN_TYPE = "org.springframework.context.annotation.ComponentScan";
+  
+  private static final String COMPONENTSCANS_TYPE = "org.springframework.context.annotation.ComponentScans";
+  
+  private static final String CONFIGURATION_TYPE = "org.springframework.context.annotation.Configuration";
+  
+  private static final String ALIAS_TYPE = "org.springframework.core.annotation.AliasFor";
+    
   private static final String ALIAS_TARGET_TYPE = "annotation";
 
   private static final String ALIAS_TARGET_FIELD = "attribute";
+  
+  private static final String DEFAULT_ANNOTATION_VALUE = "value";
+
 
   /**
    * Utility method to extract the value of annotation on a class.
@@ -205,8 +212,8 @@ public class SpringAnnotationParser {
     errorIfInvalidClass(te, messager);
     
     model.addDependencyNames(getImportsTypes(te));
-    Configuration configuration = te.getAnnotation(Configuration.class);
-    if (configuration != null) {
+    String[] configurationBeanNames  = getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
+    if (configurationBeanNames != null) {
       for (Element enclosed : te.getEnclosedElements()) {
         handleEnclosedElements(messager, model, enclosed);
       }
@@ -281,17 +288,19 @@ public class SpringAnnotationParser {
           boolean hasValues = false;
           boolean hasQualifiers = false;
           for (VariableElement varelement : execelement.getParameters()) {
-            Qualifier qualifier = varelement.getAnnotation(Qualifier.class);
-            Value value = varelement.getAnnotation(Value.class);
-            if (qualifier == null && value == null) {
+            
+            String[] qualifierNames = getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);
+            String[] valueNames = getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
+            
+            if (qualifierNames == null && valueNames == null) {
               messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
                   "All parameters must have an @Qualifier or a @Value annotation", varelement);
             } 
-            if (qualifier != null) {
-              dependencies.add(new InstanceDependencyModel(qualifier.value(), varelement.asType().toString()));
+            if (qualifierNames != null) {
+              dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));
               hasQualifiers = true;
             }
-            if (value != null) {
+            if (valueNames != null) {
               //ignore values as they will be used to build beans and pass the data on, and
               //are not beans themselves... and cannot be intermingled with @Qualifiers.
               hasValues = true;
@@ -348,8 +357,8 @@ public class SpringAnnotationParser {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "The class must be a top level class, not an internal class", te);
     }
-    if (te.getAnnotation(ComponentScan.class) != null
-        || te.getAnnotation(ComponentScans.class) != null) {
+    if (getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null ||
+        getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
       messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
           "You may not use @ComponentScan(s) on @Verified classes", te);
     }
@@ -372,7 +381,7 @@ public class SpringAnnotationParser {
     for (AnnotationMirror am : element.getAnnotationMirrors()) {
       if ("org.springframework.context.annotation.Import".equals(am.getAnnotationType().toString())) {
         for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
-          if ("value".equals(entry.getKey().getSimpleName().toString())) {
+          if (DEFAULT_ANNOTATION_VALUE.equals(entry.getKey().getSimpleName().toString())) {
             @SuppressWarnings("unchecked")
             List<? extends AnnotationValue> value = (List<? extends AnnotationValue>) entry.getValue().getValue();
             for (AnnotationValue av : value) {

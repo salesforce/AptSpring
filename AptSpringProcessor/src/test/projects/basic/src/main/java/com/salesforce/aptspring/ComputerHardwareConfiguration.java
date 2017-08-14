@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.salesforce.aptspring.Verified;
 import com.salesforce.aptspring.objects.ItemType;
 
 @Verified(expectedBeans = {"valueBeanX"})
