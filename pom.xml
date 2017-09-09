@@ -11,22 +11,28 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
+    <description>
+       This is the parent project of AptSpring.  Despite it's name, 90% of the code in this project is agnostic to spring.
+       The AptSpringProcessor however, will assert the correct of a spring graph at compile time, by demanding that the graph
+       be both type safe and fully enumerable during compilation.
+    </description>
     <modules>
         <module>AptSpringModel</module>
         <module>AptSpringAPI</module>
         <module>AptSpringProcessor</module>
     </modules>
     <properties>
-        <assertj.version>3.3.0</assertj.version>
         <compare.prior.release.api>true</compare.prior.release.api>
         <disable.semantic.versioning>true</disable.semantic.versioning>
         <github.domain>github.com</github.domain>
         <github.owner>SpringContext</github.owner>
         <github.project>AptSpring</github.project>
         <github.site.location>${project.version}/</github.site.location>
-        <junit.version>4.12</junit.version>
-        <slf4j.version>1.7.10</slf4j.version>
-        <spring.version>4.3.9.RELEASE</spring.version>
+        <version.assertj>3.8.0</version.assertj>
+        <version.jgrapht>1.0.1</version.jgrapht>
+        <version.junit>4.12</version.junit>
+        <version.slf4j>1.7.10</version.slf4j>
+        <version.spring.framework>4.3.10.RELEASE</version.spring.framework>
     </properties>
     <licenses>
         <license>

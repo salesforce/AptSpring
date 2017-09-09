@@ -40,7 +40,6 @@ import org.junit.Test;
 import com.google.common.io.Files;
 import com.google.testing.compile.JavaFileObjects;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class ConfigurationTests {
 
   private JavaFileObject definitionClass = JavaFileObjects.forSourceLines(

@@ -44,7 +44,6 @@ import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
  */
 @RunWith(MavenJUnitTestRunner.class)
 @MavenVersions({"3.3.9"})
-@SuppressWarnings({"PMD.SignatureDeclareThrowsException"})
 public class BetterTakariCompileTest {
 
   @Rule
@@ -62,14 +61,16 @@ public class BetterTakariCompileTest {
     maven.forProject(basedir)
         .execute("package") //
         .assertErrorFreeLog();
+    
+    File targetdir = new File(basedir, "target");
 
-    TestResources.assertFilesPresent(basedir,
-        "target/classes/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class");
-    TestResources.assertFilesPresent(basedir,
-        "target/generated-sources/annotations/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.java");
-    TestResources.assertFilesPresent(basedir,
-        "target/test-classes/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.class");
-    TestResources.assertFilesPresent(basedir,
-        "target/generated-test-sources/test-annotations/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.java");
+    TestResources.assertFilesPresent(targetdir,
+        "classes/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class");
+    TestResources.assertFilesPresent(targetdir,
+        "generated-sources/annotations/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.java");
+    TestResources.assertFilesPresent(targetdir,
+        "test-classes/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.class");
+    TestResources.assertFilesPresent(targetdir,
+        "generated-test-sources/test-annotations/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.java");
   }
 }

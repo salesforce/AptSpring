@@ -38,7 +38,6 @@ import org.junit.Test;
 
 import com.google.testing.compile.JavaFileObjects;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class FieldTests {
 
   @Test

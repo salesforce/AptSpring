@@ -67,7 +67,6 @@ import com.google.testing.compile.JavaFileObjects;
 /**
  * Only works on jdt/eclipse processor.
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class BeanTests {
 
   @Test

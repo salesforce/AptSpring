@@ -9,9 +9,14 @@
     <artifactId>AptSpringProcessor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>takari-jar</packaging>
+    <name>${project.artifactId}</name>
+    <description>
+      This project contains the apt processor that implements all the checks enumerated in @Verify.  It is a self contained, and
+      shaded jar.
+    </description>
     <properties>
         <github.site.location>${project.version}/${project.artifactId}</github.site.location>
-        <mavenVersion>3.3.9</mavenVersion>
+        <version.maven>3.3.9</version.maven>
     </properties>
     <dependencies>
         <dependency>
@@ -22,7 +27,7 @@
         <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
-            <version>1.0.0</version>
+            <version>${version.jgrapht}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -33,31 +38,37 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${spring.version}</version>
+            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
+            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
+            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>19.0</version>
+            <version>23.0</version>
             <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                 <groupId>com.google.errorprone</groupId>
+                 <artifactId>error_prone_annotations</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.testing.compile</groupId>
             <artifactId>compile-testing</artifactId>
-            <version>0.10</version>
+            <version>0.11</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -81,7 +92,7 @@
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
-            <version>0.30</version>
+            <version>0.35</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -163,13 +174,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-compat</artifactId>
-            <version>${mavenVersion}</version>
+            <version>${version.maven}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -189,7 +200,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>${mavenVersion}</version>
+            <version>${version.maven}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -209,7 +220,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.3.0</version>
+            <version>${version.assertj}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

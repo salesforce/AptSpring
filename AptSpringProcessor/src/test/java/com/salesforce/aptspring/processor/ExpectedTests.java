@@ -38,7 +38,6 @@ import org.junit.Test;
 
 import com.google.testing.compile.JavaFileObjects;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class ExpectedTests {
   
   private JavaFileObject definitionClassNotExpectingValue5 = JavaFileObjects.forSourceLines(

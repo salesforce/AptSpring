@@ -78,7 +78,6 @@ public class TakariIncrementalCompileTests {
   }
 
   @Test
-  @SuppressWarnings({ "PMD.SignatureDeclareThrowsException" })
   public void testBasic() throws Exception {
 
     // this creates a temporary copy of src/test/projects/basic test project
