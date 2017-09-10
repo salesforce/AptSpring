@@ -1,5 +1,7 @@
 ### Status ###
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&utm_medium=referral&utm_content=salesforce/AptSpring&utm_campaign=badger)
+
 ### About AptSpring ###
 
 This project checks that spring beans in your project adhere to certain properties when you add the ```@Verified``` annotation to your ```@Configuration``` class.
