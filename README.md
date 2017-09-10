@@ -1,5 +1,9 @@
 ### Status ###
 
+[![codebeat badge](https://codebeat.co/badges/a0528ed4-185e-4ac2-90c5-a93477656a7a)](https://codebeat.co/projects/github-com-salesforce-aptspring-master)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salesforce/AptSpring&amp;utm_campaign=Badge_Grade)
+
 ### About AptSpring ###
 
 This project checks that spring beans in your project adhere to certain properties when you add the ```@Verified``` annotation to your ```@Configuration``` class.
