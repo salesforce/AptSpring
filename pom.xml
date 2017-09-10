@@ -25,7 +25,7 @@
         <compare.prior.release.api>true</compare.prior.release.api>
         <disable.semantic.versioning>true</disable.semantic.versioning>
         <github.domain>github.com</github.domain>
-        <github.owner>SpringContext</github.owner>
+        <github.owner>salesforce</github.owner>
         <github.project>AptSpring</github.project>
         <github.site.location>${project.version}/</github.site.location>
         <version.assertj>3.8.0</version.assertj>
