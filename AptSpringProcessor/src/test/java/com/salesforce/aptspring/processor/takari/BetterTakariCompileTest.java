@@ -66,7 +66,7 @@ public class BetterTakariCompileTest {
     
     File targetdir = new File(basedir, "target");
 
-    assertThat(targetdir).exists();
+    assertThat(targetdir).exists().isDirectory();
     
     TestResources.assertFilesPresent(targetdir,
         "classes/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class");
