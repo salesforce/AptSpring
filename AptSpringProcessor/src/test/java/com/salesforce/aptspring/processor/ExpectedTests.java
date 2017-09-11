@@ -133,7 +133,7 @@ public class ExpectedTests {
       "}");
   
   
-  JavaFileObject definitionClass2ExpectingValue5 = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2ExpectingValue5 = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -156,7 +156,7 @@ public class ExpectedTests {
       "}");
 
   
-  JavaFileObject definitionClass2MissingExpected = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2MissingExpected = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",

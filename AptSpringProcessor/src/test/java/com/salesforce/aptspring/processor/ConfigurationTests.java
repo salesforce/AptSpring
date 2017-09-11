@@ -65,7 +65,7 @@ public class ConfigurationTests {
       "",
       "}");
   
-  JavaFileObject definitionClass2CausesDefinitionCycle = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2CausesDefinitionCycle = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -89,7 +89,7 @@ public class ConfigurationTests {
       "}");
 
   
-  JavaFileObject definitionClass2NotVerified = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2NotVerified = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -110,7 +110,7 @@ public class ConfigurationTests {
       "",
       "}");
   
-  JavaFileObject definitionClass2RootConfiguration = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2RootConfiguration = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -126,28 +126,6 @@ public class ConfigurationTests {
       "",
       "    @Bean(name = \"value3\")",
       "    public String value3(@Qualifier(\"value4\") String x) { return \"\";}",
-      "",
-      "    @Bean(name = \"value4\")",
-      "    public String value4() { return \"\";}",
-      "",
-      "}");
-  
-  JavaFileObject definitionClass2MissingExpected = JavaFileObjects.forSourceLines(
-      "test.TestClass2",
-      "package test;",
-      "",
-      "import org.springframework.beans.factory.annotation.Qualifier;",
-      "import org.springframework.context.annotation.Bean;",
-      "import org.springframework.context.annotation.ComponentScan;",
-      "import org.springframework.context.annotation.Configuration;",
-      "import org.springframework.context.annotation.Import;",
-      "",
-      "  @com.salesforce.aptspring.Verified(expectedBeans={\"value5\"})",
-      "  @Configuration",
-      "  public class TestClass2 {",
-      "",
-      "    @Bean(name = \"value3\")",
-      "    public String value3(@Qualifier(\"value5\") String x) { return \"\";}",
       "",
       "    @Bean(name = \"value4\")",
       "    public String value4() { return \"\";}",

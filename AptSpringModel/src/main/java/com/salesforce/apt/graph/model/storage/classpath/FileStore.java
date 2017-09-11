@@ -28,12 +28,13 @@ package com.salesforce.apt.graph.model.storage.classpath;
 
 public enum FileStore {
   STANDARD("forceInjectData");
-  
+
+  private final String location; 
+
   public String getPath() {
     return location;
   }
   
-  private final String location; 
   private FileStore(String location) {
     this.location = location;
   }

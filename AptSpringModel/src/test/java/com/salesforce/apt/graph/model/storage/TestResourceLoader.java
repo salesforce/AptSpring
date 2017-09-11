@@ -41,7 +41,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashSet;
 import java.util.List;
@@ -189,8 +188,6 @@ public class TestResourceLoader {
     return result.toString(StandardCharsets.UTF_8.name());
   }
 
-  Set<PosixFilePermission> allPermissions = PosixFilePermissions.fromString("rwxrwxrwx");
-  
   private void cleanUp(File file) throws IOException {    
     Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
       @Override

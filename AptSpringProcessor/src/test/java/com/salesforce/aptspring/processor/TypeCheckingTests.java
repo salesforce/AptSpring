@@ -88,7 +88,7 @@ public class TypeCheckingTests {
       "",
       "}");
   
-  JavaFileObject definitionClass2ProvidesListString = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2ProvidesListString = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -140,7 +140,7 @@ public class TypeCheckingTests {
       "",
       "}");
   
-  JavaFileObject definitionClass2Complex = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2Complex = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",
@@ -162,7 +162,7 @@ public class TypeCheckingTests {
       "",
       "}");
   
-  JavaFileObject definitionClass2ComplexExpecting = JavaFileObjects.forSourceLines(
+  private JavaFileObject definitionClass2ComplexExpecting = JavaFileObjects.forSourceLines(
       "test.TestClass2",
       "package test;",
       "",

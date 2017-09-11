@@ -35,9 +35,9 @@ import com.salesforce.apt.graph.model.storage.Resource;
 
 public class StringResource implements Resource {
 
-  String location;
+  private String location;
   
-  String data;
+  private String data;
   
   public StringResource(String location, String data) {
     this.location = location;
