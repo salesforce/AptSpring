@@ -70,7 +70,7 @@ public class ErrorModel {
     super();
     this.message = message;
     if (message.isCycle() && !causes.equals(involved)) {
-      throw new RuntimeException("Malformed ErrorModel");
+      throw new IllegalArgumentException("Malformed ErrorModel");
     }
     this.causes = Collections.unmodifiableList(causes);
     this.involved = Collections.unmodifiableList(involved);   

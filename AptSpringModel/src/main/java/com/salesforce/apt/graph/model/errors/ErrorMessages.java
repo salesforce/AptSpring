@@ -140,7 +140,7 @@ public class ErrorMessages {
       List<ErrorType> missing =  new ArrayList<>(Arrays.asList(ErrorType.values()));
       missing.removeAll(errorMessages.keySet());
       if (missing.size() != 0) {
-        throw new RuntimeException("Missing error messages for: " + missing); 
+        throw new IllegalStateException("Missing error messages for: " + missing); 
       }
     }
   }

@@ -26,6 +26,8 @@
  */
 package com.salesforce.apt.graph.processing;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -72,9 +74,9 @@ public class TestReadWrite {
     String output = gson.toJson(model1);
     System.out.println(output);
     DefinitionModel model1FromJson = gson.fromJson(output, DefinitionModel.class);
-    System.out.println(model1FromJson);
-    System.out.println(gson.toJson(model1FromJson));
-    
+    //TODO: assert more, or implement a real equals/hash methods for these classes.
+    assertThat(model1.getExpectedDefinitions().get(0).getIdentity())
+      .isEqualTo(model1FromJson.getExpectedDefinitions().get(0).getIdentity());    
   }
   
 }

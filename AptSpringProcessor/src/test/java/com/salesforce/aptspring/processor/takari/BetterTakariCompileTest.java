@@ -26,6 +26,8 @@
  */
 package com.salesforce.aptspring.processor.takari;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.File;
 
 import org.junit.Rule;
@@ -64,6 +66,8 @@ public class BetterTakariCompileTest {
     
     File targetdir = new File(basedir, "target");
 
+    assertThat(targetdir).exists();
+    
     TestResources.assertFilesPresent(targetdir,
         "classes/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class");
     TestResources.assertFilesPresent(targetdir,
