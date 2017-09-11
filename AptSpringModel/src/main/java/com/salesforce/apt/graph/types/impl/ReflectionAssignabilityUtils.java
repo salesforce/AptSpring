@@ -41,7 +41,7 @@ public class ReflectionAssignabilityUtils implements AssignabilityUtils {
       }
       return Class.forName(target.getDependencies().get(count).getType()).isAssignableFrom(Class.forName(subject.getEntityType()));
     } catch (ClassNotFoundException cne) {
-      throw new RuntimeException("Classes can not be compared " + subject + " and " + target, cne);
+      throw new IllegalArgumentException("Classes can not be compared " + subject + " and " + target, cne);
     }
   }
 

@@ -54,6 +54,7 @@ public abstract class BaseInstanceModel extends AbstractModel {
   }
   
   public String toString() {
-    return identifier + (elementLocation != null && !"".equals(elementLocation) ? " found in " + elementLocation : "");
+    return identifier 
+        + (getElementLocation() != null && !"".equals(getElementLocation()) ? " found in " + getElementLocation() : "");
   }
 }

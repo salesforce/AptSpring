@@ -72,10 +72,8 @@ public class AptParsingContext extends ParsingContext {
     for (ErrorModel error : errors) {
       for (AbstractModel model : error.getInvolved()) {
         if (model.getSourceElement().isPresent()) {
-          if (model.getSourceElement().isPresent()) {
-            messager.printMessage(Kind.ERROR, error.getMessageOn(model, k -> getMessageFormats().getMessage(k)),
-                getCorrespondingElement(elementUtils, model.getSourceElement().get()));
-          }
+          messager.printMessage(Kind.ERROR, error.getMessageOn(model, k -> getMessageFormats().getMessage(k)),
+              getCorrespondingElement(elementUtils, model.getSourceElement().get()));
         } 
       }
     }

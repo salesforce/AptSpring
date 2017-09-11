@@ -69,10 +69,8 @@ public class ErrorModel {
   public ErrorModel(ErrorType message, List<? extends AbstractModel> causes, List<? extends AbstractModel> involved) {
     super();
     this.message = message;
-    if (message.isCycle()) {
-      if (!causes.equals(involved)) {
-        throw new RuntimeException("Malformed ErrorModel");
-      }
+    if (message.isCycle() && !causes.equals(involved)) {
+      throw new RuntimeException("Malformed ErrorModel");
     }
     this.causes = Collections.unmodifiableList(causes);
     this.involved = Collections.unmodifiableList(involved);   

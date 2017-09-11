@@ -154,7 +154,7 @@ public class GsonDefinitionModelStore implements DefinitionModelStore {
     try {
       return MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException nsae) {
-      throw new RuntimeException("Your jvm doesn't implement the default MessageDigesters... namely sha256.  Fail.");
+      throw new IllegalStateException("Your jvm doesn't implement the default MessageDigesters... namely sha256.  Fail.");
     }
   }
 }

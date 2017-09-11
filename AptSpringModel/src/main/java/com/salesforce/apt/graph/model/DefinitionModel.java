@@ -60,21 +60,21 @@ public class DefinitionModel extends AbstractModel {
 
   private void failIfLockRead() {
     if (isLockedSourceRead()) {
-      throw new RuntimeException("Attempting to modify 'source read' content after source read is locked");
+      throw new IllegalStateException("Attempting to modify 'source read' content after source read is locked");
     }
   }
   
   private void failIfDefintionsMerged() {
     lockSourceRead();
     if (isLockedDefintionsMerged()) {
-      throw new RuntimeException("Attempting to modify 'definition merge' content after definition merge is locked");
+      throw new IllegalStateException("Attempting to modify 'definition merge' content after definition merge is locked");
     }
   }
   
   private void failIfLockedAnalyzed() {
     lockDefintionsMerged();
     if (isLockedAnalyzed()) {
-      throw new RuntimeException("Attempting to modify analyzed structure after structure has been computed");
+      throw new IllegalStateException("Attempting to modify analyzed structure after structure has been computed");
     }
   }
   
@@ -196,7 +196,7 @@ public class DefinitionModel extends AbstractModel {
    */
   public String getIdentity() {
     //wont lockSourceRead(); as identity is read while attaching definitions.
-    return elementLocation;
+    return getElementLocation();
   }
 
   /**
@@ -204,7 +204,7 @@ public class DefinitionModel extends AbstractModel {
    */
   public String toString() {
     lockSourceRead();
-    return elementLocation;
+    return getElementLocation();
   }
 
   

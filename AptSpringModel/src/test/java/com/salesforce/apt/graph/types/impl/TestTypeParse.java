@@ -85,7 +85,7 @@ public class TestTypeParse {
   public void testEquality() {
     String name = "java.util.Map<java.lang.String,java.util.List<java.lang.Integer>>";
     ParseType complex = ParseType.parse(name);
-    assertThat(complex.equals(null)).isFalse();
+    assertThat(complex).isNotNull();
     assertThat(complex.equals(complex)).isTrue();
     assertThat(complex.equals(new ArrayList<>())).isFalse();
     ParseType nullType = new ParseType(null);

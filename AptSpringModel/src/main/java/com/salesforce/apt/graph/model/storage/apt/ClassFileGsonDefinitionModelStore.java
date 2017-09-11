@@ -64,7 +64,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
     TypeSpec classSpec = TypeSpec.classBuilder(className)
         .addModifiers(Modifier.PUBLIC)
         .addField(fieldSpec)
-        .addAnnotation(AnnotationSpec.builder(Generated.class).addMember("value", "$S", "ForceInjectSpringApt").build())
+        .addAnnotation(AnnotationSpec.builder(Generated.class).addMember("value", "$S", "SpringApt").build())
         .build();
     
     JavaFile javaFile = JavaFile.builder(packageName, classSpec)
@@ -80,7 +80,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
       model.setSha256(bytesToHex(getSha256Digest().digest(data.getBytes(StandardCharsets.UTF_8))));
       return true;
     } catch (IOException ex) {
-      throw new RuntimeException(ex);
+      throw new IllegalStateException("Could not store model to class", ex);
     }
   }
 }

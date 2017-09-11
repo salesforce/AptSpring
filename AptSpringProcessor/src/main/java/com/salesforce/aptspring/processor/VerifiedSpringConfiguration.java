@@ -52,12 +52,6 @@ import com.salesforce.aptspring.Verified;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class VerifiedSpringConfiguration extends AbstractProcessor {
 
-  private Types typeUtils;
-
-  private Elements elementUtils;
-  
-  private Filer filer;
-  
   private Messager messager;
   
   private AptParsingContext definitionAggregator;
@@ -65,9 +59,9 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
   @Override
   public synchronized void init(ProcessingEnvironment env) {
     super.init(env);
-    typeUtils = env.getTypeUtils();
-    elementUtils = env.getElementUtils();
-    filer = env.getFiler();
+    Types typeUtils = env.getTypeUtils();
+    Elements elementUtils = env.getElementUtils();
+    Filer filer = env.getFiler();
     messager = env.getMessager();
     ErrorMessages errorMessages = ErrorMessages.builder()
         .cycleInDefinitionSources("Cycle in @Configuration class @Imports {0}")
@@ -114,12 +108,8 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
 
   @Override
   public Set<String> getSupportedAnnotationTypes() {
-    @SuppressWarnings("serial")
-    Set<String> output = new HashSet<String>() {
-      {
-        add(Verified.class.getName());
-      }
-    };
+    Set<String> output = new HashSet<>();
+    output.add(Verified.class.getName());
     return output;
   }
 }

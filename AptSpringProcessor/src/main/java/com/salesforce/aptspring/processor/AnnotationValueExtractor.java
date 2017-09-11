@@ -142,10 +142,9 @@ public class AnnotationValueExtractor {
               return null;
             }
           }
-          if (ALIAS_TARGET_FIELD.equals(fieldName)) {
-            if (ev.getValue() != null && ev.getValue().getValue() != null) {
-              output.targetField = ev.getValue().getValue().toString();
-            }
+          if (ALIAS_TARGET_FIELD.equals(fieldName) 
+              && ev.getValue() != null && ev.getValue().getValue() != null) {
+            output.targetField = ev.getValue().getValue().toString();
           }
           if (DEFAULT_ANNOTATION_VALUE.equals(fieldName)) {
             if (ev.getValue() != null && ev.getValue().getValue() != null) {
@@ -167,13 +166,12 @@ public class AnnotationValueExtractor {
     if (aliasData == null) {
       return false;
     }
-    //types match
-    if (targetType.equals(aliasData.targetAnnotation)
-        || (aliasData.targetAnnotation == null && targetType.equals(currentAnnotation))) {
-      //fields match
-      if (targetField.equals(aliasData.targetField)) {
-        return true;
-      }
+    if (//types match
+        (targetType.equals(aliasData.targetAnnotation)
+        || (aliasData.targetAnnotation == null && targetType.equals(currentAnnotation)))
+        && //fields match
+        targetField.equals(aliasData.targetField)) {
+      return true;
     }
     return false;
   }

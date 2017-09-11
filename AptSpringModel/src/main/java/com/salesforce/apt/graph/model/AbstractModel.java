@@ -33,15 +33,16 @@ import javax.lang.model.element.ElementKind;
 
 public abstract class AbstractModel {
 
+  private final String elementLocation;
+  
+  private transient Optional<Element> sourceElement;
+  
   public Optional<Element> getSourceElement() {
     if (sourceElement == null) {
       sourceElement = Optional.empty();
     }
     return sourceElement;
   }
-
-  final String elementLocation;
-  transient Optional<Element> sourceElement;
 
   public AbstractModel(String elementLocation) {
     super();

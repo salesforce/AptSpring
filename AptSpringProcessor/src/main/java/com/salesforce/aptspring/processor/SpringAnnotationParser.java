@@ -198,7 +198,9 @@ public class SpringAnnotationParser {
               "All methods on @Configuration must have @Bean annotation", execelement);
         }
         break;
-      case FIELD: 
+      case FIELD:
+        errorNonLiteralStaticFields((VariableElement) enclosed, messager);
+        break;
       case ENUM_CONSTANT: 
         errorNonLiteralStaticFields((VariableElement) enclosed, messager);
         break;
