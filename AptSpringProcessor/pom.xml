@@ -8,7 +8,7 @@
     </parent>
     <artifactId>AptSpringProcessor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>takari-jar</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>
       This project contains the apt processor that implements all the checks enumerated in @Verify.  It is a self contained, and

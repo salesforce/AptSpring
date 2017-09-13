@@ -8,7 +8,7 @@
     </parent>
     <artifactId>AptSpringModel</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>takari-jar</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>
       This is the spring agnostic 'meat' of the project.  It models and analyzes a graph of declarations of object (bean) 
