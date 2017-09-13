@@ -570,7 +570,7 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Scan Information (<a href="#" title="Click to toggle display" onclick="return toggleDisplay(this, '.scaninfo', 'show all', 'show less');  return false;">show all</a>):<br/>
                     <ul class="indent">
                         <li><i>dependency-check version</i>: 2.1.1</li>
-                        <li><i>Report Generated On</i>: Sep 10, 2017 at 21:46:36 +03:00</li>
+                        <li><i>Report Generated On</i>: Sep 13, 2017 at 19:54:18 +03:00</li>
                         <li><i>Dependencies Scanned</i>:&nbsp;6 (6 unique)</li>
                         <li><i>Vulnerable Dependencies</i>:&nbsp;<span id="vulnerableCount">0</span></li>
                         <li><i>Vulnerabilities Found</i>:&nbsp;0</li>
@@ -592,9 +592,9 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                                                 <li class="scaninfo hidden"><i>NVD CVE 2015</i>: 09/09/2017 10:07:57</li>
                                                 <li class="scaninfo hidden"><i>NVD CVE 2016</i>: 09/09/2017 10:05:15</li>
                                                 <li class="scaninfo hidden"><i>NVD CVE 2017</i>: 09/09/2017 10:02:05</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE Checked</i>: 10/09/2017 21:41:04</li>
-                                                <li class="scaninfo hidden"><i>NVD CVE Modified</i>: 10/09/2017 21:01:48</li>
-                                                <li class="scaninfo hidden"><i>VersionCheckOn</i>: 1502680153336</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE Checked</i>: 13/09/2017 17:22:41</li>
+                                                <li class="scaninfo hidden"><i>NVD CVE Modified</i>: 13/09/2017 17:01:45</li>
+                                                <li class="scaninfo hidden"><i>VersionCheckOn</i>: 1505312561821</li>
                                             </ul><br/>
                 Display:&nbsp;<a href="#" title="Click to toggle display" onclick="return toggleDisplay(this, '.notvulnerable', 'Showing Vulnerable Dependencies (click to show all)', 'Showing All Dependencies (click to show less)'); return false;">Showing Vulnerable Dependencies (click to show all)</a><br/><br/>
                                 <table id="summaryTable" class="lined">
@@ -622,29 +622,31 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                     </tr>
                                         <tr class="notvulnerable">
                         <td data-sort-value="APTSPRINGAPI-1.0.0-SNAPSHOT.JAR"><a href="#l2_423f9e01e9d21fe81eef20413ab39c5bb4f88fba">AptSpringAPI-1.0.0-SNAPSHOT.jar</a></td>
-                                                                                                                            <td data-sort-value="">
-                                                                                                                                                                                                                        </td>
+                                                                                                                                                                                                            <td data-sort-value="cpe:/a:id:id-software:1.0.0">
+                                                                                                                                                                                                                                                                                                                                cpe:/a:id:id-software:1.0.0
+                                                                                                                                                                            </td>
                                                 <td data-sort-value="com.salesforce.aptspring:aptspringapi:1.0.0-snapshot">                            com.salesforce.aptspring:AptSpringAPI:1.0.0-SNAPSHOT
                                                 </td>
                                                                         <td data-sort-value="-10">
                                                     &nbsp;
                                                 </td>
                         <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>12</td>
+                        <td data-sort-value="3">LOW</td>
+                        <td>14</td>
                     </tr>
                                         <tr class="notvulnerable">
-                        <td data-sort-value="APTSPRINGMODEL-1.0.0-SNAPSHOT.JAR"><a href="#l3_89c86ad17ad76537ea01e65f659cf946bb1e9734">AptSpringModel-1.0.0-SNAPSHOT.jar</a></td>
-                                                                                                                            <td data-sort-value="">
-                                                                                                                                                                                                                        </td>
+                        <td data-sort-value="APTSPRINGMODEL-1.0.0-SNAPSHOT.JAR"><a href="#l3_4de30d81932a7e8b4395ec07d2fe63f4779c647e">AptSpringModel-1.0.0-SNAPSHOT.jar</a></td>
+                                                                                                                                                                                                            <td data-sort-value="cpe:/a:id:id-software:1.0.0">
+                                                                                                                                                                                                                                                                                                                                cpe:/a:id:id-software:1.0.0
+                                                                                                                                                                            </td>
                                                 <td data-sort-value="com.salesforce.aptspring:aptspringmodel:1.0.0-snapshot">                            com.salesforce.aptspring:AptSpringModel:1.0.0-SNAPSHOT
                                                 </td>
                                                                         <td data-sort-value="-10">
                                                     &nbsp;
                                                 </td>
                         <td>0</td>
-                        <td data-sort-value="0"></td>
-                        <td>12</td>
+                        <td data-sort-value="3">LOW</td>
+                        <td>14</td>
                     </tr>
                                         <tr class="notvulnerable">
                         <td data-sort-value="JAVAPOET-1.9.0.JAR"><a href="#l4_00ecc5cf9c221d55481163e773b24336db149e51">javapoet-1.9.0.jar</a></td>
@@ -734,6 +736,10 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                                     </div>
                                     <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l2_423f9e01e9d21fe81eef20413ab39c5bb4f88fba"></a>AptSpringAPI-1.0.0-SNAPSHOT.jar</h3>
                     <div class="subsectioncontent notvulnerable">
+                                                    <p><b>Description:</b>&nbsp;
+      This project contains one class, a marking annotation, @Verify, that indicates that the AptSpringProcessor should
+      verify a spring graph.   All checks are fully enumerated in @Verify's javadoc.
+    <br/></p>
                                                 <p>
                                                     <b>File&nbsp;Path:</b>&nbsp;/Users/rex.hoffman/.m2/repository/com/salesforce/aptspring/AptSpringAPI/1.0.0-SNAPSHOT/AptSpringAPI-1.0.0-SNAPSHOT.jar<br/>
                             <b>MD5:</b>&nbsp;1c5c17325e6a27a2a456bc32b10031ab<br/>
@@ -752,28 +758,39 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                                                                     <tr><td>Manifest</td><td>Implementation-Version</td><td>1.0.0-SNAPSHOT</td></tr>
                                                                     <tr><td>Manifest</td><td>specification-title</td><td>AptSpringAPI</td></tr>
                                                                     <tr><td>pom</td><td>artifactid</td><td>AptSpringAPI</td></tr>
+                                                                    <tr><td>pom</td><td>description</td><td> This project contains one class, a marking annotation, @Verify, that indicates that the AptSpringProcessor should verify a spring graph. All checks are fully enumerated in @Verify's javadoc. </td></tr>
                                                                     <tr><td>pom</td><td>groupid</td><td>com.salesforce.aptspring</td></tr>
                                                                     <tr><td>pom</td><td>groupid</td><td>salesforce.aptspring</td></tr>
+                                                                    <tr><td>pom</td><td>name</td><td>${project.artifactId}</td></tr>
                                                                     <tr><td>pom</td><td>parent-artifactid</td><td>AptSpringParent</td></tr>
                                                                     <tr><td>pom</td><td>parent-groupid</td><td>com.salesforce.aptspring</td></tr>
                                                                     <tr><td>pom</td><td>version</td><td>1.0.0-SNAPSHOT</td></tr>
                                                             </table>
                         </div>
-                                                                                                                            <h4 id="header4" class="subsectionheader white">Identifiers</h4>
+                                                                                                                                                                                                            <h4 id="header4" class="subsectionheader white">Identifiers</h4>
                                                 <div id="content4" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                                                                                                                                                                    <li><b>maven:</b>&nbsp;com.salesforce.aptspring:AptSpringAPI:1.0.0-SNAPSHOT
+                                                                                                                                                                                                                                                                                                                <li><b>maven:</b>&nbsp;com.salesforce.aptspring:AptSpringAPI:1.0.0-SNAPSHOT
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGH
                                                                                                                                 </li>
+                                                                                                <li><b>cpe:</b>&nbsp;cpe:/a:id:id-software:1.0.0
+                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:LOW
+                                                                                                                                        &nbsp;&nbsp;<button class="copybutton" title="Generate Suppression XML for this CPE for this file" onclick="copyText('AptSpringAPI-1.0.0-SNAPSHOT.jar', '423f9e01e9d21fe81eef20413ab39c5bb4f88fba', 'com.salesforce.aptspring:AptSpringAPI:1.0.0-SNAPSHOT', 'cpe', 'cpe:/a:id:id-software:1.0.0')">suppress</button>
+                                                                                                </li>
                                                         </ul>
                                                 </div>
                                     </div>
-                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l3_89c86ad17ad76537ea01e65f659cf946bb1e9734"></a>AptSpringModel-1.0.0-SNAPSHOT.jar</h3>
+                                    <h3 class="subsectionheader standardsubsection notvulnerable"><a name="l3_4de30d81932a7e8b4395ec07d2fe63f4779c647e"></a>AptSpringModel-1.0.0-SNAPSHOT.jar</h3>
                     <div class="subsectioncontent notvulnerable">
+                                                    <p><b>Description:</b>&nbsp;
+      This is the spring agnostic 'meat' of the project.  It models and analyzes a graph of declarations of object (bean) 
+      definitions, as well as the graph of the objects (beans) themselves.
+      This project should be reusable in CDI or any other DI/IoC annotation based system.
+    <br/></p>
                                                 <p>
                                                     <b>File&nbsp;Path:</b>&nbsp;/Users/rex.hoffman/.m2/repository/com/salesforce/aptspring/AptSpringModel/1.0.0-SNAPSHOT/AptSpringModel-1.0.0-SNAPSHOT.jar<br/>
-                            <b>MD5:</b>&nbsp;8baa7dbd72e250e194f71b1a5811f571<br/>
-                            <b>SHA1:</b>&nbsp;89c86ad17ad76537ea01e65f659cf946bb1e9734
+                            <b>MD5:</b>&nbsp;81d5fbcbbb9394626e308f95270fff9c<br/>
+                            <b>SHA1:</b>&nbsp;4de30d81932a7e8b4395ec07d2fe63f4779c647e
                                                             <br/><b>Referenced In Project/Scope:</b>
                                                                     AptSpringProcessor:compile
                                                                                                                 </p>
@@ -788,19 +805,25 @@ Getting Help: <a href="https://groups.google.com/forum/#!forum/dependency-check"
                                                                     <tr><td>Manifest</td><td>Implementation-Version</td><td>1.0.0-SNAPSHOT</td></tr>
                                                                     <tr><td>Manifest</td><td>specification-title</td><td>AptSpringModel</td></tr>
                                                                     <tr><td>pom</td><td>artifactid</td><td>AptSpringModel</td></tr>
+                                                                    <tr><td>pom</td><td>description</td><td> This is the spring agnostic 'meat' of the project. It models and analyzes a graph of declarations of object (bean) definitions, as well as the graph of the objects (beans) themselves. This project should be reusable in CDI or any other DI/IoC annotation based system. </td></tr>
                                                                     <tr><td>pom</td><td>groupid</td><td>com.salesforce.aptspring</td></tr>
                                                                     <tr><td>pom</td><td>groupid</td><td>salesforce.aptspring</td></tr>
+                                                                    <tr><td>pom</td><td>name</td><td>${project.artifactId}</td></tr>
                                                                     <tr><td>pom</td><td>parent-artifactid</td><td>AptSpringParent</td></tr>
                                                                     <tr><td>pom</td><td>parent-groupid</td><td>com.salesforce.aptspring</td></tr>
                                                                     <tr><td>pom</td><td>version</td><td>1.0.0-SNAPSHOT</td></tr>
                                                             </table>
                         </div>
-                                                                                                                            <h4 id="header6" class="subsectionheader white">Identifiers</h4>
+                                                                                                                                                                                                            <h4 id="header6" class="subsectionheader white">Identifiers</h4>
                                                 <div id="content6" class="subsectioncontent standardsubsection">
                                                      <ul>
-                                                                                                                                                                                                                                                    <li><b>maven:</b>&nbsp;com.salesforce.aptspring:AptSpringModel:1.0.0-SNAPSHOT
+                                                                                                                                                                                                                                                                                                                <li><b>maven:</b>&nbsp;com.salesforce.aptspring:AptSpringModel:1.0.0-SNAPSHOT
                                                                                                     &nbsp;&nbsp;<i>Confidence</i>:HIGH
                                                                                                                                 </li>
+                                                                                                <li><b>cpe:</b>&nbsp;cpe:/a:id:id-software:1.0.0
+                                                                                                    &nbsp;&nbsp;<i>Confidence</i>:LOW
+                                                                                                                                        &nbsp;&nbsp;<button class="copybutton" title="Generate Suppression XML for this CPE for this file" onclick="copyText('AptSpringModel-1.0.0-SNAPSHOT.jar', '4de30d81932a7e8b4395ec07d2fe63f4779c647e', 'com.salesforce.aptspring:AptSpringModel:1.0.0-SNAPSHOT', 'cpe', 'cpe:/a:id:id-software:1.0.0')">suppress</button>
+                                                                                                </li>
                                                         </ul>
                                                 </div>
                                     </div>
