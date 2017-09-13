@@ -148,7 +148,7 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>       List&lt;ErrorType&gt; missing =  <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(Arrays.asList(ErrorType.values()));
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>       missing.removeAll(errorMessages.keySet());
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>       <strong class="jxr_keyword">if</strong> (missing.size() != 0) {
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Missing error messages for: "</span> + missing); 
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Missing error messages for: "</span> + missing); 
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>       }
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>   }

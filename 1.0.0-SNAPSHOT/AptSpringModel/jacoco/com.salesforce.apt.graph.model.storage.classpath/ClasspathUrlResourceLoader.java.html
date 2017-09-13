@@ -75,7 +75,7 @@ public class ClasspathUrlResourceLoader implements ResourceLoader {
 <span class="fc" id="L75">        output.add(new UrlResource(resources.nextElement()));</span>
       }
 <span class="pc" id="L77">    } catch (IOException ioe) {</span>
-<span class="nc" id="L78">      throw new RuntimeException(&quot;Could not read classpath while looking for ForceInject models of name: &quot; + name, ioe);</span>
+<span class="nc" id="L78">      throw new IllegalStateException(&quot;Could not read classpath while looking for ForceInject models of name: &quot; + name, ioe);</span>
     }
 <span class="fc" id="L80">    return output;</span>
   }

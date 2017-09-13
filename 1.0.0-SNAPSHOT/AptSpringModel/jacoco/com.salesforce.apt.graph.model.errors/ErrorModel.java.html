@@ -69,14 +69,12 @@ public class ErrorModel {
   public ErrorModel(ErrorType message, List&lt;? extends AbstractModel&gt; causes, List&lt;? extends AbstractModel&gt; involved) {
 <span class="fc" id="L70">    super();</span>
 <span class="fc" id="L71">    this.message = message;</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">    if (message.isCycle()) {</span>
-<span class="fc bfc" id="L73" title="All 2 branches covered.">      if (!causes.equals(involved)) {</span>
-<span class="fc" id="L74">        throw new RuntimeException(&quot;Malformed ErrorModel&quot;);</span>
-      }
+<span class="fc bfc" id="L72" title="All 4 branches covered.">    if (message.isCycle() &amp;&amp; !causes.equals(involved)) {</span>
+<span class="fc" id="L73">      throw new IllegalArgumentException(&quot;Malformed ErrorModel&quot;);</span>
     }
-<span class="fc" id="L77">    this.causes = Collections.unmodifiableList(causes);</span>
-<span class="fc" id="L78">    this.involved = Collections.unmodifiableList(involved);   </span>
-<span class="fc" id="L79">  }</span>
+<span class="fc" id="L75">    this.causes = Collections.unmodifiableList(causes);</span>
+<span class="fc" id="L76">    this.involved = Collections.unmodifiableList(involved);   </span>
+<span class="fc" id="L77">  }</span>
   
   /**
    * Returns a contextualized error message for the error, from the model's perspective.
@@ -85,31 +83,31 @@ public class ErrorModel {
    * @return an error message from the context of the failed model member.
    */
   public String getMessageOn(AbstractModel on, Function&lt;ErrorType, String&gt; converter) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (!isCyclic()) {</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">      if (getCauses().size() == 1) {</span>
-<span class="nc" id="L90">        return MessageFormat.format(converter.apply(getMessage()), getCauses().get(0));</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    if (!isCyclic()) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">      if (getCauses().size() == 1) {</span>
+<span class="nc" id="L88">        return MessageFormat.format(converter.apply(getMessage()), getCauses().get(0));</span>
       } else {
-<span class="nc" id="L92">        return MessageFormat.format(converter.apply(getMessage()), </span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">            getCauses().stream().filter(m -&gt; !m.equals(on)).map(m -&gt; m.toString()).collect(Collectors.joining(&quot;, &quot;))); </span>
+<span class="nc" id="L90">        return MessageFormat.format(converter.apply(getMessage()), </span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">            getCauses().stream().filter(m -&gt; !m.equals(on)).map(m -&gt; m.toString()).collect(Collectors.joining(&quot;, &quot;))); </span>
       }
     }
-<span class="nc" id="L96">    StringBuilder builder = new StringBuilder();</span>
-<span class="nc" id="L97">    int index = getInvolved().indexOf(on);</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">    if (index != -1) {</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">      for (int i = index; i &lt; getInvolved().size(); i++) {</span>
-<span class="nc" id="L100">        builder.append(getInvolved().get(i).toString());</span>
-<span class="nc bnc" id="L101" title="All 4 branches missed.">        if (i + 1 &lt; getInvolved().size() || index != 0) {</span>
-<span class="nc" id="L102">          builder.append(&quot; -&gt; &quot;);</span>
+<span class="nc" id="L94">    StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L95">    int index = getInvolved().indexOf(on);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">    if (index != -1) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">      for (int i = index; i &lt; getInvolved().size(); i++) {</span>
+<span class="nc" id="L98">        builder.append(getInvolved().get(i).toString());</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">        if (i + 1 &lt; getInvolved().size() || index != 0) {</span>
+<span class="nc" id="L100">          builder.append(&quot; -&gt; &quot;);</span>
         }
       }
-<span class="nc bnc" id="L105" title="All 2 branches missed.">      for (int i = 0; i &lt; index; i++) {</span>
-<span class="nc" id="L106">        builder.append(getInvolved().get(i).toString());</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (i + 1 &lt; index) {</span>
-<span class="nc" id="L108">          builder.append(&quot; -&gt; &quot;);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">      for (int i = 0; i &lt; index; i++) {</span>
+<span class="nc" id="L104">        builder.append(getInvolved().get(i).toString());</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (i + 1 &lt; index) {</span>
+<span class="nc" id="L106">          builder.append(&quot; -&gt; &quot;);</span>
         }
       }
     }
-<span class="nc" id="L112">    return MessageFormat.format(converter.apply(getMessage()), builder.toString());</span>
+<span class="nc" id="L110">    return MessageFormat.format(converter.apply(getMessage()), builder.toString());</span>
   }
 
 }

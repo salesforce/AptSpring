@@ -72,62 +72,60 @@ public class AptParsingContext extends ParsingContext {
 <span class="nc bnc" id="L72" title="All 2 branches missed.">    for (ErrorModel error : errors) {</span>
 <span class="nc bnc" id="L73" title="All 2 branches missed.">      for (AbstractModel model : error.getInvolved()) {</span>
 <span class="nc bnc" id="L74" title="All 2 branches missed.">        if (model.getSourceElement().isPresent()) {</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">          if (model.getSourceElement().isPresent()) {</span>
-<span class="nc" id="L76">            messager.printMessage(Kind.ERROR, error.getMessageOn(model, k -&gt; getMessageFormats().getMessage(k)),</span>
-<span class="nc" id="L77">                getCorrespondingElement(elementUtils, model.getSourceElement().get()));</span>
-          }
+<span class="nc" id="L75">          messager.printMessage(Kind.ERROR, error.getMessageOn(model, k -&gt; getMessageFormats().getMessage(k)),</span>
+<span class="nc" id="L76">              getCorrespondingElement(elementUtils, model.getSourceElement().get()));</span>
         } 
       }
     }
-<span class="nc" id="L82">  }</span>
+<span class="nc" id="L80">  }</span>
   
   
   public Element getCorrespondingElement(Elements elementUtils, Element element) {
-<span class="nc" id="L86">    Current current = new Current(elementUtils);</span>
-<span class="nc" id="L87">    return current.visit(element);</span>
+<span class="nc" id="L84">    Current current = new Current(elementUtils);</span>
+<span class="nc" id="L85">    return current.visit(element);</span>
   }
   
   private static class Current extends SimpleElementVisitor8&lt;Element, Void&gt; {
 
     private final Elements elementUtils;
     
-<span class="nc" id="L94">    public Current(Elements elementUtils) {</span>
-<span class="nc" id="L95">      this.elementUtils = elementUtils;</span>
-<span class="nc" id="L96">    }</span>
+<span class="nc" id="L92">    public Current(Elements elementUtils) {</span>
+<span class="nc" id="L93">      this.elementUtils = elementUtils;</span>
+<span class="nc" id="L94">    }</span>
     
     @Override
     public Element visitVariable(VariableElement e, Void p) {
-<span class="nc" id="L100">      return super.visitVariable(e, p);</span>
+<span class="nc" id="L98">      return super.visitVariable(e, p);</span>
     }
 
     @Override
     protected Element defaultAction(Element e, Void p) {
-<span class="nc" id="L105">      return super.defaultAction(e, p);</span>
+<span class="nc" id="L103">      return super.defaultAction(e, p);</span>
     }
 
     @Override
     public Element visitType(TypeElement e, Void p) {
-<span class="nc" id="L110">      return elementUtils.getTypeElement(e.getQualifiedName());</span>
+<span class="nc" id="L108">      return elementUtils.getTypeElement(e.getQualifiedName());</span>
     }
 
     @Override
     public Element visitExecutable(ExecutableElement e, Void p) {
-<span class="nc" id="L115">      TypeElement type = (TypeElement) visitType((TypeElement)e.getEnclosingElement(), null);</span>
+<span class="nc" id="L113">      TypeElement type = (TypeElement) visitType((TypeElement)e.getEnclosingElement(), null);</span>
       /*
        * Hacky but works for now.  TODO:  build a proper mechanism to convert an executable element to 
        * the current RoundEnv's element representation of the the initial element that was read.
        */
-<span class="nc bnc" id="L120" title="All 2 branches missed.">      for (Element element : type.getEnclosedElements()) {</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (element.toString().equals(e.toString())) {  </span>
-<span class="nc" id="L122">          return element;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">      for (Element element : type.getEnclosedElements()) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (element.toString().equals(e.toString())) {  </span>
+<span class="nc" id="L120">          return element;</span>
         }
       }
-<span class="nc" id="L125">      return null;</span>
+<span class="nc" id="L123">      return null;</span>
     }
 
     @Override
     public Element visitUnknown(Element e, Void p) {
-<span class="nc" id="L130">      return super.visitUnknown(e, p);</span>
+<span class="nc" id="L128">      return super.visitUnknown(e, p);</span>
     }
     
   }

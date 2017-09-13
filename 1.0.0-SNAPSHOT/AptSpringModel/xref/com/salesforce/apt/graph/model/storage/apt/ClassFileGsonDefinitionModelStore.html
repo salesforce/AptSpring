@@ -72,7 +72,7 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      TypeSpec classSpec = TypeSpec.classBuilder(className)
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          .addModifiers(Modifier.PUBLIC)
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          .addField(fieldSpec)
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          .addAnnotation(AnnotationSpec.builder(Generated.<strong class="jxr_keyword">class</strong>).addMember(<span class="jxr_string">"value"</span>, <span class="jxr_string">"$S"</span>, <span class="jxr_string">"ForceInjectSpringApt"</span>).build())
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          .addAnnotation(AnnotationSpec.builder(Generated.<strong class="jxr_keyword">class</strong>).addMember(<span class="jxr_string">"value"</span>, <span class="jxr_string">"$S"</span>, <span class="jxr_string">"SpringApt"</span>).build())
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          .build();
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      JavaFile javaFile = JavaFile.builder(packageName, classSpec)
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>        model.setSha256(bytesToHex(getSha256Digest().digest(data.getBytes(StandardCharsets.UTF_8))));
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      } <strong class="jxr_keyword">catch</strong> (IOException ex) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(ex);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Could not store model to class"</span>, ex);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>    }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  }

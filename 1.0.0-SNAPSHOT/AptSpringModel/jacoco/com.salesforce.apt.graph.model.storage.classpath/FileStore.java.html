@@ -28,14 +28,15 @@ package com.salesforce.apt.graph.model.storage.classpath;
 
 <span class="fc" id="L29">public enum FileStore {</span>
 <span class="fc" id="L30">  STANDARD(&quot;forceInjectData&quot;);</span>
-  
+
+  private final String location; 
+
   public String getPath() {
-<span class="fc" id="L33">    return location;</span>
+<span class="fc" id="L35">    return location;</span>
   }
   
-  private final String location; 
-<span class="fc" id="L37">  private FileStore(String location) {</span>
-<span class="fc" id="L38">    this.location = location;</span>
-<span class="fc" id="L39">  }</span>
+<span class="fc" id="L38">  private FileStore(String location) {</span>
+<span class="fc" id="L39">    this.location = location;</span>
+<span class="fc" id="L40">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

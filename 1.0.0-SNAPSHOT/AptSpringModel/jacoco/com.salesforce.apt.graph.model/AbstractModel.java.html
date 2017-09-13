@@ -33,41 +33,42 @@ import javax.lang.model.element.ElementKind;
 
 public abstract class AbstractModel {
 
+  private final String elementLocation;
+  
+  private transient Optional&lt;Element&gt; sourceElement;
+  
   public Optional&lt;Element&gt; getSourceElement() {
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">    if (sourceElement == null) {</span>
-<span class="nc" id="L38">      sourceElement = Optional.empty();</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    if (sourceElement == null) {</span>
+<span class="nc" id="L42">      sourceElement = Optional.empty();</span>
     }
-<span class="fc" id="L40">    return sourceElement;</span>
+<span class="fc" id="L44">    return sourceElement;</span>
   }
 
-  final String elementLocation;
-  transient Optional&lt;Element&gt; sourceElement;
-
   public AbstractModel(String elementLocation) {
-<span class="fc" id="L47">    super();</span>
-<span class="fc" id="L48">    this.elementLocation = elementLocation;</span>
-<span class="fc" id="L49">    this.sourceElement = Optional.empty();</span>
-<span class="fc" id="L50">  }</span>
+<span class="fc" id="L48">    super();</span>
+<span class="fc" id="L49">    this.elementLocation = elementLocation;</span>
+<span class="fc" id="L50">    this.sourceElement = Optional.empty();</span>
+<span class="fc" id="L51">  }</span>
 
   public AbstractModel(Element sourceElement) {
-<span class="nc" id="L53">    super();</span>
-<span class="nc" id="L54">    this.elementLocation = getElementLocation(sourceElement);</span>
-<span class="nc" id="L55">    this.sourceElement = Optional.of(sourceElement);</span>
-<span class="nc" id="L56">  }</span>
+<span class="nc" id="L54">    super();</span>
+<span class="nc" id="L55">    this.elementLocation = getElementLocation(sourceElement);</span>
+<span class="nc" id="L56">    this.sourceElement = Optional.of(sourceElement);</span>
+<span class="nc" id="L57">  }</span>
 
   private String getElementLocation(Element element) {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (element.getKind() == ElementKind.CLASS) {</span>
-<span class="nc" id="L60">      return element.toString();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (element.getKind() == ElementKind.CLASS) {</span>
+<span class="nc" id="L61">      return element.toString();</span>
     }
-<span class="nc" id="L62">    Element source = element;</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">    while (source.getKind() != ElementKind.CLASS) {</span>
-<span class="nc" id="L64">      source = source.getEnclosingElement();</span>
+<span class="nc" id="L63">    Element source = element;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    while (source.getKind() != ElementKind.CLASS) {</span>
+<span class="nc" id="L65">      source = source.getEnclosingElement();</span>
     }
-<span class="nc bnc" id="L66" title="All 2 branches missed.">    return source.toString() + &quot;.&quot; + element.getSimpleName() + (element.getKind() == ElementKind.METHOD ? &quot;(...)&quot; : &quot;&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    return source.toString() + &quot;.&quot; + element.getSimpleName() + (element.getKind() == ElementKind.METHOD ? &quot;(...)&quot; : &quot;&quot;);</span>
   }
   
   public String getElementLocation() {
-<span class="fc" id="L70">    return elementLocation;</span>
+<span class="fc" id="L71">    return elementLocation;</span>
   }
 
   public abstract String getIdentity();

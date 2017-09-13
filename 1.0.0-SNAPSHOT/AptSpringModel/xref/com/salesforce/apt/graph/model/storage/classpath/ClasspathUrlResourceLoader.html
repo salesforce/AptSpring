@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          output.add(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../com/salesforce/apt/graph/model/storage/classpath/UrlResource.html">UrlResource</a>(resources.nextElement()));
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>        }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Could not read classpath while looking for ForceInject models of name: "</span> + name, ioe);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"Could not read classpath while looking for ForceInject models of name: "</span> + name, ioe);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">return</strong> output;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>    }

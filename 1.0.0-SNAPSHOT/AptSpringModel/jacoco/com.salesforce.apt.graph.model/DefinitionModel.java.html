@@ -60,21 +60,21 @@ public class DefinitionModel extends AbstractModel {
 
   private void failIfLockRead() {
 <span class="fc bfc" id="L62" title="All 2 branches covered.">    if (isLockedSourceRead()) {</span>
-<span class="fc" id="L63">      throw new RuntimeException(&quot;Attempting to modify 'source read' content after source read is locked&quot;);</span>
+<span class="fc" id="L63">      throw new IllegalStateException(&quot;Attempting to modify 'source read' content after source read is locked&quot;);</span>
     }
 <span class="fc" id="L65">  }</span>
   
   private void failIfDefintionsMerged() {
 <span class="fc" id="L68">    lockSourceRead();</span>
 <span class="fc bfc" id="L69" title="All 2 branches covered.">    if (isLockedDefintionsMerged()) {</span>
-<span class="fc" id="L70">      throw new RuntimeException(&quot;Attempting to modify 'definition merge' content after definition merge is locked&quot;);</span>
+<span class="fc" id="L70">      throw new IllegalStateException(&quot;Attempting to modify 'definition merge' content after definition merge is locked&quot;);</span>
     }
 <span class="fc" id="L72">  }</span>
   
   private void failIfLockedAnalyzed() {
 <span class="fc" id="L75">    lockDefintionsMerged();</span>
 <span class="pc bpc" id="L76" title="1 of 2 branches missed.">    if (isLockedAnalyzed()) {</span>
-<span class="nc" id="L77">      throw new RuntimeException(&quot;Attempting to modify analyzed structure after structure has been computed&quot;);</span>
+<span class="nc" id="L77">      throw new IllegalStateException(&quot;Attempting to modify analyzed structure after structure has been computed&quot;);</span>
     }
 <span class="fc" id="L79">  }</span>
   
@@ -196,15 +196,15 @@ public class DefinitionModel extends AbstractModel {
    */
   public String getIdentity() {
     //wont lockSourceRead(); as identity is read while attaching definitions.
-<span class="fc" id="L199">    return elementLocation;</span>
+<span class="fc" id="L199">    return getElementLocation();</span>
   }
 
   /**
    * For the purposes of identification of the object definition class, the location of the class suffices.
    */
   public String toString() {
-<span class="fc" id="L206">    lockSourceRead();</span>
-<span class="fc" id="L207">    return elementLocation;</span>
+<span class="nc" id="L206">    lockSourceRead();</span>
+<span class="nc" id="L207">    return getElementLocation();</span>
   }
 
   

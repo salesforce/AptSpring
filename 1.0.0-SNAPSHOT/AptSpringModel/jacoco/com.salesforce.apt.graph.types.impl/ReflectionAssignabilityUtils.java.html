@@ -41,7 +41,7 @@ import com.salesforce.apt.graph.types.AssignabilityUtils;
       }
 <span class="fc" id="L42">      return Class.forName(target.getDependencies().get(count).getType()).isAssignableFrom(Class.forName(subject.getEntityType()));</span>
 <span class="nc" id="L43">    } catch (ClassNotFoundException cne) {</span>
-<span class="nc" id="L44">      throw new RuntimeException(&quot;Classes can not be compared &quot; + subject + &quot; and &quot; + target, cne);</span>
+<span class="nc" id="L44">      throw new IllegalArgumentException(&quot;Classes can not be compared &quot; + subject + &quot; and &quot; + target, cne);</span>
     }
   }
 
