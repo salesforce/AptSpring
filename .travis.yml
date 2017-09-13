@@ -4,7 +4,7 @@ jdk:
 
 before-script:
   - cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
-  - mvn -q install -DskipTests=true
+  - mvn -q install -DskipTests=true --settings=.travis/settings.xml
   
 script:
   - mvn test --settings=.travis/settings.xml
