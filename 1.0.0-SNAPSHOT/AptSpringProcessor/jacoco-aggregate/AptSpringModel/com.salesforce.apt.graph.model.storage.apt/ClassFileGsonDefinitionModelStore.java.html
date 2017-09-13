@@ -64,7 +64,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
 <span class="fc" id="L64">    TypeSpec classSpec = TypeSpec.classBuilder(className)</span>
 <span class="fc" id="L65">        .addModifiers(Modifier.PUBLIC)</span>
 <span class="fc" id="L66">        .addField(fieldSpec)</span>
-<span class="fc" id="L67">        .addAnnotation(AnnotationSpec.builder(Generated.class).addMember(&quot;value&quot;, &quot;$S&quot;, &quot;ForceInjectSpringApt&quot;).build())</span>
+<span class="fc" id="L67">        .addAnnotation(AnnotationSpec.builder(Generated.class).addMember(&quot;value&quot;, &quot;$S&quot;, &quot;SpringApt&quot;).build())</span>
 <span class="fc" id="L68">        .build();</span>
     
 <span class="fc" id="L70">    JavaFile javaFile = JavaFile.builder(packageName, classSpec)</span>
@@ -80,7 +80,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
 <span class="fc" id="L80">      model.setSha256(bytesToHex(getSha256Digest().digest(data.getBytes(StandardCharsets.UTF_8))));</span>
 <span class="fc" id="L81">      return true;</span>
 <span class="nc" id="L82">    } catch (IOException ex) {</span>
-<span class="nc" id="L83">      throw new RuntimeException(ex);</span>
+<span class="nc" id="L83">      throw new IllegalStateException(&quot;Could not store model to class&quot;, ex);</span>
     }
   }
 }

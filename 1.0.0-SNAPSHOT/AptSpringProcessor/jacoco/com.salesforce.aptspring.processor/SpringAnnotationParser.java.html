@@ -54,6 +54,17 @@ import com.salesforce.aptspring.Verified;
 
 <span class="nc" id="L55">public class SpringAnnotationParser {</span>
   
+<span class="fc" id="L57">  private static final List&lt;Modifier&gt; DISALLOWED_ON_METHOD = Collections.unmodifiableList(Arrays.asList(</span>
+<span class="fc" id="L58">      Modifier.ABSTRACT,</span>
+<span class="fc" id="L59">      Modifier.DEFAULT,</span>
+<span class="fc" id="L60">      Modifier.FINAL,</span>
+<span class="fc" id="L61">      Modifier.NATIVE,</span>
+<span class="fc" id="L62">      Modifier.STATIC,</span>
+<span class="fc" id="L63">      Modifier.VOLATILE</span>
+      //Modifier.PRIVATE, //checks to see if the method is public, these checks would be redundant.
+      //Modifier.PROTECTED
+      ));
+  
   private static final String QUALIFIER_TYPE = &quot;org.springframework.beans.factory.annotation.Qualifier&quot;;
   
   private static final String VALUE_TYPE = &quot;org.springframework.beans.factory.annotation.Value&quot;;
@@ -64,7 +75,7 @@ import com.salesforce.aptspring.Verified;
   
   private static final String CONFIGURATION_TYPE = &quot;org.springframework.context.annotation.Configuration&quot;;
     
-  private static final String DEFAULT_ANNOTATION_VALUE = &quot;value&quot;;
+<span class="fc" id="L78">  private static final String DEFAULT_ANNOTATION_VALUE = &quot;value&quot;;</span>
 
   /**
    * Read a TypeElement to get application structure.
@@ -73,195 +84,186 @@ import com.salesforce.aptspring.Verified;
    *          definition type element.
    */
   public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
-<span class="fc" id="L76">    Verified verified = te.getAnnotation(Verified.class);</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">    DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());</span>
+<span class="fc" id="L87">    Verified verified = te.getAnnotation(Verified.class);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());</span>
 
-<span class="fc" id="L79">    errorIfInvalidClass(te, messager);</span>
+<span class="fc" id="L90">    errorIfInvalidClass(te, messager);</span>
     
-<span class="fc" id="L81">    model.addDependencyNames(getImportsTypes(te));</span>
-<span class="fc" id="L82">    String[] configurationBeanNames  = AnnotationValueExtractor</span>
-<span class="fc" id="L83">        .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
-<span class="fc bfc" id="L84" title="All 2 branches covered.">    if (configurationBeanNames != null) {</span>
-<span class="fc bfc" id="L85" title="All 2 branches covered.">      for (Element enclosed : te.getEnclosedElements()) {</span>
-<span class="fc" id="L86">        handleEnclosedElements(messager, model, enclosed);</span>
+<span class="fc" id="L92">    model.addDependencyNames(getImportsTypes(te));</span>
+<span class="fc" id="L93">    String[] configurationBeanNames  = AnnotationValueExtractor</span>
+<span class="fc" id="L94">        .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    if (configurationBeanNames != null) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">      for (Element enclosed : te.getEnclosedElements()) {</span>
+<span class="fc" id="L97">        handleEnclosedElements(messager, model, enclosed);</span>
       }
-<span class="fc" id="L88">    } else {</span>
-<span class="fc" id="L89">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L90">          &quot;@Verified annotation must only be used on @Configuration classes&quot;, te);</span>
+<span class="fc" id="L99">    } else {</span>
+<span class="fc" id="L100">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L101">          &quot;@Verified annotation must only be used on @Configuration classes&quot;, te);</span>
     }
     
-<span class="fc bfc" id="L93" title="All 2 branches covered.">    for (String expectedBean : verified.expectedBeans()) {</span>
-<span class="fc" id="L94">      model.addDefinition(new ExpectedModel(expectedBean, te));</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">    for (String expectedBean : verified.expectedBeans()) {</span>
+<span class="fc" id="L105">      model.addDefinition(new ExpectedModel(expectedBean, te));</span>
     }
-<span class="fc" id="L96">    return model;</span>
+<span class="fc" id="L107">    return model;</span>
   }
   
-<span class="fc" id="L99">  private static final List&lt;Modifier&gt; DISALLOWED_ON_METHOD = Collections.unmodifiableList(Arrays.asList(</span>
-<span class="fc" id="L100">      Modifier.ABSTRACT,</span>
-<span class="fc" id="L101">      Modifier.DEFAULT,</span>
-<span class="fc" id="L102">      Modifier.FINAL,</span>
-<span class="fc" id="L103">      Modifier.NATIVE,</span>
-<span class="fc" id="L104">      Modifier.STATIC,</span>
-<span class="fc" id="L105">      Modifier.VOLATILE</span>
-      
-      //Modifier.PRIVATE, //checks to see if the method is public, these checks would be redundant.
-      //Modifier.PROTECTED
-<span class="fc" id="L109">      ));</span>
-  
   private static List&lt;Modifier&gt; getIllegalModifiers(Set&lt;Modifier&gt; existing, List&lt;Modifier&gt; illegal) {
-<span class="fc" id="L112">    List&lt;Modifier&gt; modifiers = new ArrayList&lt;&gt;(existing);</span>
-<span class="fc bfc" id="L113" title="All 2 branches covered.">    modifiers.removeIf(modifier -&gt; !illegal.contains(modifier));</span>
-<span class="pc" id="L114">    modifiers.sort((m1, m2) -&gt;  m1.name().compareTo(m2.name())); //in case someone reorders</span>
-<span class="fc" id="L115">    return modifiers;</span>
+<span class="fc" id="L111">    List&lt;Modifier&gt; modifiers = new ArrayList&lt;&gt;(existing);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">    modifiers.removeIf(modifier -&gt; !illegal.contains(modifier));</span>
+<span class="pc" id="L113">    modifiers.sort((m1, m2) -&gt;  m1.name().compareTo(m2.name())); //in case someone reorders</span>
+<span class="fc" id="L114">    return modifiers;</span>
   }
   
   private static boolean checkExecElement(ExecutableElement execelement, String[] beanNames, Messager messager) {
-<span class="fc" id="L119">    boolean valid = true;</span>
-<span class="fc bfc" id="L120" title="All 2 branches covered.">    if (beanNames.length == 0) {</span>
-<span class="fc" id="L121">      valid = false;</span>
-<span class="fc" id="L122">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L123">          &quot;All @Bean annotations must define at least one name for a bean.&quot;, execelement);</span>
+<span class="fc" id="L118">    boolean valid = true;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    if (beanNames.length == 0) {</span>
+<span class="fc" id="L120">      valid = false;</span>
+<span class="fc" id="L121">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L122">          &quot;All @Bean annotations must define at least one name for a bean.&quot;, execelement);</span>
     }
-<span class="fc bfc" id="L125" title="All 2 branches covered.">    if (execelement.getReturnType().getKind() != TypeKind.DECLARED) {</span>
-<span class="fc" id="L126">      valid = false;</span>
-<span class="fc" id="L127">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L128">          &quot;@Bean methods must return an Object&quot;, execelement);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">    if (execelement.getReturnType().getKind() != TypeKind.DECLARED) {</span>
+<span class="fc" id="L125">      valid = false;</span>
+<span class="fc" id="L126">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L127">          &quot;@Bean methods must return an Object&quot;, execelement);</span>
     }
-<span class="fc bfc" id="L130" title="All 2 branches covered.">    if (!execelement.getModifiers().contains(Modifier.PUBLIC)) {</span>
-<span class="fc" id="L131">      valid = false;</span>
-<span class="fc" id="L132">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L133">          &quot;@Bean methods must be marked public&quot;, execelement);</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">    if (!execelement.getModifiers().contains(Modifier.PUBLIC)) {</span>
+<span class="fc" id="L130">      valid = false;</span>
+<span class="fc" id="L131">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L132">          &quot;@Bean methods must be marked public&quot;, execelement);</span>
     }
     
-<span class="fc" id="L136">    List&lt;Modifier&gt; illegalModifiers = getIllegalModifiers(execelement.getModifiers(), DISALLOWED_ON_METHOD);</span>
-<span class="fc bfc" id="L137" title="All 2 branches covered.">    if (illegalModifiers.size() != 0) {</span>
-<span class="fc" id="L138">      valid = false;</span>
-<span class="fc" id="L139">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L140">          &quot;Illegal modifiers found on spring @Bean method: &quot;</span>
-<span class="fc" id="L141">           + illegalModifiers.stream().map(m -&gt; m.name()).collect(Collectors.joining(&quot;, &quot;)),</span>
-<span class="fc" id="L142">          execelement);</span>
+<span class="fc" id="L135">    List&lt;Modifier&gt; illegalModifiers = getIllegalModifiers(execelement.getModifiers(), DISALLOWED_ON_METHOD);</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">    if (illegalModifiers.size() != 0) {</span>
+<span class="fc" id="L137">      valid = false;</span>
+<span class="fc" id="L138">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L139">          &quot;Illegal modifiers found on spring @Bean method: &quot;</span>
+<span class="fc" id="L140">           + illegalModifiers.stream().map(m -&gt; m.name()).collect(Collectors.joining(&quot;, &quot;)),</span>
+<span class="fc" id="L141">          execelement);</span>
     }
-<span class="fc" id="L144">    return valid;</span>
+<span class="fc" id="L143">    return valid;</span>
   }
 
   private static void handleEnclosedElements(Messager messager, DefinitionModel model, Element enclosed) {
-<span class="fc bfc" id="L148" title="All 4 branches covered.">    switch (enclosed.getKind()) {</span>
+<span class="pc bpc" id="L147" title="1 of 5 branches missed.">    switch (enclosed.getKind()) {</span>
       case METHOD: 
-<span class="fc" id="L150">        ExecutableElement execelement = (ExecutableElement) enclosed;</span>
-<span class="fc" id="L151">        String[] beanNames = AnnotationValueExtractor</span>
-<span class="fc" id="L152">            .getAnnotationValue(execelement, &quot;org.springframework.context.annotation.Bean&quot;, &quot;name&quot;);</span>
+<span class="fc" id="L149">        ExecutableElement execelement = (ExecutableElement) enclosed;</span>
+<span class="fc" id="L150">        String[] beanNames = AnnotationValueExtractor</span>
+<span class="fc" id="L151">            .getAnnotationValue(execelement, &quot;org.springframework.context.annotation.Bean&quot;, &quot;name&quot;);</span>
         
-<span class="fc bfc" id="L154" title="All 2 branches covered.">        if (beanNames != null) {</span>
-<span class="fc" id="L155">          List&lt;InstanceDependencyModel&gt; dependencies = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L156">          boolean hasValues = false;</span>
-<span class="fc" id="L157">          boolean hasQualifiers = false;</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">          for (VariableElement varelement : execelement.getParameters()) {</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        if (beanNames != null) {</span>
+<span class="fc" id="L154">          List&lt;InstanceDependencyModel&gt; dependencies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L155">          boolean hasValues = false;</span>
+<span class="fc" id="L156">          boolean hasQualifiers = false;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">          for (VariableElement varelement : execelement.getParameters()) {</span>
             
-<span class="fc" id="L160">            String[] qualifierNames = AnnotationValueExtractor</span>
-<span class="fc" id="L161">                .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
-<span class="fc" id="L162">            String[] valueNames = AnnotationValueExtractor</span>
-<span class="fc" id="L163">                .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc" id="L159">            String[] qualifierNames = AnnotationValueExtractor</span>
+<span class="fc" id="L160">                .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc" id="L161">            String[] valueNames = AnnotationValueExtractor</span>
+<span class="fc" id="L162">                .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
             
-<span class="fc bfc" id="L165" title="All 4 branches covered.">            if (qualifierNames == null &amp;&amp; valueNames == null) {</span>
-<span class="fc" id="L166">              messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L167">                  &quot;All parameters must have an @Qualifier or a @Value annotation&quot;, varelement);</span>
+<span class="fc bfc" id="L164" title="All 4 branches covered.">            if (qualifierNames == null &amp;&amp; valueNames == null) {</span>
+<span class="fc" id="L165">              messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L166">                  &quot;All parameters must have an @Qualifier or a @Value annotation&quot;, varelement);</span>
             } 
-<span class="fc bfc" id="L169" title="All 2 branches covered.">            if (qualifierNames != null) {</span>
-<span class="fc" id="L170">              dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));</span>
-<span class="fc" id="L171">              hasQualifiers = true;</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            if (qualifierNames != null) {</span>
+<span class="fc" id="L169">              dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));</span>
+<span class="fc" id="L170">              hasQualifiers = true;</span>
             }
-<span class="fc bfc" id="L173" title="All 2 branches covered.">            if (valueNames != null) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (valueNames != null) {</span>
               //ignore values as they will be used to build beans and pass the data on, and
               //are not beans themselves... and cannot be intermingled with @Qualifiers.
-<span class="fc" id="L176">              hasValues = true;</span>
+<span class="fc" id="L175">              hasValues = true;</span>
             }
           }
-<span class="fc bfc" id="L179" title="All 4 branches covered.">          if (hasValues &amp;&amp; hasQualifiers) {</span>
-<span class="fc" id="L180">            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L181">                &quot;No method may define both @Qualifier or a @Value annotations,&quot;</span>
-<span class="fc" id="L182">                + &quot; keep property values in there own beans&quot;, execelement);</span>
+<span class="fc bfc" id="L178" title="All 4 branches covered.">          if (hasValues &amp;&amp; hasQualifiers) {</span>
+<span class="fc" id="L179">            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L180">                &quot;No method may define both @Qualifier or a @Value annotations,&quot;</span>
+<span class="fc" id="L181">                + &quot; keep property values in there own beans&quot;, execelement);</span>
           }
-<span class="fc bfc" id="L184" title="All 4 branches covered.">          if (hasValues &amp;&amp;  !model.isRootNode()) {</span>
-<span class="fc" id="L185">            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L186">                &quot;Only @Verified(root=true) nodes may use @Value annotations to create beans,&quot;</span>
-<span class="fc" id="L187">                + &quot; decouples spring graph from environment&quot;, execelement);</span>
+<span class="fc bfc" id="L183" title="All 4 branches covered.">          if (hasValues &amp;&amp;  !model.isRootNode()) {</span>
+<span class="fc" id="L184">            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L185">                &quot;Only @Verified(root=true) nodes may use @Value annotations to create beans,&quot;</span>
+<span class="fc" id="L186">                + &quot; decouples spring graph from environment&quot;, execelement);</span>
           }          
-<span class="fc bfc" id="L189" title="All 2 branches covered.">          if (checkExecElement(execelement, beanNames, messager)) {</span>
-<span class="fc" id="L190">            List&lt;String&gt; names = new ArrayList&lt;&gt;(Arrays.asList(beanNames));</span>
-<span class="fc" id="L191">            String defaultName = names.get(0);</span>
-<span class="fc" id="L192">            names.remove(defaultName);</span>
-<span class="fc" id="L193">            model.addDefinition(new InstanceModel(defaultName, model.getIdentity(), execelement,</span>
-<span class="fc" id="L194">                execelement.getReturnType().toString(), dependencies, names));</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">          if (checkExecElement(execelement, beanNames, messager)) {</span>
+<span class="fc" id="L189">            List&lt;String&gt; names = new ArrayList&lt;&gt;(Arrays.asList(beanNames));</span>
+<span class="fc" id="L190">            String defaultName = names.get(0);</span>
+<span class="fc" id="L191">            names.remove(defaultName);</span>
+<span class="fc" id="L192">            model.addDefinition(new InstanceModel(defaultName, model.getIdentity(), execelement,</span>
+<span class="fc" id="L193">                execelement.getReturnType().toString(), dependencies, names));</span>
           }
-<span class="fc" id="L196">        } else {</span>
-<span class="fc" id="L197">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L198">              &quot;All methods on @Configuration must have @Bean annotation&quot;, execelement);</span>
+<span class="fc" id="L195">        } else {</span>
+<span class="fc" id="L196">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L197">              &quot;All methods on @Configuration must have @Bean annotation&quot;, execelement);</span>
         }
-<span class="fc" id="L200">        break;</span>
-      case FIELD: 
+<span class="fc" id="L199">        break;</span>
+      case FIELD:
+<span class="fc" id="L201">        errorNonLiteralStaticFields((VariableElement) enclosed, messager);</span>
+<span class="fc" id="L202">        break;</span>
       case ENUM_CONSTANT: 
-<span class="fc" id="L203">        errorNonLiteralStaticFields((VariableElement) enclosed, messager);</span>
-<span class="fc" id="L204">        break;</span>
+<span class="nc" id="L204">        errorNonLiteralStaticFields((VariableElement) enclosed, messager);</span>
+<span class="nc" id="L205">        break;</span>
       case CONSTRUCTOR:
-<span class="fc" id="L206">        ExecutableElement constelement = (ExecutableElement) enclosed;</span>
-<span class="fc bfc" id="L207" title="All 2 branches covered.">        if (!constelement.getModifiers().contains(Modifier.PUBLIC)) {</span>
-<span class="fc" id="L208">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L209">              &quot;@Configuration should not have any non-public constructors.&quot;,</span>
-<span class="fc" id="L210">              enclosed);</span>
+<span class="fc" id="L207">        ExecutableElement constelement = (ExecutableElement) enclosed;</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        if (!constelement.getModifiers().contains(Modifier.PUBLIC)) {</span>
+<span class="fc" id="L209">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L210">              &quot;@Configuration should not have any non-public constructors.&quot;,</span>
+<span class="fc" id="L211">              enclosed);</span>
         }
-<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (constelement.getParameters().size() &gt; 0) {</span>
-<span class="fc" id="L213">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L214">              &quot;@Configuration should not have any non-defualt constructors.&quot;,</span>
-<span class="fc" id="L215">              enclosed);</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (constelement.getParameters().size() &gt; 0) {</span>
+<span class="fc" id="L214">          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L215">              &quot;@Configuration should not have any non-defualt constructors.&quot;,</span>
+<span class="fc" id="L216">              enclosed);</span>
         }
-<span class="fc" id="L217">        break;</span>
+<span class="fc" id="L218">        break;</span>
       default:
-<span class="fc" id="L219">        messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L220">            &quot;Only @Bean methods, private static final literals, and default constructors are allowed on @Configuration classes&quot;,</span>
-<span class="fc" id="L221">            enclosed);</span>
+<span class="fc" id="L220">        messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L221">            &quot;Only @Bean methods, private static final literals, and default constructors are allowed on @Configuration classes&quot;,</span>
+<span class="fc" id="L222">            enclosed);</span>
+        break;
     }
-<span class="fc" id="L223">  }</span>
+<span class="fc" id="L225">  }</span>
 
   private static void errorIfInvalidClass(TypeElement te, Messager messager) {
-<span class="fc bfc" id="L226" title="All 2 branches covered.">    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {</span>
-<span class="fc" id="L227">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L228">          &quot;The class must be a top level class, not an internal class&quot;, te);</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {</span>
+<span class="fc" id="L229">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L230">          &quot;The class must be a top level class, not an internal class&quot;, te);</span>
     }
-<span class="fc bfc" id="L230" title="All 2 branches covered.">    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, &quot;basePackages&quot;) != null</span>
-<span class="fc bfc" id="L231" title="All 2 branches covered.">        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, &quot;basePackages&quot;) != null) {</span>
-<span class="fc" id="L232">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L233">          &quot;You may not use @ComponentScan(s) on @Verified classes&quot;, te);</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, &quot;basePackages&quot;) != null</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, &quot;basePackages&quot;) != null) {</span>
+<span class="fc" id="L234">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L235">          &quot;You may not use @ComponentScan(s) on @Verified classes&quot;, te);</span>
     }
-<span class="fc" id="L235">  }</span>
+<span class="fc" id="L237">  }</span>
   
   private static void errorNonLiteralStaticFields(VariableElement element, Messager messager) {
-<span class="fc bfc" id="L238" title="All 2 branches covered.">    if (element.getModifiers().isEmpty() </span>
-<span class="fc bfc" id="L239" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.PRIVATE))</span>
-<span class="fc bfc" id="L240" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.STATIC))</span>
-<span class="fc bfc" id="L241" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.FINAL))</span>
-<span class="fc bfc" id="L242" title="All 2 branches covered.">        || element.getConstantValue() == null) {</span>
-<span class="fc" id="L243">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
-<span class="fc" id="L244">          &quot;Only private static final constants are permitted in @Verified @Configuration classes&quot;, element);</span>
+<span class="fc bfc" id="L240" title="All 2 branches covered.">    if (element.getModifiers().isEmpty() </span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.PRIVATE))</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.STATIC))</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        || !(element.getModifiers().contains(Modifier.FINAL))</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        || element.getConstantValue() == null) {</span>
+<span class="fc" id="L245">      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,</span>
+<span class="fc" id="L246">          &quot;Only private static final constants are permitted in @Verified @Configuration classes&quot;, element);</span>
     }
-<span class="fc" id="L246">  }</span>
+<span class="fc" id="L248">  }</span>
 
   
   private static List&lt;String&gt; getImportsTypes(TypeElement element) {
-<span class="fc" id="L250">    final List&lt;String&gt; importedDefinitions = new ArrayList&lt;&gt;();</span>
-<span class="fc bfc" id="L251" title="All 2 branches covered.">    for (AnnotationMirror am : element.getAnnotationMirrors()) {</span>
-<span class="fc bfc" id="L252" title="All 2 branches covered.">      if (&quot;org.springframework.context.annotation.Import&quot;.equals(am.getAnnotationType().toString())) {</span>
-<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (Entry&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; entry : am.getElementValues().entrySet()) {</span>
-<span class="pc bpc" id="L254" title="1 of 2 branches missed.">          if (DEFAULT_ANNOTATION_VALUE.equals(entry.getKey().getSimpleName().toString())) {</span>
+<span class="fc" id="L252">    final List&lt;String&gt; importedDefinitions = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L253" title="All 2 branches covered.">    for (AnnotationMirror am : element.getAnnotationMirrors()) {</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">      if (&quot;org.springframework.context.annotation.Import&quot;.equals(am.getAnnotationType().toString())) {</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">        for (Entry&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; entry : am.getElementValues().entrySet()) {</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">          if (DEFAULT_ANNOTATION_VALUE.equals(entry.getKey().getSimpleName().toString())) {</span>
             @SuppressWarnings(&quot;unchecked&quot;)
-<span class="fc" id="L256">            List&lt;? extends AnnotationValue&gt; value = (List&lt;? extends AnnotationValue&gt;) entry.getValue().getValue();</span>
-<span class="fc bfc" id="L257" title="All 2 branches covered.">            for (AnnotationValue av : value) {</span>
-<span class="fc" id="L258">              importedDefinitions.add(((TypeMirror) av.getValue()).toString());</span>
+<span class="fc" id="L258">            List&lt;? extends AnnotationValue&gt; value = (List&lt;? extends AnnotationValue&gt;) entry.getValue().getValue();</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            for (AnnotationValue av : value) {</span>
+<span class="fc" id="L260">              importedDefinitions.add(((TypeMirror) av.getValue()).toString());</span>
             }
           }
         }
       }
     }
-<span class="fc" id="L264">    return importedDefinitions;</span>
+<span class="fc" id="L266">    return importedDefinitions;</span>
   }
 
 }

@@ -30,8 +30,8 @@ import javax.lang.model.element.Element;
 
 public abstract class BaseInstanceModel extends AbstractModel {
 
-  final String identifier;
-  final String entityType;
+  private final String identifier;
+  private final String entityType;
   
   public BaseInstanceModel(String identifier, String elementLocation, String entityType) {
 <span class="fc" id="L37">    super(elementLocation);</span>
@@ -54,7 +54,8 @@ public abstract class BaseInstanceModel extends AbstractModel {
   }
   
   public String toString() {
-<span class="pc bpc" id="L57" title="1 of 4 branches missed.">    return identifier + (elementLocation != null &amp;&amp; !&quot;&quot;.equals(elementLocation) ? &quot; found in &quot; + elementLocation : &quot;&quot;);</span>
+<span class="fc" id="L57">    return identifier </span>
+<span class="pc bpc" id="L58" title="1 of 4 branches missed.">        + (getElementLocation() != null &amp;&amp; !&quot;&quot;.equals(getElementLocation()) ? &quot; found in &quot; + getElementLocation() : &quot;&quot;);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
