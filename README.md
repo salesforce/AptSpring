@@ -4,6 +4,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salesforce/AptSpring&amp;utm_campaign=Badge_Grade)
 [![codebeat badge](https://codebeat.co/badges/a0528ed4-185e-4ac2-90c5-a93477656a7a)](https://codebeat.co/projects/github-com-salesforce-aptspring-master)
 [![Maven Site](https://img.shields.io/badge/MavenSite-1.0.0--SNAPSHOT-green.svg)](https://salesforce.github.com/AptSpring/1.0.0-SNAPSHOT/index.html)
+[![codecov](https://codecov.io/gh/salesforce/AptSpring/branch/master/graph/badge.svg)](https://codecov.io/gh/salesforce/AptSpring)
 
 ### About AptSpring ###
 
