@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorMessages.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.model.errors</a> &gt; <span class="el_source">ErrorMessages.java</span></div><h1>ErrorMessages.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.model.errors;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+<span class="nc" id="L35">public class ErrorMessages {</span>
+
+<span class="nc" id="L37">  private final Map&lt;ErrorType, String&gt; errorMessages = new HashMap&lt;&gt;();</span>
+  
+  public String getMessage(ErrorType type) {
+<span class="nc" id="L40">    return errorMessages.get(type);</span>
+  }
+  
+  public static Builder builder() {
+<span class="fc" id="L44">    return new Builder();</span>
+  }
+  
+<span class="fc" id="L47">  public static class Builder {</span>
+    
+<span class="fc" id="L49">    private final Map&lt;ErrorType, String&gt; errorMessages = new HashMap&lt;&gt;();</span>
+    
+    public Builder cycleInDefinitionSources(String message) {
+<span class="nc" id="L52">      errorMessages.put(ErrorType.CYCLE_IN_DEFINITION_SOURCES, message);</span>
+<span class="nc" id="L53">      return this;</span>
+    }
+    
+    public Builder cycleInObjectDefinitions(String message) {
+<span class="nc" id="L57">      errorMessages.put(ErrorType.CYCLE_IN_OBJECT_DEFINITIONS, message);</span>
+<span class="nc" id="L58">      return this;</span>
+    }
+
+    public Builder duplicateObjectDefinitions(String message) {
+<span class="nc" id="L62">      errorMessages.put(ErrorType.DUPLICATE_OBJECT_DEFINITIONS, message);</span>
+<span class="nc" id="L63">      return this;</span>
+    }
+
+    public Builder nonLiteralStaticMemberVariables(String message) {
+<span class="nc" id="L67">      errorMessages.put(ErrorType.NONLITERAL_STATIC_MEMBER_VARIABLES, message);</span>
+<span class="nc" id="L68">      return this;</span>
+    }
+
+    public Builder knownDamagingClass(String message) {
+<span class="nc" id="L72">      errorMessages.put(ErrorType.KNOWN_DAMAGING_CLASS, message);</span>
+<span class="nc" id="L73">      return this;</span>
+    }
+
+    public Builder missingBeanDefinitions(String message) {
+<span class="nc" id="L77">      errorMessages.put(ErrorType.MISSING_BEAN_DEFINITIONS, message);</span>
+<span class="nc" id="L78">      return this;</span>
+    }
+    
+    public Builder missingRelevantAnnotations(String message) {
+<span class="nc" id="L82">      errorMessages.put(ErrorType.MISSING_NECESSARY_ANNOTATIONS, message);</span>
+<span class="nc" id="L83">      return this;</span>
+    }
+
+    public Builder unmatchedTypes(String message) {
+<span class="nc" id="L87">      errorMessages.put(ErrorType.UNMATCHED_TYPES, message);</span>
+<span class="nc" id="L88">      return this;</span>
+    }
+
+    public Builder unusedExpected(String message) {
+<span class="nc" id="L92">      errorMessages.put(ErrorType.UNUSED_EXPECTED, message);</span>
+<span class="nc" id="L93">      return this;</span>
+    }
+    
+    public Builder noMatchingDefinition(String message) {
+<span class="nc" id="L97">      errorMessages.put(ErrorType.NO_MATCHING_DEFINITIONS, message);</span>
+<span class="nc" id="L98">      return this;</span>
+    }
+    
+    public Builder duplicatedMatchingDependencies(String message) {
+<span class="nc" id="L102">      errorMessages.put(ErrorType.DUPLICATED_MATCHING_DEPENDENCIES, message);</span>
+<span class="nc" id="L103">      return this;</span>
+    }
+    
+    public Builder duplicatedMatchingDefinitions(String message) {
+<span class="nc" id="L107">      errorMessages.put(ErrorType.DUPLICATED_MATCHING_DEFINITIONS, message);</span>
+<span class="nc" id="L108">      return this;</span>
+    }
+    
+
+    public Builder couldNotStore(String message) {
+<span class="nc" id="L113">      errorMessages.put(ErrorType.COULD_NOT_STORE, message);</span>
+<span class="nc" id="L114">      return this;</span>
+    }
+
+    public Builder couldNotRead(String message) {
+<span class="nc" id="L118">      errorMessages.put(ErrorType.COULD_NOT_READ, message);</span>
+<span class="nc" id="L119">      return this;</span>
+    }
+    
+    public Builder dependencyShaMismatch(String message) {
+<span class="nc" id="L123">      errorMessages.put(ErrorType.DEPENDENCY_SHA_MISMATCH, message);</span>
+<span class="nc" id="L124">      return this;</span>
+    }
+
+    public Builder rootNodeImported(String message) {
+<span class="nc" id="L128">      errorMessages.put(ErrorType.ROOT_NODE_IMPORTED, message);</span>
+<span class="nc" id="L129">      return this;</span>
+    }
+    
+    public ErrorMessages build() {
+<span class="nc" id="L133">      verifyAllSet();</span>
+<span class="nc" id="L134">      ErrorMessages output = new ErrorMessages();</span>
+<span class="nc" id="L135">      output.errorMessages.putAll(errorMessages);</span>
+<span class="nc" id="L136">      return output;</span>
+    }
+    
+    private void verifyAllSet() {
+<span class="fc" id="L140">      List&lt;ErrorType&gt; missing =  new ArrayList&lt;&gt;(Arrays.asList(ErrorType.values()));</span>
+<span class="fc" id="L141">      missing.removeAll(errorMessages.keySet());</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">      if (missing.size() != 0) {</span>
+<span class="fc" id="L143">        throw new IllegalStateException(&quot;Missing error messages for: &quot; + missing); </span>
+      }
+<span class="nc" id="L145">    }</span>
+  }
+  
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

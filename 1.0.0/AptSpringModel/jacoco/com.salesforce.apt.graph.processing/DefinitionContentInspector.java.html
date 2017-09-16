@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefinitionContentInspector.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.processing</a> &gt; <span class="el_source">DefinitionContentInspector.java</span></div><h1>DefinitionContentInspector.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.processing;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
+import com.salesforce.apt.graph.model.AbstractModel;
+import com.salesforce.apt.graph.model.BaseInstanceModel;
+import com.salesforce.apt.graph.model.DefinitionModel;
+import com.salesforce.apt.graph.model.ExpectedModel;
+import com.salesforce.apt.graph.model.InstanceDependencyModel;
+import com.salesforce.apt.graph.model.InstanceModel;
+import com.salesforce.apt.graph.model.errors.ErrorModel;
+import com.salesforce.apt.graph.model.errors.ErrorType;
+import com.salesforce.apt.graph.model.storage.DefinitionModelStore;
+import com.salesforce.apt.graph.types.AssignabilityUtils;
+
+<span class="fc" id="L58">public class DefinitionContentInspector {</span>
+
+  public void inspectDefinitionGraph(Set&lt;DefinitionModel&gt; definitionGraphHeads,
+      Consumer&lt;ErrorModel&gt; errorListener, AssignabilityUtils assignabilityUtils, DefinitionModelStore store) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    for (DefinitionModel definition : definitionGraphHeads) {</span>
+<span class="fc" id="L63">      depthFirstExpectedsInspector(definition, errorListener, assignabilityUtils, store);</span>
+    }
+<span class="fc" id="L65">  }</span>
+  
+  public InstanceModel getOneWithSourceElementElseAny(final Collection&lt;InstanceModel&gt; possibilities) {
+<span class="fc" id="L68">    return possibilities.stream()</span>
+<span class="fc" id="L69">         .filter(im -&gt; im.getSourceElement().isPresent())</span>
+<span class="fc" id="L70">         .findAny().orElseGet(() -&gt; possibilities.iterator().next());</span>
+  }
+  
+  public boolean verifiedShas(DefinitionModel model, DefinitionModelStore store) {
+<span class="nc" id="L74">    boolean verified = true;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">    for (Entry&lt;String, String&gt; depNameToSha256 : model.getDependencyNameToSha256().entrySet()) {</span>
+<span class="nc" id="L76">      DefinitionModel dep = store.lookup(depNameToSha256.getKey()).get(0);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">      if (model.getDependencyNameToSha256().get(dep.getIdentity()) != null) {</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        verified = verified &amp;&amp; verifiedShas(dep, store); </span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">        verified = verified &amp;&amp; model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256());</span>
+      }
+    }
+<span class="nc" id="L82">    return verified;</span>
+  }
+  
+  
+  /**
+   * Verify that all expected entities are marked expected.
+   * Verify that the types of provided entities satisfy all expected types....
+   * &lt;p/&gt;
+   * if a child record was freshly process, so too must all parent ( if the md5 has changed ).
+   *  
+   * @param definition the head of current tree of definitions linked by imports
+   * @param errorListener registers all errors found 
+   */
+  private boolean depthFirstExpectedsInspector(DefinitionModel definition, Consumer&lt;ErrorModel&gt; errorListener,
+      AssignabilityUtils assignabilityUtils, DefinitionModelStore store) {
+<span class="fc" id="L97">    boolean errored = false;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    for (DefinitionModel dependency : definition.getDependencies()) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">      if (!dependency.isLockedAnalyzed()) {</span>
+<span class="pc bpc" id="L100" title="2 of 4 branches missed.">        errored = depthFirstExpectedsInspector(dependency, errorListener, assignabilityUtils, store) || errored;</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        if (errored) {</span>
+<span class="nc" id="L102">          return true; // no need to continue.</span>
+        }
+      } else {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (!verifiedShas(dependency, store)) {</span>
+<span class="nc" id="L106">          errored = true;</span>
+<span class="nc" id="L107">          errorListener.accept(</span>
+<span class="nc" id="L108">              new ErrorModel(ErrorType.DEPENDENCY_SHA_MISMATCH, Arrays.asList(dependency), Arrays.asList(definition)));</span>
+        }
+      }
+    }
+    
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">    if (errored) {</span>
+<span class="nc" id="L114">      return errored;</span>
+    }
+    
+    //check that each object has only one source ( could be the imported from a dependency, in a diamond pattern )
+    //validate the expected beans are correct.
+<span class="fc" id="L119">    Map&lt;String, InstanceModel&gt; resolvedInstances = ensureSingleInstanceOfEachName(definition, errorListener);</span>
+    
+    //short circuit if dependencies couldn't be resolved.
+<span class="fc bfc" id="L122" title="All 2 branches covered.">    if (resolvedInstances == null) {</span>
+<span class="fc" id="L123">      return false;</span>
+    }
+    
+    //looks for cycles and unexpected missing entities.
+<span class="fc" id="L127">    errored = detectCyclesInEntityGraph(definition, resolvedInstances, errorListener);</span>
+
+    //check types of non-expected dependencies
+<span class="fc bfc" id="L130" title="All 4 branches covered.">    errored = checkInstancesTypesInDefinition(definition, resolvedInstances, errorListener, assignabilityUtils) || errored;</span>
+
+    //check all definitions with expected, that each instance expecting a definition can use the supplied.
+<span class="pc bpc" id="L133" title="1 of 4 branches missed.">    errored = checkProvidedSupplyCorrectTypes(definition, resolvedInstances, errorListener, assignabilityUtils) || errored;</span>
+
+    //prune all edged from graph that don't end in an expected
+
+    //store computed expects with all types that must satisfied.
+    
+    
+    
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    if (!errored) {</span>
+      //store as provided dependencies
+<span class="fc" id="L143">      definition.addAllProvidedInstances(resolvedInstances.values());</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">      for (DefinitionModel dep : definition.getDependencies()) {</span>
+<span class="fc" id="L145">        definition.addDependencyNameToSha256(dep.getIdentity(), dep.getSha256());</span>
+      }
+      //storing will lock a the definition, as will reading.
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">      if (!store.store(definition)) {</span>
+<span class="nc" id="L149">        errorListener.accept(</span>
+<span class="nc" id="L150">            new ErrorModel(ErrorType.COULD_NOT_STORE, Arrays.asList(definition), Arrays.asList(definition)));</span>
+      }
+    }
+    
+<span class="fc" id="L154">    return errored;</span>
+  }
+
+  private ErrorModel errorForMismatchedExpected(final DefinitionModel definition, ExpectedModel computedExpected,
+      final Map&lt;String, InstanceModel&gt; nameToEntity, AssignabilityUtils assignabilityUtils) {
+    //that which is to fill all the expectedInstance references.
+<span class="fc" id="L160">    InstanceModel providedInstance = nameToEntity.get(computedExpected.getIdentity());</span>
+    
+    //the top level definition model should have declared this an expectedBean - maybe move that error here?
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">    if (providedInstance == null) {</span>
+<span class="nc" id="L164">      return null;</span>
+    }
+    
+    //Instances which expect to use the provided instance
+<span class="fc" id="L168">    List&lt;InstanceModel&gt; mistmatchedExpectantEntities = computedExpected.getDefinitionReferenceToType().keySet().stream()</span>
+<span class="fc" id="L169">        .map(name -&gt; nameToEntity.get(name))</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        .filter(expectantInstance -&gt; !assignabilityUtils.isAssignableFrom(providedInstance, expectantInstance))</span>
+<span class="fc" id="L171">        .collect(Collectors.toList());</span>
+    
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">    if (mistmatchedExpectantEntities.size() == 0) {</span>
+<span class="fc" id="L174">      return null;</span>
+    } else {
+<span class="nc" id="L176">      List&lt;InstanceModel&gt; involved = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L177">      involved.add(providedInstance);</span>
+<span class="nc" id="L178">      involved.addAll(mistmatchedExpectantEntities);</span>
+<span class="nc" id="L179">      return new ErrorModel(ErrorType.UNMATCHED_TYPES, involved, Arrays.asList(definition, providedInstance));</span>
+    }
+  }
+  
+  private boolean checkProvidedSupplyCorrectTypes(final DefinitionModel definition, final Map&lt;String, InstanceModel&gt; nameToEntity,
+      final Consumer&lt;ErrorModel&gt; errorListner, AssignabilityUtils assignabilityUtils) {
+<span class="fc" id="L185">    List&lt;ErrorModel&gt; errors = definition.getDependencies().stream()</span>
+<span class="fc" id="L186">        .flatMap(dependency -&gt; dependency.getComputedExpected().stream())</span>
+<span class="pc" id="L187">        .filter(expectedModel -&gt; !definition.getExpectedDefinitions().stream()</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">            .anyMatch(ed -&gt; ed.getIdentity().equals(expectedModel.getIdentity())))</span>
+<span class="fc" id="L189">        .map(em -&gt; errorForMismatchedExpected(definition, em, nameToEntity, assignabilityUtils))</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        .filter(errorModel -&gt; errorModel != null)</span>
+<span class="fc" id="L191">        .collect(Collectors.toList());</span>
+<span class="fc" id="L192">    errors.stream().forEach(errorListner);</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">    return errors.size() &gt; 0;</span>
+  }
+  
+  
+  private List&lt;Entry&lt;String, InstanceModel&gt;&gt; getEntryListForNameAndAlias(InstanceModel instanceModel) {
+<span class="fc" id="L198">    List&lt;Entry&lt;String, InstanceModel&gt;&gt; output = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L199">    output.add(new SimpleEntry&lt;&gt;(instanceModel.getIdentity(), instanceModel));</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">    for (String alias : instanceModel.getAliases()) {</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">      if (!alias.equals(instanceModel.getIdentity())) {</span>
+<span class="fc" id="L202">        output.add(new SimpleEntry&lt;&gt;(alias, instanceModel));</span>
+      }
+    }
+<span class="fc" id="L205">    return output;</span>
+  }
+  
+  /**
+   * Verify that a single named instance model is correctly identifiable composed of owningDefinition/ElementLocation/Identity.
+   * 
+   * 
+   * @param definition the definition of 
+   * @param errorListener accepts and displays all errors produced by analyzing the models.
+   * @return returns a map of each instance name to the single model that the has been resolved to. 
+   */
+  private Map&lt;String, InstanceModel&gt; ensureSingleInstanceOfEachName(DefinitionModel definition,
+      Consumer&lt;ErrorModel&gt; errorListener) {
+<span class="fc" id="L218">    Stream&lt;InstanceModel&gt; imported = definition.getDependencies().stream()</span>
+<span class="fc" id="L219">        .map(d -&gt; d.getProvidedInstances()).flatMap(x -&gt; x.stream());</span>
+<span class="fc" id="L220">    Stream&lt;InstanceModel&gt; instanceModelStream = Stream.concat(definition.getObjectDefinitions().stream(), imported);</span>
+
+<span class="fc" id="L222">    Map&lt;String, List&lt;InstanceModel&gt;&gt; instancesByName = instanceModelStream</span>
+<span class="fc" id="L223">        .flatMap(instance -&gt; getEntryListForNameAndAlias(instance).stream())</span>
+<span class="fc" id="L224">        .collect(Collectors.groupingBy(entry -&gt; entry.getKey(), </span>
+<span class="fc" id="L225">            Collectors.mapping(entry -&gt; entry.getValue(), Collectors.toList())));</span>
+    
+<span class="fc" id="L227">    final Map&lt;String, InstanceModel&gt; resolvedDependencies = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L228">    boolean errored = false;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">    for (Entry&lt;String, List&lt;InstanceModel&gt;&gt; entry : instancesByName.entrySet()) {</span>
+<span class="fc" id="L230">      Map&lt;String, List&lt;InstanceModel&gt;&gt; collidingInstances = entry.getValue().stream()</span>
+<span class="fc" id="L231">          .collect(Collectors.groupingBy(</span>
+<span class="fc" id="L232">              im -&gt; im.getOwningDefinition() </span>
+<span class="fc" id="L233">                  + &quot;::&quot; </span>
+<span class="fc" id="L234">                  + im.getElementLocation()</span>
+<span class="fc" id="L235">                  + &quot;::&quot;</span>
+<span class="fc" id="L236">                  + im.getIdentity()</span>
+             ));
+<span class="fc bfc" id="L238" title="All 2 branches covered.">      if (collidingInstances.size() == 1) {</span>
+        //there is only one entity and it is now resolved
+<span class="fc" id="L240">        InstanceModel instance = getOneWithSourceElementElseAny(collidingInstances.values().iterator().next());</span>
+<span class="fc" id="L241">        resolvedDependencies.put(entry.getKey(), instance);</span>
+      }
+<span class="fc bfc" id="L243" title="All 2 branches covered.">      if (collidingInstances.size() &gt; 1) {</span>
+<span class="fc" id="L244">        errored = true;</span>
+<span class="fc" id="L245">        List&lt;AbstractModel&gt; causes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L246">        List&lt;AbstractModel&gt; involved = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L247">        involved.add(definition);</span>
+<span class="fc" id="L248">        collidingInstances.values().stream().forEach(sameIdentities -&gt;  {</span>
+<span class="fc" id="L249">          InstanceModel instance = getOneWithSourceElementElseAny(sameIdentities);</span>
+<span class="fc" id="L250">          causes.add(instance);</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">          if (instance.getSourceElement().isPresent()) {</span>
+<span class="nc" id="L252">            involved.add(instance);</span>
+          }
+<span class="fc" id="L254">        });</span>
+<span class="fc" id="L255">        errored = true;</span>
+<span class="fc" id="L256">        errorListener.accept(new ErrorModel(ErrorType.DUPLICATE_OBJECT_DEFINITIONS, causes, involved));</span>
+      }
+    }
+<span class="fc bfc" id="L259" title="All 2 branches covered.">    return errored ? null : resolvedDependencies;</span>
+  }
+  
+  /**
+   * Inspects the instance graph for cycles, any cycle is printed as an error.   The nameToEntity parameter doesn't list expected
+   * instances, any instances that are not found in the nameToInstances map (they are looked for because they are referenced as a
+   * dependency by an instance in the map) and are not found by name in the definition's expectedInstances are treated as errors
+   * as well.
+   * 
+   * @param definition definition being processed.  Will uses it's expected list, any instances references as dependencies but
+   *     not found, not listed as expected in this DefinitionModel, will be treated as errors.
+   * @param nameToEntity name to unique instanceModels, verified before call.
+   * @param errorListner accepts and displays all errors produced by analyzing the models
+   * @return true if an error occurred, false otherwise
+   */
+  private boolean detectCyclesInEntityGraph(final DefinitionModel definition, final Map&lt;String, InstanceModel&gt; nameToEntity,
+      final Consumer&lt;ErrorModel&gt; errorListener) {
+<span class="fc" id="L276">    final Map&lt;String, ExpectedModel&gt; missing = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L277">    final DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph = new DefaultDirectedGraph&lt;&gt;(DefaultEdge.class);</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">    for (BaseInstanceModel entity : nameToEntity.values()) {</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">      if (!entityGraph.containsVertex(entity)) {</span>
+<span class="fc" id="L280">        entityGraph.addVertex(entity);</span>
+      }
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">      if (InstanceModel.class.isAssignableFrom(entity.getClass())) {</span>
+<span class="fc" id="L283">        InstanceModel instanceModel = (InstanceModel) entity;</span>
+<span class="fc bfc" id="L284" title="All 2 branches covered.">        for (InstanceDependencyModel instanceDependency : instanceModel.getDependencies()) {</span>
+<span class="fc" id="L285">          BaseInstanceModel dependency = nameToEntity.get(instanceDependency.getIdentity());</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">          if (dependency == null) {</span>
+<span class="fc" id="L287">            dependency = missing.get(instanceDependency.getIdentity());</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">            if (dependency == null) {</span>
+<span class="fc" id="L289">              ExpectedModel expected = new ExpectedModel(instanceDependency.getIdentity());</span>
+<span class="fc" id="L290">              dependency = expected;</span>
+<span class="fc" id="L291">              missing.put(instanceDependency.getIdentity(), expected);</span>
+            }
+<span class="fc" id="L293">            missing.get(instanceDependency.getIdentity())</span>
+<span class="fc" id="L294">              .addDefinitionReferenceToType(instanceModel.getIdentity(), instanceDependency.getType());</span>
+          }
+<span class="fc bfc" id="L296" title="All 2 branches covered.">          if (!entityGraph.containsVertex(dependency)) {</span>
+<span class="fc" id="L297">            entityGraph.addVertex(dependency);</span>
+          }
+<span class="fc" id="L299">          entityGraph.addEdge(entity, dependency);</span>
+        }
+      }
+    }
+    
+<span class="fc" id="L304">    boolean errored = errorsForCycles(errorListener, entityGraph);</span>
+<span class="pc bpc" id="L305" title="1 of 4 branches missed.">    errored = testAllMissingEntitiesAreExpected(definition, errorListener, missing, entityGraph) || errored;</span>
+<span class="fc bfc" id="L306" title="All 4 branches covered.">    errored = errorUnusedExpectedsOnDefinition(definition, errorListener, missing) || errored;</span>
+<span class="fc" id="L307">    return errored;</span>
+  }
+
+  private boolean checkInstancesTypesInDefinition(final DefinitionModel definition, final Map&lt;String, InstanceModel&gt; nameToEntity,
+      final Consumer&lt;ErrorModel&gt; errorListner, AssignabilityUtils assignabilityUtils) {
+<span class="fc" id="L312">    boolean errored = false;</span>
+<span class="fc" id="L313">    List&lt;InstanceModel&gt; instances = definition.getObjectDefinitions();</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">    for (InstanceModel instance : instances) {</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">      for (InstanceDependencyModel instanceDependency : instance.getDependencies()) {</span>
+<span class="fc" id="L316">        InstanceModel dependency = nameToEntity.get(instanceDependency.getIdentity());</span>
+<span class="fc bfc" id="L317" title="All 4 branches covered.">        if (dependency != null &amp;&amp; !assignabilityUtils.isAssignableFrom(dependency, instance)) {</span>
+<span class="fc" id="L318">          errored = true;</span>
+<span class="fc" id="L319">          errorListner.accept(new ErrorModel(ErrorType.UNMATCHED_TYPES,</span>
+<span class="fc" id="L320">              Arrays.asList(instance, dependency), Arrays.asList(instance, dependency)));</span>
+        }
+      }
+    }
+<span class="fc" id="L324">    return errored;</span>
+  }
+
+  private boolean errorUnusedExpectedsOnDefinition(final DefinitionModel definition, final Consumer&lt;ErrorModel&gt; errorListner,
+      final Map&lt;String, ExpectedModel&gt; missing) {
+<span class="fc" id="L329">    boolean errored = false;</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">    for (ExpectedModel expected : definition.getExpectedDefinitions()) {</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">      if (!missing.keySet().contains(expected.getIdentity())) {</span>
+<span class="fc" id="L332">        errorListner.accept(new ErrorModel(ErrorType.UNUSED_EXPECTED, Arrays.asList(expected), Arrays.asList(definition)));</span>
+<span class="fc" id="L333">        errored = true;</span>
+      }
+    }
+<span class="fc" id="L336">    return errored;</span>
+  }
+
+  private boolean errorsForCycles(final Consumer&lt;ErrorModel&gt; errorListner,
+      final DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph) {
+<span class="fc" id="L341">    SzwarcfiterLauerSimpleCycles&lt;BaseInstanceModel, DefaultEdge&gt; cycleFind = new SzwarcfiterLauerSimpleCycles&lt;&gt;();</span>
+<span class="fc" id="L342">    boolean errored = false;</span>
+<span class="fc" id="L343">    cycleFind.setGraph(entityGraph);</span>
+<span class="fc" id="L344">    List&lt;List&lt;BaseInstanceModel&gt;&gt; cycles = cycleFind.findSimpleCycles();</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">    for (List&lt;BaseInstanceModel&gt; cycle : cycles) {</span>
+<span class="nc" id="L346">      errored = true;</span>
+<span class="nc" id="L347">      errorListner.accept(new ErrorModel(ErrorType.CYCLE_IN_DEFINITION_SOURCES, cycle, cycle));</span>
+    }
+<span class="fc" id="L349">    return errored;</span>
+  }
+
+  private boolean testAllMissingEntitiesAreExpected(final DefinitionModel definition, final Consumer&lt;ErrorModel&gt; errorListner,
+      final Map&lt;String, ExpectedModel&gt; missing, final DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph) {
+    //check computed expected are actually expected
+<span class="fc" id="L355">    boolean errored = false;</span>
+<span class="fc" id="L356">    List&lt;String&gt; expectedMissing = definition.getExpectedDefinitions().stream().map(em -&gt; em.getIdentity())</span>
+<span class="fc" id="L357">        .collect(Collectors.toList());</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">    for (ExpectedModel expected : missing.values()) {</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">      if (!expectedMissing.contains(expected.getIdentity())) {</span>
+<span class="fc" id="L360">        List&lt;AbstractModel&gt; dependsOnMissing = Stream.concat(</span>
+<span class="fc" id="L361">            Stream.of(definition), </span>
+<span class="fc" id="L362">            entityGraph.incomingEdgesOf(expected).stream().map(edge -&gt; entityGraph.getEdgeSource(edge))</span>
+<span class="fc" id="L363">              .filter(m -&gt; m.getSourceElement().isPresent()))</span>
+<span class="fc" id="L364">            .collect(Collectors.toList());</span>
+<span class="fc" id="L365">        errored = true;</span>
+<span class="fc" id="L366">        errorListner.accept(new ErrorModel(ErrorType.MISSING_BEAN_DEFINITIONS, Arrays.asList(expected), dependsOnMissing));</span>
+<span class="fc" id="L367">      } else {</span>
+<span class="fc" id="L368">        definition.addComputedExpected(expected);</span>
+      }
+    }
+<span class="fc" id="L371">    return errored;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
