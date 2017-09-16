@@ -68,6 +68,7 @@ public class Verifier {
    * Verified the definition model.
    * 
    * @param definitions found definitions in this processing
+   * @param assignabilityUtils used to determine if the types are assignable (used to verify injection points). 
    * @param store already processed definitions stored as files.
    * @return any errors found during the verification.  Note may not include all possible errors, as short 
    *     circuit logic is necessary in some places.

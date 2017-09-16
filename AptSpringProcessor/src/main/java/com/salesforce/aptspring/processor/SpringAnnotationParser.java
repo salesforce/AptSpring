@@ -80,8 +80,9 @@ public class SpringAnnotationParser {
   /**
    * Read a TypeElement to get application structure.
    * 
-   * @param te
-   *          definition type element.
+   * @param te definition type element.
+   * @param messager presents error messages for the compiler to pass to the user.
+   * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
    */
   public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
     Verified verified = te.getAnnotation(Verified.class);

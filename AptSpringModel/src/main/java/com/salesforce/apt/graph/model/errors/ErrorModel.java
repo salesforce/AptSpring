@@ -80,6 +80,8 @@ public class ErrorModel {
    * Returns a contextualized error message for the error, from the model's perspective.
    * 
    * @param on an AbstractModel that is "involved" in this error
+   * @param converter presents an error message for this error model to be displayed on the AbstractModel, on,
+   *     that contributed to the error.
    * @return an error message from the context of the failed model member.
    */
   public String getMessageOn(AbstractModel on, Function<ErrorType, String> converter) {
