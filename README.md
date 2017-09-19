@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/salesforce/AptSpring.svg?branch=master)](https://travis-ci.org/salesforce/AptSpring)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salesforce/AptSpring&amp;utm_campaign=Badge_Grade)
 [![codebeat badge](https://codebeat.co/badges/a0528ed4-185e-4ac2-90c5-a93477656a7a)](https://codebeat.co/projects/github-com-salesforce-aptspring-master)
-[![Maven Site](https://img.shields.io/badge/maven_site-1.0.0-green.svg)](https://salesforce.github.com/AptSpring/1.0.0/index.html)
+[![Maven Site](https://img.shields.io/badge/maven_site-1.1.0-green.svg)](https://salesforce.github.com/AptSpring/1.1.0/index.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent)
 [![codecov](https://codecov.io/gh/salesforce/AptSpring/branch/master/graph/badge.svg)](https://codecov.io/gh/salesforce/AptSpring)
 
@@ -67,4 +67,4 @@ The guarantee is that those problems will be a lot simpler than the one you woul
 
 ### Enforcement ###
 Please see [@Verified Annotation](./AptSpringAPI/src/main/java/com/salesforce/aptspring/Verified.java#L35) for a full list of the
-constraints the ForceInjectSpringAPT processor enforces, and what it may enforce in the future.
+constraints the AptSpringProcessor enforces, and what it may enforce in the future.
