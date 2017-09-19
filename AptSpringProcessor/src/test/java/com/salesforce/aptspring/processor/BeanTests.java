@@ -96,12 +96,12 @@ public class BeanTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Cycle in @Configuration class @Imports value1 found in test.TestClass.value1(...)"
-                + " -> value2 found in test.TestClass.value2(...)")
+            .withErrorContaining("Cycle in @Configuration class @Imports value1 found in test.TestClass.value1(java.lang.String)"
+                + " -> value2 found in test.TestClass.value2(java.lang.String)")
             .in(definitionClass).onLine(13)
             .and()
-            .withErrorContaining("Cycle in @Configuration class @Imports value2 found in test.TestClass.value2(...)"
-                + " -> value1 found in test.TestClass.value1(...)")
+            .withErrorContaining("Cycle in @Configuration class @Imports value2 found in test.TestClass.value2(java.lang.String)"
+                + " -> value1 found in test.TestClass.value1(java.lang.String)")
             .in(definitionClass).onLine(16);
   }
 
@@ -132,10 +132,10 @@ public class BeanTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value2(...)")
+            .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value2()")
             .in(definitionClass).onLine(13)
             .and()
-            .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value1(...)")
+            .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value1()")
             .in(definitionClass).onLine(16);
   }
 

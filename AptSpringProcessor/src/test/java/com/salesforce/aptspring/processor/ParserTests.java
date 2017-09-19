@@ -139,7 +139,7 @@ public class ParserTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("@Verified annotation must only be used on @Configuration classes")
+            .withErrorContaining("@Verified annotation must only be used on @Configuration or @Component classes")
             .in(definitionClass)
             .onLine(6);
   }

@@ -33,6 +33,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import com.salesforce.apt.graph.model.InstanceModel;
+import com.salesforce.apt.graph.naming.NamingTools;
 import com.salesforce.apt.graph.types.AssignabilityUtils;
 
 /**
@@ -48,8 +49,23 @@ public class AptAssignabilityUtils implements AssignabilityUtils {
     elementUtils = elements;
   }
   
+  /**
+   * Given two instances models, the subject and target, it is determined
+   * if the subject can be assigned to the dependency on the subject, from the
+   * target.
+   *
+   * @param subject instance to be injected in to the target
+   * @param target instance to have the subject injected in to it.
+   * @return whether the target can be safely injected in to the correct parameter of the target.
+   */
   public boolean isAssignableFrom(InstanceModel subject, InstanceModel target) {
-    TypeMirror subjectElementType = lookUpElement(subject).getReturnType();
+    ExecutableElement factoryOrConstructor = lookUpElement(subject);
+    TypeMirror subjectElementType = null;
+    if ("<init>".equals(factoryOrConstructor.getSimpleName().toString())) {
+      subjectElementType = factoryOrConstructor.getEnclosingElement().asType();
+    } else {
+      subjectElementType = factoryOrConstructor.getReturnType();
+    }
     int count = 0;
     while (!target.getDependencies().get(count).getIdentity().equals(subject.getIdentity())) {
       count ++;
@@ -69,12 +85,13 @@ public class AptAssignabilityUtils implements AssignabilityUtils {
     if (target.getSourceElement().isPresent()) {
       return (ExecutableElement) target.getSourceElement().get();
     } else {
-      String removeParms = target.getElementLocation().replaceAll("\\(.*\\)", "");
-      String method = removeParms.substring(removeParms.lastIndexOf('.') + 1);
       TypeElement type = elementUtils.getTypeElement(target.getOwningDefinition());
-      return (ExecutableElement) type.getEnclosedElements().stream().filter(e -> 
-        e.getSimpleName().toString().replaceAll("\\(.*\\)", "").equals(method) 
-          && ExecutableElement.class.isAssignableFrom(e.getClass())).findFirst().get();
+      final NamingTools names = new NamingTools();
+      return type.getEnclosedElements().stream().filter(e -> 
+        names.elementToName(e).equals(target.getElementLocation()) && ExecutableElement.class.isAssignableFrom(e.getClass()))
+          .findFirst()
+          .map(e -> (ExecutableElement) e)
+          .get();
     }
   }  
   

@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -40,7 +42,7 @@ import com.salesforce.apt.graph.model.storage.ResourceLoader;
 
 public class ClasspathUrlResourceLoader implements ResourceLoader {
 
-  private final ClassLoader classloader;
+  private ClassLoader classloader;
   
   public ClasspathUrlResourceLoader() {
     classloader = Thread.currentThread().getContextClassLoader();
@@ -55,16 +57,25 @@ public class ClasspathUrlResourceLoader implements ResourceLoader {
    * @param root file system directory to include as part of the classloader.
    */
   public ClasspathUrlResourceLoader(File root) {
-    try {
-      classloader = new URLClassLoader(new URL[] {root.toURI().toURL()},
-          Thread.currentThread().getContextClassLoader());
-    } catch (MalformedURLException | NullPointerException ex) {
-      throw new IllegalArgumentException("Invalide File, it's not a url.", ex);
-    }
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      public Void run() {
+        try {
+          classloader = new URLClassLoader(new URL[] {
+              root.toURI().toURL()},
+              Thread.currentThread().getContextClassLoader());
+          return null;
+        } catch (MalformedURLException | NullPointerException ex) {
+          throw new IllegalArgumentException("Invalide File, it's not a url.", ex);
+        }
+      }
+    });
   }
   
   /**
    * Finds all possible resources that match the name of the DefinitionMode we wish to find.
+   * 
+   * @param name the resources to search for with in the class loader.
+   * @return the list of found resources in class loader.
    */
   public List<Resource> getEntries(String name) {
     List<Resource> output  = new ArrayList<>();

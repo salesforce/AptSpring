@@ -198,11 +198,11 @@ public class TypeCheckingTests {
             .that(Arrays.asList(definitionClassExpectingListInteger, definitionClass2ProvidesListString))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Unmatched types value3 found in test.TestClass2.value3(...)")
+            .withErrorContaining("Unmatched types value3 found in test.TestClass2.value3()")
             .in(definitionClassExpectingListInteger)
             .onLine(19)
             .and()
-            .withErrorContaining("Unmatched types value2 found in test.TestClass1.value2(...)")
+            .withErrorContaining("Unmatched types value2 found in test.TestClass1.value2(java.util.List<java.lang.Integer>)")
             .in(definitionClass2ProvidesListString)
             .onLine(16);
   }
@@ -214,8 +214,8 @@ public class TypeCheckingTests {
             .that(Arrays.asList(definitionClassExpectingComplex, definitionClass2ComplexExpecting))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Unmatched types valueX found in test.TestClass1.valueX(...),"
-                + " value3 found in test.TestClass2.value3(...)")
+            .withErrorContaining("Unmatched types valueX found in test.TestClass1.valueX(),"
+                + " value3 found in test.TestClass2.value3(java.lang.Integer)")
             .in(definitionClassExpectingComplex)
             .onLine(13);
   }

@@ -29,7 +29,8 @@ package com.salesforce.apt.graph.model;
 import java.util.Optional;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
+
+import com.salesforce.apt.graph.naming.NamingTools;
 
 public abstract class AbstractModel {
 
@@ -52,19 +53,8 @@ public abstract class AbstractModel {
 
   public AbstractModel(Element sourceElement) {
     super();
-    this.elementLocation = getElementLocation(sourceElement);
+    this.elementLocation = new NamingTools().elementToName(sourceElement);
     this.sourceElement = Optional.of(sourceElement);
-  }
-
-  private String getElementLocation(Element element) {
-    if (element.getKind() == ElementKind.CLASS) {
-      return element.toString();
-    }
-    Element source = element;
-    while (source.getKind() != ElementKind.CLASS) {
-      source = source.getEnclosingElement();
-    }
-    return source.toString() + "." + element.getSimpleName() + (element.getKind() == ElementKind.METHOD ? "(...)" : "");
   }
   
   public String getElementLocation() {

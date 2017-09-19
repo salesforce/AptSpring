@@ -24,14 +24,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.salesforce.apt.graph.parser.apt;
+package com.salesforce.apt.graph.naming;
 
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 
-import com.salesforce.apt.graph.model.DefinitionModel;
-
-public interface DefinitionParser {
-
-  DefinitionModel parseDefinition(TypeElement te);
+public class NamingTools {
   
+  public String elementToName(Element element) {
+    switch (element.getKind()) {
+      case CLASS:
+        return element.toString();
+      case METHOD:
+        return element.getEnclosingElement().toString() + "." + element.toString();
+      case CONSTRUCTOR:
+        return element.getEnclosingElement().toString() + "." + element.toString();
+      default:
+        return element.toString();
+    }
+  }
+
 }

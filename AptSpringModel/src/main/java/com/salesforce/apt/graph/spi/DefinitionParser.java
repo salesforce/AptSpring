@@ -24,60 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.salesforce.apt.graph.parser.apt;
+package com.salesforce.apt.graph.spi;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.AbstractElementVisitor8;
 
 import com.salesforce.apt.graph.model.DefinitionModel;
-import com.salesforce.apt.graph.spi.DefinitionParser;
 
-public class AptElementVisitor extends AbstractElementVisitor8<Void, AptParsingContext> {
+public interface DefinitionParser {
 
-  private DefinitionParser parser;
-
-  public AptElementVisitor(DefinitionParser parser) {
-    this.parser = parser;
-  }
-
-  protected Void defaultAction(Element element, AptParsingContext definitions) {
-    for (Element e1 : element.getEnclosedElements()) {
-      this.visit(e1);
-    }
-    return null;
-  }
-
-  @Override
-  public Void visitPackage(PackageElement element, AptParsingContext definitions) {
-    return defaultAction(element, definitions);
-  }
-
-  @Override
-  public Void visitType(TypeElement element, AptParsingContext definitions) {
-    DefinitionModel def = parser.parseDefinition(element);
-    if (def != null) {
-      definitions.addDefinition(def);
-    }
-    return defaultAction(element, definitions);
-  }
-
-  @Override
-  public Void visitVariable(VariableElement element, AptParsingContext definitions) {
-    return defaultAction(element, definitions);
-  }
-
-  @Override
-  public Void visitExecutable(ExecutableElement element, AptParsingContext definitions) {
-    return defaultAction(element, definitions);
-  }
-
-  @Override
-  public Void visitTypeParameter(TypeParameterElement element, AptParsingContext definitions) {
-    return defaultAction(element, definitions);
-  }
+  DefinitionModel parseDefinition(TypeElement te);
+  
 }

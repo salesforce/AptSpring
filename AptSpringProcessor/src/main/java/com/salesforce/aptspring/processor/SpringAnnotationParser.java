@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.Messager;
@@ -45,6 +46,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic.Kind;
 
 import com.salesforce.apt.graph.model.DefinitionModel;
 import com.salesforce.apt.graph.model.ExpectedModel;
@@ -74,9 +76,29 @@ public class SpringAnnotationParser {
   private static final String COMPONENTSCANS_TYPE = "org.springframework.context.annotation.ComponentScans";
   
   private static final String CONFIGURATION_TYPE = "org.springframework.context.annotation.Configuration";
+  
+  private static final String COMPONENT_TYPE = "org.springframework.stereotype.Component";
     
+  private static final String AUTOWIRED_TYPE = "org.springframework.beans.factory.annotation.Autowired";
+  
   private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
+  /**
+   * Will return true if a class level contains exactly a constant final static private literal field.
+   */
+  private Predicate<VariableElement> staticPrivateFinalLiteralField = ve -> ve.getModifiers()
+      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))
+      && ve.getModifiers().size() == 3
+      && ve.getConstantValue() != null;
+
+  /**
+   * Will return true if a class level contains exactly a final private field without a constant value.
+   */
+  private Predicate<VariableElement> privateFinalField = ve -> ve.getModifiers()
+      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))
+      && ve.getModifiers().size() == 2
+      && ve.getConstantValue() == null;  
+  
   /**
    * Read a TypeElement to get application structure.
    * 
@@ -84,7 +106,7 @@ public class SpringAnnotationParser {
    * @param messager presents error messages for the compiler to pass to the user.
    * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
    */
-  public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
+  public DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
     Verified verified = te.getAnnotation(Verified.class);
     DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());
 
@@ -93,13 +115,18 @@ public class SpringAnnotationParser {
     model.addDependencyNames(getImportsTypes(te));
     String[] configurationBeanNames  = AnnotationValueExtractor
         .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
+    String[] componentBeanNames  = AnnotationValueExtractor
+        .getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);
     if (configurationBeanNames != null) {
       for (Element enclosed : te.getEnclosedElements()) {
         handleEnclosedElements(messager, model, enclosed);
       }
     } else {
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "@Verified annotation must only be used on @Configuration classes", te);
+      if (componentBeanNames != null) {
+        addModelsFromComponent(te, model, componentBeanNames, messager);
+      } else {
+        messager.printMessage(Kind.ERROR, "@Verified annotation must only be used on @Configuration or @Component classes", te);
+      }
     }
     
     for (String expectedBean : verified.expectedBeans()) {
@@ -108,43 +135,38 @@ public class SpringAnnotationParser {
     return model;
   }
   
-  private static List<Modifier> getIllegalModifiers(Set<Modifier> existing, List<Modifier> illegal) {
+  private List<Modifier> getIllegalModifiers(Set<Modifier> existing, List<Modifier> illegal) {
     List<Modifier> modifiers = new ArrayList<>(existing);
     modifiers.removeIf(modifier -> !illegal.contains(modifier));
     modifiers.sort((m1, m2) ->  m1.name().compareTo(m2.name())); //in case someone reorders
     return modifiers;
   }
   
-  private static boolean checkExecElement(ExecutableElement execelement, String[] beanNames, Messager messager) {
+  private boolean parseBeanMethod(ExecutableElement beanMethod, String[] beanNames, Messager messager) {
     boolean valid = true;
     if (beanNames.length == 0) {
       valid = false;
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "All @Bean annotations must define at least one name for a bean.", execelement);
+      messager.printMessage(Kind.ERROR, "All @Bean annotations must define at least one name for a bean.", beanMethod);
     }
-    if (execelement.getReturnType().getKind() != TypeKind.DECLARED) {
+    if (beanMethod.getReturnType().getKind() != TypeKind.DECLARED) {
       valid = false;
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "@Bean methods must return an Object", execelement);
+      messager.printMessage(Kind.ERROR, "@Bean methods must return an Object", beanMethod);
     }
-    if (!execelement.getModifiers().contains(Modifier.PUBLIC)) {
+    if (!beanMethod.getModifiers().contains(Modifier.PUBLIC)) {
       valid = false;
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "@Bean methods must be marked public", execelement);
+      messager.printMessage(Kind.ERROR, "@Bean methods must be marked public", beanMethod);
     }
-    
-    List<Modifier> illegalModifiers = getIllegalModifiers(execelement.getModifiers(), DISALLOWED_ON_METHOD);
+    List<Modifier> illegalModifiers = getIllegalModifiers(beanMethod.getModifiers(), DISALLOWED_ON_METHOD);
     if (illegalModifiers.size() != 0) {
       valid = false;
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "Illegal modifiers found on spring @Bean method: "
+      messager.printMessage(Kind.ERROR, "Illegal modifiers found on spring @Bean method: "
            + illegalModifiers.stream().map(m -> m.name()).collect(Collectors.joining(", ")),
-          execelement);
+          beanMethod);
     }
     return valid;
   }
 
-  private static void handleEnclosedElements(Messager messager, DefinitionModel model, Element enclosed) {
+  private void handleEnclosedElements(Messager messager, DefinitionModel model, Element enclosed) {
     switch (enclosed.getKind()) {
       case METHOD: 
         ExecutableElement execelement = (ExecutableElement) enclosed;
@@ -152,41 +174,8 @@ public class SpringAnnotationParser {
             .getAnnotationValue(execelement, "org.springframework.context.annotation.Bean", "name");
         
         if (beanNames != null) {
-          List<InstanceDependencyModel> dependencies = new ArrayList<>();
-          boolean hasValues = false;
-          boolean hasQualifiers = false;
-          for (VariableElement varelement : execelement.getParameters()) {
-            
-            String[] qualifierNames = AnnotationValueExtractor
-                .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);
-            String[] valueNames = AnnotationValueExtractor
-                .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
-            
-            if (qualifierNames == null && valueNames == null) {
-              messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-                  "All parameters must have an @Qualifier or a @Value annotation", varelement);
-            } 
-            if (qualifierNames != null) {
-              dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));
-              hasQualifiers = true;
-            }
-            if (valueNames != null) {
-              //ignore values as they will be used to build beans and pass the data on, and
-              //are not beans themselves... and cannot be intermingled with @Qualifiers.
-              hasValues = true;
-            }
-          }
-          if (hasValues && hasQualifiers) {
-            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-                "No method may define both @Qualifier or a @Value annotations,"
-                + " keep property values in there own beans", execelement);
-          }
-          if (hasValues &&  !model.isRootNode()) {
-            messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-                "Only @Verified(root=true) nodes may use @Value annotations to create beans,"
-                + " decouples spring graph from environment", execelement);
-          }          
-          if (checkExecElement(execelement, beanNames, messager)) {
+          List<InstanceDependencyModel> dependencies = execElementDependency(messager, model, execelement);          
+          if (parseBeanMethod(execelement, beanNames, messager)) {
             List<String> names = new ArrayList<>(Arrays.asList(beanNames));
             String defaultName = names.get(0);
             names.remove(defaultName);
@@ -194,62 +183,170 @@ public class SpringAnnotationParser {
                 execelement.getReturnType().toString(), dependencies, names));
           }
         } else {
-          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-              "All methods on @Configuration must have @Bean annotation", execelement);
+          messager.printMessage(Kind.ERROR, "All methods on @Configuration must have @Bean annotation", execelement);
         }
         break;
       case FIELD:
-        errorNonLiteralStaticFields((VariableElement) enclosed, messager);
+        if (!staticPrivateFinalLiteralField.test((VariableElement) enclosed)) {
+          messager.printMessage(Kind.ERROR, "Only private static final constants are permitted in @Verified @Configuration classes",
+              enclosed);
+        }
         break;
       case ENUM_CONSTANT: 
-        errorNonLiteralStaticFields((VariableElement) enclosed, messager);
+        if (!staticPrivateFinalLiteralField.test((VariableElement) enclosed)) {
+          messager.printMessage(Kind.ERROR, "Only private static final constants are permitted in @Verified @Configuration classes",
+              enclosed);
+        }
         break;
       case CONSTRUCTOR:
         ExecutableElement constelement = (ExecutableElement) enclosed;
         if (!constelement.getModifiers().contains(Modifier.PUBLIC)) {
-          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-              "@Configuration should not have any non-public constructors.",
-              enclosed);
+          messager.printMessage(Kind.ERROR, "@Configuration should not have any non-public constructors.", enclosed);
         }
         if (constelement.getParameters().size() > 0) {
-          messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-              "@Configuration should not have any non-defualt constructors.",
-              enclosed);
+          messager.printMessage(Kind.ERROR, "@Configuration should not have any non-defualt constructors.", enclosed);
         }
         break;
       default:
-        messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-            "Only @Bean methods, private static final literals, and default constructors are allowed on @Configuration classes",
-            enclosed);
+        messager.printMessage(Kind.ERROR, "Only @Bean methods, private static final literals, and default constructors "
+            + "are allowed on @Configuration classes", enclosed);
         break;
     }
   }
 
-  private static void errorIfInvalidClass(TypeElement te, Messager messager) {
-    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "The class must be a top level class, not an internal class", te);
+  /**
+   * This method is called on {@link ExecutableElement}.
+   * Bean methods on an @Configuration bean, or Constructors on @Component classes.
+   * This method parses the @Qualifier, or @Value annotations if a @Verified=root, and reads the types of each parameter.
+   * That data is used to build a list of {@link InstanceDependencyModel}'s which are part of an {@link InstanceModel}.
+   * All parameters must have an @Qualifier or @Value, and the annotations can not be mixed, errors will result otherwise.
+   * 
+   * @param messager APT messager that will receive error messages.
+   * @param model the DefinitionModel being parse, which may be a @Configuration or @Component annotated entity.
+   * @param execelement the bean method if an @Configuration, or the constructor if an @Component.
+   * @return the dependencies of the to be constructed {@link InstanceModel}
+   */
+  private List<InstanceDependencyModel> execElementDependency(Messager messager, DefinitionModel model,
+      ExecutableElement execelement) {
+    List<InstanceDependencyModel> dependencies = new ArrayList<>();
+    boolean hasValues = false;
+    boolean hasQualifiers = false;
+    for (VariableElement varelement : execelement.getParameters()) {
+      
+      String[] qualifierNames = AnnotationValueExtractor
+          .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);
+      String[] valueNames = AnnotationValueExtractor
+          .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
+      
+      if (qualifierNames == null && valueNames == null) {
+        messager.printMessage(Kind.ERROR, "All parameters must have an @Qualifier or a @Value annotation", varelement);
+      } 
+      if (qualifierNames != null) {
+        dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));
+        hasQualifiers = true;
+      }
+      if (valueNames != null) {
+        //ignore values as they will be used to build beans and pass the data on, and
+        //are not beans themselves... and cannot be intermingled with @Qualifiers.
+        hasValues = true;
+      }
     }
-    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
-        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "You may not use @ComponentScan(s) on @Verified classes", te);
+    if (hasValues && hasQualifiers) {
+      messager.printMessage(Kind.ERROR, "No method may define both @Qualifier or a @Value annotations,"
+          + " keep property values in there own beans", execelement);
     }
+    if (hasValues &&  !model.isRootNode()) {
+      messager.printMessage(Kind.ERROR, "Only @Verified(root=true) nodes may use @Value annotations to create beans,"
+          + " decouples spring graph from environment", execelement);
+    }
+    return dependencies;
   }
-  
-  private static void errorNonLiteralStaticFields(VariableElement element, Messager messager) {
-    if (element.getModifiers().isEmpty() 
-        || !(element.getModifiers().contains(Modifier.PRIVATE))
-        || !(element.getModifiers().contains(Modifier.STATIC))
-        || !(element.getModifiers().contains(Modifier.FINAL))
-        || element.getConstantValue() == null) {
-      messager.printMessage(javax.tools.Diagnostic.Kind.ERROR,
-          "Only private static final constants are permitted in @Verified @Configuration classes", element);
+
+  /**
+   * Builds an instance model by finding the autowired constructor of an @Component model as well as 
+   * 
+   * @param te the TypeElement corresponding to the @Component class.
+   * @param dm the definitionModel built from the @Component.
+   * @param names the list if names in an @Component annotation.  Users must explicitly define one.
+   * @param messager errors are added to this APT messager.
+   */
+  private void addModelsFromComponent(TypeElement te, DefinitionModel dm, String[] names, Messager messager) {
+    List<InstanceDependencyModel> dependencies = new ArrayList<>();
+    ExecutableElement chosenConstructor = findAutowiredConstructor(extractConstructorsFromComponent(te));
+    if (chosenConstructor == null) {
+      messager.printMessage(Kind.ERROR, "No single default constructor or single @Autowired constructor", te);
+    } else {
+      dependencies = execElementDependency(messager, dm, chosenConstructor);
+      //dm.getExpectedDefinitions()
+    }
+    te.getEnclosedElements().stream()
+        .filter(el -> el instanceof VariableElement)
+        .map(el -> (VariableElement) el)
+        .filter(ve -> !staticPrivateFinalLiteralField.test(ve) && !privateFinalField.test(ve))
+        .forEach(ve -> messager
+            .printMessage(Kind.ERROR, "@Component classes my only have static final constant fields or final private fields", ve));
+    
+    InstanceModel model = new InstanceModel(names[0],
+        dm.getIdentity(), 
+        chosenConstructor, 
+        te.getQualifiedName().toString(),
+        dependencies, 
+        new ArrayList<>());
+    
+    dm.addDefinition(model);
+    for (InstanceDependencyModel dep : dependencies) {
+      ExpectedModel expectedModel = new ExpectedModel(dep.getIdentity());
+      expectedModel.addDefinitionReferenceToType(model.getIdentity(), dep.getType());
+      dm.addDefinition(expectedModel);
     }
   }
 
+  /**
+   * Analyzes a list of constructors from an @Component, looking for a single constructor, or if multiple
+   * constructors exist, a single constructor marked with @Autowire.
+   *
+   * @param constructors a list of constructors from an @Component.
+   * @return the executable element, or null.
+   */
+  private ExecutableElement findAutowiredConstructor(List<ExecutableElement> constructors) {
+    ExecutableElement chosenConstructor = null;
+    if (constructors.size() == 1) {
+      chosenConstructor = constructors.get(0);
+    } else {
+      chosenConstructor = constructors.stream()
+        .filter(ex -> AnnotationValueExtractor.getAnnotationValue(ex, AUTOWIRED_TYPE, "") != null)
+        .limit(2) //stop at two. efficiency.
+        .reduce((a, b) -> null) //if more than one return null.
+        .orElse(null);
+    }
+    return chosenConstructor;
+  }
+
+  /**
+   * Given an @Component's {@link TypeElement} find's all constructors of that type.
+   * 
+   * @param te a representation of an @Component class.
+   * @return a list of executable elements representing all found constructors.
+   */
+  private List<ExecutableElement> extractConstructorsFromComponent(TypeElement te) {
+    return te.getEnclosedElements().stream()
+      .filter(enclosed -> enclosed instanceof ExecutableElement)
+      .filter(enclosed -> "<init>".equals(enclosed.getSimpleName().toString()))
+      .map(enclosed -> (ExecutableElement) enclosed)
+      .collect(Collectors.toList());
+  }
+
+  private void errorIfInvalidClass(TypeElement te, Messager messager) {
+    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
+      messager.printMessage(Kind.ERROR, "The class must be a top level class, not an internal class", te);
+    }
+    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
+        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
+      messager.printMessage(Kind.ERROR, "You may not use @ComponentScan(s) on @Verified classes", te);
+    }
+  }
   
-  private static List<String> getImportsTypes(TypeElement element) {
+  private List<String> getImportsTypes(TypeElement element) {
     final List<String> importedDefinitions = new ArrayList<>();
     for (AnnotationMirror am : element.getAnnotationMirrors()) {
       if ("org.springframework.context.annotation.Import".equals(am.getAnnotationType().toString())) {

@@ -73,7 +73,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
     try {
       OutputStream stream = getDefinitionOutputStreamProvider().store(model);
       try {
-        stream.write(javaFile.toString().getBytes());
+        stream.write(javaFile.toString().getBytes(StandardCharsets.UTF_8));
       } finally {
         stream.close();
       }

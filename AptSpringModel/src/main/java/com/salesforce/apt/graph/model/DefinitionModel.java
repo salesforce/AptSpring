@@ -193,6 +193,8 @@ public class DefinitionModel extends AbstractModel {
   
   /**
    * For the purposes of identification of the object definition class, the location of the class suffices.
+   *
+   * @return a unique identity representing this definition, specifically the fully qualified name of the source type.
    */
   public String getIdentity() {
     //wont lockSourceRead(); as identity is read while attaching definitions.
@@ -201,6 +203,8 @@ public class DefinitionModel extends AbstractModel {
 
   /**
    * For the purposes of identification of the object definition class, the location of the class suffices.
+   *
+   * @return the Identity of the {@link DefinitionModel}
    */
   public String toString() {
     lockSourceRead();
