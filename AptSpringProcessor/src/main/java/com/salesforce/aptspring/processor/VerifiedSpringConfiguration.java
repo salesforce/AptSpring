@@ -91,7 +91,7 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
       if (env.processingOver()) {
         definitionAggregator.outputErrors(messager);
       } else {
-        AptElementVisitor visitor = new AptElementVisitor(te -> new SpringAnnotationParser().parseDefinition(te, messager));
+        AptElementVisitor visitor = new AptElementVisitor(te -> new SpringAnnotationParser().extractDefinition(te, messager));
         for (Element annotatedElement : env.getElementsAnnotatedWith(Verified.class)) {
           visitor.visit(annotatedElement, definitionAggregator);        
         }

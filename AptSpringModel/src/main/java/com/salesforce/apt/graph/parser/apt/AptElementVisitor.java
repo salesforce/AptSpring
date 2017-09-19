@@ -35,7 +35,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.AbstractElementVisitor8;
 
 import com.salesforce.apt.graph.model.DefinitionModel;
-import com.salesforce.apt.graph.spi.DefinitionParser;
 
 public class AptElementVisitor extends AbstractElementVisitor8<Void, AptParsingContext> {
 

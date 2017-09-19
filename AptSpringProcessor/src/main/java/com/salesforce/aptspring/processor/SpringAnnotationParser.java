@@ -94,6 +94,18 @@ public class SpringAnnotationParser {
       .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))
       && ve.getModifiers().size() == 2
       && ve.getConstantValue() == null;  
+ 
+  /**
+   * Read a TypeElement to get application structure.
+   * 
+   * @param te definition type element.
+   * @param messager presents error messages for the compiler to pass to the user.
+   * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
+   * @deprecated please see {@link SpringAnnotationParser#extractDefinition(TypeElement, Messager)}
+   */
+  public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
+    return new SpringAnnotationParser().parseDefinition(te, messager);
+  }
   
   /**
    * Read a TypeElement to get application structure.
@@ -102,7 +114,7 @@ public class SpringAnnotationParser {
    * @param messager presents error messages for the compiler to pass to the user.
    * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
    */
-  public DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
+  public DefinitionModel extractDefinition(TypeElement te, Messager messager) {  
     Verified verified = te.getAnnotation(Verified.class);
     DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());
 

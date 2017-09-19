@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.salesforce.aptspring</groupId>
     <artifactId>AptSpringParent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>
@@ -23,7 +23,7 @@
     </modules>
     <properties>
         <compare.prior.release.api>true</compare.prior.release.api>
-        <disable.semantic.versioning>true</disable.semantic.versioning>
+        <disable.semantic.versioning>false</disable.semantic.versioning>
         <github.domain>github.com</github.domain>
         <github.owner>salesforce</github.owner>
         <github.project>AptSpring</github.project>
