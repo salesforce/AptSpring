@@ -30,14 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.Messager;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -45,7 +42,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
 import com.salesforce.apt.graph.model.DefinitionModel;
@@ -347,21 +343,13 @@ public class SpringAnnotationParser {
   }
   
   private List<String> getImportsTypes(TypeElement element) {
-    final List<String> importedDefinitions = new ArrayList<>();
-    for (AnnotationMirror am : element.getAnnotationMirrors()) {
-      if ("org.springframework.context.annotation.Import".equals(am.getAnnotationType().toString())) {
-        for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
-          if (DEFAULT_ANNOTATION_VALUE.equals(entry.getKey().getSimpleName().toString())) {
-            @SuppressWarnings("unchecked")
-            List<? extends AnnotationValue> value = (List<? extends AnnotationValue>) entry.getValue().getValue();
-            for (AnnotationValue av : value) {
-              importedDefinitions.add(((TypeMirror) av.getValue()).toString());
-            }
-          }
-        }
-      }
+    String[] values = AnnotationValueExtractor
+        .getAnnotationValue(element, "org.springframework.context.annotation.Import", DEFAULT_ANNOTATION_VALUE);
+    if (values == null) {
+      return new ArrayList<>();
+    } else {
+      return Arrays.asList(values);
     }
-    return importedDefinitions;
   }
 
 }
