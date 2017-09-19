@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VerifiedSpringConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.aptspring.processor</a> &gt; <span class="el_source">VerifiedSpringConfiguration.java</span></div><h1>VerifiedSpringConfiguration.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.aptspring.processor;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
+
+import com.salesforce.apt.graph.model.errors.ErrorMessages;
+import com.salesforce.apt.graph.parser.apt.AptElementVisitor;
+import com.salesforce.apt.graph.parser.apt.AptParsingContext;
+import com.salesforce.aptspring.Verified;
+
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
+<span class="fc" id="L53">public class VerifiedSpringConfiguration extends AbstractProcessor {</span>
+
+  private Messager messager;
+  
+  private AptParsingContext definitionAggregator;
+
+  @Override
+  public synchronized void init(ProcessingEnvironment env) {
+<span class="fc" id="L61">    super.init(env);</span>
+<span class="fc" id="L62">    Types typeUtils = env.getTypeUtils();</span>
+<span class="fc" id="L63">    Elements elementUtils = env.getElementUtils();</span>
+<span class="fc" id="L64">    Filer filer = env.getFiler();</span>
+<span class="fc" id="L65">    messager = env.getMessager();</span>
+<span class="fc" id="L66">    ErrorMessages errorMessages = ErrorMessages.builder()</span>
+<span class="fc" id="L67">        .cycleInDefinitionSources(&quot;Cycle in @Configuration class @Imports {0}&quot;)</span>
+<span class="fc" id="L68">        .cycleInObjectDefinitions(&quot;Cycle in spring bean dependencies {0}&quot;)</span>
+<span class="fc" id="L69">        .duplicateObjectDefinitions(&quot;Duplicate in spring beans {0}&quot;)</span>
+<span class="fc" id="L70">        .nonLiteralStaticMemberVariables(&quot;Non literal static member variables can break class instantiation and leak state&quot;)</span>
+<span class="fc" id="L71">        .knownDamagingClass(&quot;Known damaging class import (contains non-literal static member variables)&quot;)</span>
+<span class="fc" id="L72">        .missingBeanDefinitions(&quot;Missing bean definitions for spring beans {0},&quot;</span>
+           + &quot; create definitions or list them in @Verified'''s expected field&quot;)
+<span class="fc" id="L74">        .missingRelevantAnnotations(&quot;Missing @Verified or @Configuration on classes {0}&quot;)</span>
+<span class="fc" id="L75">        .unmatchedTypes(&quot;Unmatched types {0}&quot;)</span>
+<span class="fc" id="L76">        .duplicatedMatchingDependencies(&quot;Duplicated matching dependencies {0}&quot;)</span>
+<span class="fc" id="L77">        .duplicatedMatchingDefinitions(&quot;Duplicated matching definitions {0}&quot;)</span>
+<span class="fc" id="L78">        .noMatchingDefinition(&quot;No matching definition {0}&quot;)</span>
+<span class="fc" id="L79">        .unusedExpected(&quot;Expected bean name is unnecessary {0}&quot;)</span>
+<span class="fc" id="L80">        .couldNotStore(&quot;Could not store incremental build file for {0}&quot;)</span>
+<span class="fc" id="L81">        .couldNotRead(&quot;Could not read incremental build file for {0}&quot;)</span>
+<span class="fc" id="L82">        .dependencyShaMismatch(&quot;Sha256 mismatch of dependency model of prior analyzed @Configuration model&quot;)</span>
+<span class="fc" id="L83">        .rootNodeImported(&quot;@Verfied(root=true) may not be @Imported by other @Verified @Configuration classes: {0}&quot;)</span>
+<span class="fc" id="L84">        .build();</span>
+<span class="fc" id="L85">    definitionAggregator = new AptParsingContext(errorMessages, filer, elementUtils, typeUtils);</span>
+<span class="fc" id="L86">  }</span>
+
+  @Override
+  public boolean process(Set&lt;? extends TypeElement&gt; annotations, RoundEnvironment env) {
+    try  {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">      if (env.processingOver()) {</span>
+<span class="fc" id="L92">        definitionAggregator.outputErrors(messager);</span>
+<span class="fc" id="L93">      } else {</span>
+<span class="fc" id="L94">        AptElementVisitor visitor = new AptElementVisitor(te -&gt; new SpringAnnotationParser().extractDefinition(te, messager));</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        for (Element annotatedElement : env.getElementsAnnotatedWith(Verified.class)) {</span>
+<span class="fc" id="L96">          visitor.visit(annotatedElement, definitionAggregator);        </span>
+        }
+      }
+<span class="fc" id="L99">      return true;</span>
+<span class="fc" id="L100">    } catch (Exception exception) {</span>
+      // Catch and print for debugging reasons. This code path is unexpected.
+<span class="fc" id="L102">      StringWriter writer = new StringWriter();</span>
+<span class="fc" id="L103">      exception.printStackTrace(new PrintWriter(writer));</span>
+<span class="fc" id="L104">      messager.printMessage(Diagnostic.Kind.ERROR, writer.toString());</span>
+<span class="fc" id="L105">      return true;</span>
+    }
+  }
+
+  @Override
+  public Set&lt;String&gt; getSupportedAnnotationTypes() {
+<span class="fc" id="L111">    Set&lt;String&gt; output = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L112">    output.add(Verified.class.getName());</span>
+<span class="fc" id="L113">    return output;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<rss version="0.91">
+  <channel>
+    <title>AptSpringProcessor - Checkstyle report</title>
+    <link>https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor/</link>
+    <description>AptSpringProcessor - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2017 Salesforce OSS</copyright>
+    <item>
+      <title>File: 13,
+             Errors: 0,
+             Warnings: 2,
+             Infos: 0
+      </title>
+            <link>https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.VerifiedSpringConfiguration.java">com/salesforce/aptspring/processor/VerifiedSpringConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.ConfigurationTests.java">com/salesforce/aptspring/processor/ConfigurationTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.ExpectedTests.java">com/salesforce/aptspring/processor/ExpectedTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.SpringAnnotationParser.java">com/salesforce/aptspring/processor/SpringAnnotationParser.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.FieldTests.java">com/salesforce/aptspring/processor/FieldTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.takari.TakariIncrementalCompileTests.java">com/salesforce/aptspring/processor/takari/TakariIncrementalCompileTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.AnnotationValueExtractor.java">com/salesforce/aptspring/processor/AnnotationValueExtractor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.ParserTests.java">com/salesforce/aptspring/processor/ParserTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.takari.BetterTakariCompileTest.java">com/salesforce/aptspring/processor/takari/BetterTakariCompileTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.TypeCheckingTests.java">com/salesforce/aptspring/processor/TypeCheckingTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.metaannotation.AptAnnotationParserTest.java">com/salesforce/aptspring/processor/metaannotation/AptAnnotationParserTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.ComponentTests.java">com/salesforce/aptspring/processor/ComponentTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/salesforce/AptSpring/MavenParent/AptSpringParent/AptSpringProcessor//checkstyle.html#com.salesforce.aptspring.processor.BeanTests.java">com/salesforce/aptspring/processor/BeanTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+
