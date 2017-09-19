@@ -104,7 +104,7 @@ public class SpringAnnotationParser {
    * @deprecated please see {@link SpringAnnotationParser#extractDefinition(TypeElement, Messager)}
    */
   public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
-    return new SpringAnnotationParser().parseDefinition(te, messager);
+    return new SpringAnnotationParser().extractDefinition(te, messager);
   }
   
   /**
