@@ -38,23 +38,23 @@ import java.lang.annotation.Target;
  * The APT parser will generate errors if any of the following restrictions are violated:
  * </p>
  * <p>
- * For restrictions on @Configuration class definitions are:
+ * Restrictions on @Configuration class definitions are:
  * </p>
  * <ul>
  *  <li>All methods on an @Configuration class are @Bean methods.</li>
  *  <li>The @Configuration class has a public no-parameter constructor.</li>
  *  <li>The @Configuration class must be the top level class in a the java file.</li>
- *  <li>No uses of @ComponentScan on @Configuration class, instead use @Import</li>
- *  <li>All fields on the @ComponentScan annotation must be "private static final {Type} {name} = {LITERAL_VALUE}";</li>
+ *  <li>No uses of @ComponentScan on @Configuration classes, instead use @Import</li>
+ *  <li>All fields on the @Configuration annotation must be "private static final {Type} {name} = {LITERAL_VALUE}";</li>
  * </ul>
  * <p>
- * For Bean Methods signatures the restrictions are:
+ * Bean Methods signatures have the following restrictions:
  * </p>
  * <ul>
  *  <li>@Bean annotations define at least one name for the bean.</li>
  *  <li>@Bean methods return an object (not void, not un-boxed values)</li>
  *  <li>@Bean methods are public</li>
- *  <li>@Bean methods are not static, final, native, abstract or default</li>
+ *  <li>@Bean methods are not static, final, native, or abstract</li>
  *  <li>@Bean method parameters must have a @Qualifier of the bean name they expect as input or an @Value 
  *  of the property they expect spring to inject (system property or other configuration).</li>
  * </ul>
@@ -76,7 +76,7 @@ import java.lang.annotation.Target;
  *  <li>Ensure expect beans passed in types are of compatible types (few hours)</li>
  * </ul>
  * <p>
- * Special note about @Value annotations.
+ * Restrictions on the use of @Value annotations.
  * </p>
  * <ul>
  *   <li>@Value may only be used on method parameters.</li>  
@@ -90,13 +90,20 @@ import java.lang.annotation.Target;
  *   in to one location, namely the {@link Verified#root()} = true @Configuration class</li>
  * </ul>
  * <p>
+ * Restrictions on @Component classes that are not @Configuration classes.
+ * </p>
+ * <ul>
+ *   <li>May only have one constructor, or one constructor marked @Autowired if it has multiple constructors.</li>
+ *   <li>All fields must be private static final literals, of private final variables set during instance construction.</li>  
+ * </ul>  
+ * <p>
+ * MetaAnnotations are supported.  @AliasFor will work as expected.
+ * </p>
+ * <p>
  * Future checks to be added to the project will include but are not limited to:
  * </p>
  * <ul>
  *   <li>No usage of banned classes {classes that contain static references to the Spring Context or system properties}</li>
- *   <li>Any use of spring annotations on the classes of the returned beans themselves, all configuration should live in
- *   the @Configuration classes</li>
- *   <li>honoring spring meta annotations</li>
  *   <li>don't call any methods on the injected dependencies to a bean method in the bean method or object constructor, this
  *   violates the Liskov Substitution Principle and makes code more coupled and error prone, instead only inject what you
  *   need at runtime.</li>
@@ -106,8 +113,6 @@ import java.lang.annotation.Target;
  * </p>
  * <ul>
  *  <li>Prune unneeded data from the persisted storage of @Configuration data allowing for faster cycle detect.</li>
- *  <li>Change eclipse project generation in core to include jar as apt tool.</li>
- *  <li>Include lazy bean instantiation tool in spring with those teams.</li>
  * </ul>
  * <p>
  * The processing is incremental, meaning that a json file is generated in to a target directory and read when available.
