@@ -32,8 +32,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This marker annotation may only be used on Spring @Configuration classes.
- * Combined with the ForceInjectSpringAPT annotation processor to prevent errors from creeping in to your spring graph!
+ * This marker annotation may only be used on Spring @Configuration and @Component classes.
+ * Combined with the AptSpringProcessor annotation processor to prevent errors from creeping in to your spring graph!
  * <p>
  * The APT parser will generate errors if any of the following restrictions are violated:
  * </p>
