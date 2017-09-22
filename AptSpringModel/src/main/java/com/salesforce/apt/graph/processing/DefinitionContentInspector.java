@@ -215,48 +215,52 @@ public class DefinitionContentInspector {
    */
   private Map<String, InstanceModel> ensureSingleInstanceOfEachName(DefinitionModel definition,
       Consumer<ErrorModel> errorListener) {
+    //create a stream of all imported Definition's InstanceModels
     Stream<InstanceModel> imported = definition.getDependencies().stream()
         .map(d -> d.getProvidedInstances()).flatMap(x -> x.stream());
+    //merge the stream with all local instance models.
     Stream<InstanceModel> instanceModelStream = Stream.concat(definition.getObjectDefinitions().stream(), imported);
 
-    Map<String, List<InstanceModel>> instancesByName = instanceModelStream
-        .flatMap(instance -> getEntryListForNameAndAlias(instance).stream())
-        .collect(Collectors.groupingBy(entry -> entry.getKey(), 
-            Collectors.mapping(entry -> entry.getValue(), Collectors.toList())));
+    //map all instances by name and then by source location (due to diamond dependencies in definition imports.
+    Map<String, Map<String, InstanceModel>> instancesByNameAndLocationDedupped = instanceModelStream
+        .flatMap(instance -> getEntryListForNameAndAlias(instance).stream()) //flat map all alias to entries
+        .collect(Collectors.groupingBy(entry -> entry.getKey(), //group by name
+            Collectors.mapping(entry -> entry.getValue(), 
+                Collectors.toMap(im -> im.getElementLocation(), //by location
+                    im -> im, //identity function for first insert
+                    //choose the one with source element on merge, if any
+                    (im1, im2) -> im1.getSourceElement().isPresent() ? im1 : im2))));
     
     final Map<String, InstanceModel> resolvedDependencies = new HashMap<>();
-    boolean errored = false;
-    for (Entry<String, List<InstanceModel>> entry : instancesByName.entrySet()) {
-      Map<String, List<InstanceModel>> collidingInstances = entry.getValue().stream()
-          .collect(Collectors.groupingBy(
-              im -> im.getOwningDefinition() 
-                  + "::" 
-                  + im.getElementLocation()
-                  + "::"
-                  + im.getIdentity()
-             ));
-      if (collidingInstances.size() == 1) {
-        //there is only one entity and it is now resolved
-        InstanceModel instance = getOneWithSourceElementElseAny(collidingInstances.values().iterator().next());
-        resolvedDependencies.put(entry.getKey(), instance);
-      }
-      if (collidingInstances.size() > 1) {
+    boolean errored = false;    
+    for (Entry<String, Map<String, InstanceModel>> entry : instancesByNameAndLocationDedupped.entrySet()) {
+      if (entry.getValue().size() == 1) {
+        resolvedDependencies.put(entry.getKey(), entry.getValue().values().iterator().next()); //get only InstanceModel.
+      } else {
         errored = true;
-        List<AbstractModel> causes = new ArrayList<>();
-        List<AbstractModel> involved = new ArrayList<>();
-        involved.add(definition);
-        collidingInstances.values().stream().forEach(sameIdentities ->  {
-          InstanceModel instance = getOneWithSourceElementElseAny(sameIdentities);
-          causes.add(instance);
-          if (instance.getSourceElement().isPresent()) {
-            involved.add(instance);
-          }
-        });
-        errored = true;
-        errorListener.accept(new ErrorModel(ErrorType.DUPLICATE_OBJECT_DEFINITIONS, causes, involved));
+        errorListener.accept(errorForDuplicateInstanceModels(definition, entry.getValue().values().stream()
+            .sorted((i1, i2) -> i1.getElementLocation().compareTo(i2.getElementLocation()))
+            .collect(Collectors.toList())));
       }
     }
     return errored ? null : resolvedDependencies;
+  }
+
+  /**
+   * Given a list of duplicate instance models (same identifier, different source elements) produce a 
+   * well formed ErrorModel.
+   * 
+   * @param definition where the error was first detected.
+   * @param causes the list of all instances models from the definition or any of it's imported definitions.
+   * @return an well formed ErrorModel of the duplicated beans.
+   */
+  private ErrorModel errorForDuplicateInstanceModels(DefinitionModel definition, List<InstanceModel> causes) {
+    ArrayList<AbstractModel> involved = new ArrayList<>();
+    involved.add(definition);
+    involved.addAll(causes.stream()
+        .filter(instanceModel -> instanceModel.getSourceElement().isPresent())
+        .collect(Collectors.toList()));
+    return new ErrorModel(ErrorType.DUPLICATE_OBJECT_DEFINITIONS, causes, involved);
   }
   
   /**
@@ -284,12 +288,7 @@ public class DefinitionContentInspector {
         for (InstanceDependencyModel instanceDependency : instanceModel.getDependencies()) {
           BaseInstanceModel dependency = nameToEntity.get(instanceDependency.getIdentity());
           if (dependency == null) {
-            dependency = missing.get(instanceDependency.getIdentity());
-            if (dependency == null) {
-              ExpectedModel expected = new ExpectedModel(instanceDependency.getIdentity());
-              dependency = expected;
-              missing.put(instanceDependency.getIdentity(), expected);
-            }
+            dependency = missing.computeIfAbsent(instanceDependency.getIdentity(), s -> new ExpectedModel(s));
             missing.get(instanceDependency.getIdentity())
               .addDefinitionReferenceToType(instanceModel.getIdentity(), instanceDependency.getType());
           }

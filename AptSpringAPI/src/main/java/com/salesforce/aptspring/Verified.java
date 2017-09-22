@@ -68,7 +68,7 @@ import java.lang.annotation.Target;
  *  <li>Detect missing beans by their name reference</li>
  *  <li>Allow @Configuration classes to declare beans they expect (these are the only missing beans a graph may have),
  *   see {@link Verified#expectedBeans()}</li>
- *  <li>Detect when one one of those expected beans is not used in the graph and flag it as an error.</li>
+ *  <li>Detect when one of those expected beans is not used in the graph and flag it as an error.</li>
  *  <li>Detect missing @Configuration classes from an @Import</li>
  *  <li>only @Verified @Configuration classes may be @Imported in to a @Verified @Configuration class</li>
  *  <li>Detect when the declared output type of an @Bean method does not satisfy the type expected by
