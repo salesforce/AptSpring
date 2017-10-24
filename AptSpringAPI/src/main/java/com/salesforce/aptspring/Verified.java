@@ -105,7 +105,7 @@ import java.lang.annotation.Target;
  * <ul>
  *   <li>No usage of banned classes {classes that contain static references to the Spring Context or system properties}</li>
  *   <li>don't call any methods on the injected dependencies to a bean method in the bean method or object constructor, this
- *   violates the Liskov Substitution Principle and makes code more coupled and error prone, instead only inject what you
+ *   violates the https://en.wikipedia.org/wiki/Law_of_Demeter and makes code more coupled and error prone, instead only inject what you
  *   need at runtime.</li>
  * </ul>
  * <p>
