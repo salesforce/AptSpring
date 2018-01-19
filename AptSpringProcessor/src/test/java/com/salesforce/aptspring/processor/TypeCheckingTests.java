@@ -52,7 +52,6 @@ public class TypeCheckingTests {
       "import java.util.List;",
       "",
       "  @com.salesforce.aptspring.Verified()",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -76,7 +75,6 @@ public class TypeCheckingTests {
       "import java.util.List;",
       "",
       "  @com.salesforce.aptspring.Verified()",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -101,7 +99,6 @@ public class TypeCheckingTests {
       "import java.util.ArrayList;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -122,7 +119,6 @@ public class TypeCheckingTests {
       "import java.util.Map;",
       "",
       "  @com.salesforce.aptspring.Verified()",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -154,7 +150,6 @@ public class TypeCheckingTests {
       "import java.util.ArrayList;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -176,7 +171,6 @@ public class TypeCheckingTests {
       "import java.util.ArrayList;",
       "",
       "  @com.salesforce.aptspring.Verified(expectedBeans=\"valueX\")",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -200,11 +194,11 @@ public class TypeCheckingTests {
             .failsToCompile()
             .withErrorContaining("Unmatched types value3 found in test.TestClass2.value3()")
             .in(definitionClassExpectingListInteger)
-            .onLine(19)
+            .onLine(18)
             .and()
             .withErrorContaining("Unmatched types value2 found in test.TestClass1.value2(java.util.List<java.lang.Integer>)")
             .in(definitionClass2ProvidesListString)
-            .onLine(16);
+            .onLine(15);
   }
   
   
@@ -217,7 +211,7 @@ public class TypeCheckingTests {
             .withErrorContaining("Unmatched types valueX found in test.TestClass1.valueX(),"
                 + " value3 found in test.TestClass2.value3(java.lang.Integer)")
             .in(definitionClassExpectingComplex)
-            .onLine(13);
+            .onLine(12);
   }
   
   @Test

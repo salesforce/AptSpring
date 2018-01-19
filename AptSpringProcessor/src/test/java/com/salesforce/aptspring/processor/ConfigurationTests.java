@@ -53,7 +53,6 @@ public class ConfigurationTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -76,7 +75,6 @@ public class ConfigurationTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass1.class)",
       "  public class TestClass2 {",
       "",
@@ -99,7 +97,6 @@ public class ConfigurationTests {
       "import org.springframework.context.annotation.Configuration;",
       "import org.springframework.context.annotation.Import;",
       "",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -121,7 +118,6 @@ public class ConfigurationTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified(root=true)",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -141,13 +137,13 @@ public class ConfigurationTests {
             .that(Arrays.asList(definitionClass, definitionClass2CausesDefinitionCycle))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Cycle in @Configuration class @Imports test.TestClass1 -> test.TestClass2")
+            .withErrorContaining("Cycle in @Imports test.TestClass1 -> test.TestClass2")
             .in(definitionClass)
-            .onLine(12)
+            .onLine(11)
             .and()
-            .withErrorContaining("Cycle in @Configuration class @Imports test.TestClass2 -> test.TestClass1")
+            .withErrorContaining("Cycle in @Imports test.TestClass2 -> test.TestClass1")
             .in(definitionClass2CausesDefinitionCycle)
-            .onLine(12);   
+            .onLine(11);   
   }
   
   @Test
@@ -158,9 +154,9 @@ public class ConfigurationTests {
             .that(Arrays.asList(definitionClass, definitionClass2NotVerified))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Missing @Verified or @Configuration on classes test.TestClass2")
+            .withErrorContaining("Missing @Verified on classes test.TestClass2")
             .in(definitionClass)
-            .onLine(12);
+            .onLine(11);
   }
 
   @Test
@@ -172,12 +168,9 @@ public class ConfigurationTests {
             .processedWith(new VerifiedSpringConfiguration())          
             .failsToCompile()
             .withErrorContaining("@Verfied(root=true) may not be @Imported by other "
-                + "@Verified @Configuration classes: test.TestClass2")
+                + "@Verified classes: test.TestClass2")
             .in(definitionClass)
-            .onLine(12);
+            .onLine(11);
   }
-
-  
-  
   
 }

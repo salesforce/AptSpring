@@ -81,7 +81,6 @@ public class BeanTests {
             "import org.springframework.context.annotation.Configuration;",
             "",
             "  @com.salesforce.aptspring.Verified",
-            "  @Configuration",
             "  public class TestClass {",
             "",
             "    @Bean(name = \"value1\")",
@@ -96,13 +95,13 @@ public class BeanTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Cycle in @Configuration class @Imports value1 found in test.TestClass.value1(java.lang.String)"
+            .withErrorContaining("Cycle in @Imports value1 found in test.TestClass.value1(java.lang.String)"
                 + " -> value2 found in test.TestClass.value2(java.lang.String)")
-            .in(definitionClass).onLine(13)
+            .in(definitionClass).onLine(12)
             .and()
-            .withErrorContaining("Cycle in @Configuration class @Imports value2 found in test.TestClass.value2(java.lang.String)"
+            .withErrorContaining("Cycle in @Imports value2 found in test.TestClass.value2(java.lang.String)"
                 + " -> value1 found in test.TestClass.value1(java.lang.String)")
-            .in(definitionClass).onLine(16);
+            .in(definitionClass).onLine(15);
   }
 
   @Test
@@ -117,7 +116,6 @@ public class BeanTests {
             "import org.springframework.context.annotation.Configuration;",
             "",
             "  @com.salesforce.aptspring.Verified",
-            "  @Configuration",
             "  public class TestClass {",
             "",
             "    @Bean(name = \"value1\")",
@@ -133,10 +131,10 @@ public class BeanTests {
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
             .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value2()")
-            .in(definitionClass).onLine(13)
+            .in(definitionClass).onLine(12)
             .and()
             .withErrorContaining("Duplicate in spring beans value1 found in test.TestClass.value1()")
-            .in(definitionClass).onLine(16);
+            .in(definitionClass).onLine(15);
   }
 
   @Test
@@ -152,7 +150,6 @@ public class BeanTests {
         "import org.springframework.context.annotation.Import;",
         "",
         "  @com.salesforce.aptspring.Verified()",
-        "  @Configuration",
         "  public class TestClass2 {",
         "",
         "    @Bean(name = \"value3\")",
@@ -170,7 +167,12 @@ public class BeanTests {
             .withErrorContaining("Missing bean definitions for spring beans value1,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClass)
-            .onLine(14);
+            .onLine(10)
+            .and()
+            .withErrorContaining("Missing bean definitions for spring beans value1,"
+                + " create definitions or list them in @Verified's expected field")
+            .in(definitionClass)
+            .onLine(13);
   }
   
   
@@ -187,7 +189,6 @@ public class BeanTests {
         "import org.springframework.context.annotation.Import;",
         "",
         "  @com.salesforce.aptspring.Verified(expectedBeans=\"{value1}\")",
-        "  @Configuration",
         "  public class TestClass2 {",
         "",
         "    private static String someVariable;",
@@ -203,7 +204,7 @@ public class BeanTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(13);
+            .onLine(12);
   }
   
   

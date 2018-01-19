@@ -77,7 +77,6 @@ public class AptAnnotationParserTest {
             "import org.springframework.context.annotation.Configuration;",
             "",
             "  @com.salesforce.aptspring.Verified",
-            "  @Configuration",
             "  public class TestClass {",
             "",
             "    @BeanWrapper(otherName = \"value1\")",
@@ -105,7 +104,6 @@ public class AptAnnotationParserTest {
             "import org.springframework.context.annotation.Configuration;",
             "",
             "  @com.salesforce.aptspring.Verified",
-            "  @Configuration",
             "  public class TestClass {",
             "",
             "    @Override",
@@ -122,11 +120,11 @@ public class AptAnnotationParserTest {
             .failsToCompile()
             .withErrorContaining("All methods on @Configuration must have @Bean annotation")
             .in(definitionClass)
-            .onLine(12)
+            .onLine(11)
             .and()
             .withErrorContaining("All @Bean annotations must define at least one name for a bean.")
             .in(definitionClass)
-            .onLine(15);
+            .onLine(14);
             
   }
   

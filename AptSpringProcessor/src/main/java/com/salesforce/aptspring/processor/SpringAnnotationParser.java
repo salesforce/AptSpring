@@ -125,7 +125,7 @@ public class SpringAnnotationParser {
         .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
     String[] componentBeanNames  = AnnotationValueExtractor
         .getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);
-    if (configurationBeanNames != null) {
+    if (configurationBeanNames == null && componentBeanNames == null) {
       for (Element enclosed : te.getEnclosedElements()) {
         handleEnclosedElements(messager, model, enclosed);
       }
@@ -133,7 +133,8 @@ public class SpringAnnotationParser {
       if (componentBeanNames != null) {
         addModelsFromComponent(te, model, componentBeanNames, messager);
       } else {
-        messager.printMessage(Kind.ERROR, "@Verified annotation must only be used on @Configuration or @Component classes", te);
+        messager.printMessage(Kind.ERROR, "@Verified annotation must only be used on "
+            + "@Bean LITE factory classes or @Component classes", te);
       }
     }
     
@@ -271,7 +272,7 @@ public class SpringAnnotationParser {
   }
 
   /**
-   * Builds an instance model by finding the autowired constructor of an @Component model as well as 
+   * Builds an instance model by finding the autowired constructor of an @Component model.
    * 
    * @param te the TypeElement corresponding to the @Component class.
    * @param dm the definitionModel built from the @Component.

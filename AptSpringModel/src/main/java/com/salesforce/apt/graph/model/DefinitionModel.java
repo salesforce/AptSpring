@@ -79,6 +79,8 @@ public class DefinitionModel extends AbstractModel {
   }
   
   /**
+   * Is this node marked as a root node, meaning noone can depend upon it.
+   * 
    * @return true if this is a root node, and no other nodes may depend on it.
    */
   public boolean isRootNode() {

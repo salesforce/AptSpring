@@ -32,20 +32,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This marker annotation may only be used on Spring @Configuration and @Component classes.
+ * This marker annotation may only be used on Spring @Bean LITE and @Component classes.
  * Combined with the AptSpringProcessor annotation processor to prevent errors from creeping in to your spring graph!
  * <p>
  * The APT parser will generate errors if any of the following restrictions are violated:
  * </p>
  * <p>
- * Restrictions on @Configuration class definitions are:
+ * Restrictions on @Bean Lite mode class definitions are:
  * </p>
  * <ul>
- *  <li>All methods on an @Configuration class are @Bean methods.</li>
- *  <li>The @Configuration class has a public no-parameter constructor.</li>
- *  <li>The @Configuration class must be the top level class in a the java file.</li>
- *  <li>No uses of @ComponentScan on @Configuration classes, instead use @Import</li>
- *  <li>All fields on the @Configuration annotation must be "private static final {Type} {name} = {LITERAL_VALUE}";</li>
+ *  <li>All methods on the class are @Bean methods.</li>
+ *  <li>The class has a public no-parameter constructor.</li>
+ *  <li>The class must be the top level class in a the java file.</li>
+ *  <li>No uses of @ComponentScan on the classes, instead use @Import</li>
+ *  <li>All fields on the class must be {@code "private static final 'Type' 'name' = 'LITERAL_VALUE'";}</li>
+ *  <li>The class must not be annotated with @Component or @Configuration</li>
  * </ul>
  * <p>
  * Bean Methods signatures have the following restrictions:
@@ -54,7 +55,7 @@ import java.lang.annotation.Target;
  *  <li>@Bean annotations define at least one name for the bean.</li>
  *  <li>@Bean methods return an object (not void, not un-boxed values)</li>
  *  <li>@Bean methods are public</li>
- *  <li>@Bean methods are not static, final, native, or abstract</li>
+ *  <li>@Bean methods are not static, final, native, or abstract (support may be added for BeanFactoryPostProcessors)</li>
  *  <li>@Bean method parameters must have a @Qualifier of the bean name they expect as input or an @Value 
  *  of the property they expect spring to inject (system property or other configuration).</li>
  * </ul>
@@ -62,18 +63,18 @@ import java.lang.annotation.Target;
  * With the above restrictions in place, the following checks become feasible, and also occur at compile time:
  * </p>
  * <ul>
- *  <li>Cycles in @Configuration @Import class</li>
+ *  <li>Cycles in @Import class</li>
  *  <li>Cycles in @Bean dependency definitions</li>
- *  <li>Duplicate @Bean names in the directed acyclic graph of @Configuration classes</li>
+ *  <li>Duplicate @Bean names in the directed acyclic graph of @Bean definition classes</li>
  *  <li>Detect missing beans by their name reference</li>
- *  <li>Allow @Configuration classes to declare beans they expect (these are the only missing beans a graph may have),
+ *  <li>Allow classes to declare beans they expect (these are the only missing beans a graph may have),
  *   see {@link Verified#expectedBeans()}</li>
  *  <li>Detect when one of those expected beans is not used in the graph and flag it as an error.</li>
- *  <li>Detect missing @Configuration classes from an @Import</li>
- *  <li>only @Verified @Configuration classes may be @Imported in to a @Verified @Configuration class</li>
+ *  <li>Detect missing classes from an @Import</li>
+ *  <li>only @Verified classes may be @Imported in to a @Verified class</li>
  *  <li>Detect when the declared output type of an @Bean method does not satisfy the type expected by
- *   uses of that @Bean method.</li>
- *  <li>Ensure expect beans passed in types are of compatible types (few hours)</li>
+ *   uses of bean's qualified name in an injection point.</li>
+ *  <li>Ensure expected beans passed in types are of compatible types.</li>
  * </ul>
  * <p>
  * Restrictions on the use of @Value annotations.
@@ -82,15 +83,15 @@ import java.lang.annotation.Target;
  *   <li>@Value may only be used on method parameters.</li>  
  *   <li>@Value parameters and @Qualifier parameters may not be mixed on the same @Bean method</li>
  *   <li>It is highly encouraged that @Bean methods with @Value parameters only have one parameters (more are allowed)</li>
- *   <li>@Value annotations may only be used on @Configuration classes that are marked as {@link Verified#root()} = true</li>
- *   <li>No @Configuration class may mark an {@link Verified#root()} = true @Configuration class as an @Import</li>
- *   <li>Instead @Import @Configuration files should use {@link Verified#expectedBeans()} to expect beans that will be required
- *   at runtime that will contain they properties they need to run</li>
- *   <li>This is to encourage re-usable, testable @Configuration classes, and to consolidate where all system properties are read
- *   in to one location, namely the {@link Verified#root()} = true @Configuration class</li>
+ *   <li>@Value annotations may only be used on classes that are marked as {@link Verified#root()} = true</li>
+ *   <li>No class may mark a {@link Verified#root()} = true class as an @Import</li>
+ *   <li>Instead @Import files should use {@link Verified#expectedBeans()} to expect beans that will be required
+ *   at runtime that will contain the properties they need to run</li>
+ *   <li>This is to encourage re-usable, testable @Bean lite classes, and to consolidate where all system properties are read
+ *   in to one location, namely the {@link Verified#root()} = true class</li>
  * </ul>
  * <p>
- * Restrictions on @Component classes that are not @Configuration classes.
+ * Restrictions on @Component classes:
  * </p>
  * <ul>
  *   <li>May only have one constructor, or one constructor marked @Autowired if it has multiple constructors.</li>
@@ -112,7 +113,7 @@ import java.lang.annotation.Target;
  * Work I'd like to finish soon but likely wont have time:
  * </p>
  * <ul>
- *  <li>Prune unneeded data from the persisted storage of @Configuration data allowing for faster cycle detect.</li>
+ *  <li>Prune unneeded data from the persisted storage of @Bean lite classes data allowing for faster cycle detect.</li>
  * </ul>
  * <p>
  * The processing is incremental, meaning that a json file is generated in to a target directory and read when available.

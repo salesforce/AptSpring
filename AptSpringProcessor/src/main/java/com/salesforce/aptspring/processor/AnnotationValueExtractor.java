@@ -56,7 +56,7 @@ public class AnnotationValueExtractor {
   
   /**
    * Utility method to extract the value of annotation on a class.
-   * Hooks to honor spring's @Verifed annotation.
+   * Hooks to honor spring's {@link org.springframework.core.annotation.AliasFor} annotation.
    * 
    * @param e the element to inspect
    * @param annotationTypeName the fully qualified name of the annotation class.
@@ -122,8 +122,7 @@ public class AnnotationValueExtractor {
   
   
   /**
-   * On an executable element (that is a value holder on annotation) extract any
-   * direct uses of @AlaisFor
+   * On an executable element (that is a value holder on annotation) extract any direct uses of @AlaisFor.
    * 
    * @param annotationParameter the annotation's parameter to inspect for uses of @AliasFor
    * @return an AliasData if the the annotation is found, null otherwise.

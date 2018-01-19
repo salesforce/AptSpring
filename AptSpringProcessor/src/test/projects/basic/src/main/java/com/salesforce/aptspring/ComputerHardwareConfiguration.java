@@ -32,12 +32,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.salesforce.aptspring.objects.ItemType;
 
 @Verified(expectedBeans = {"valueBeanX"})
-@Configuration 
 public class ComputerHardwareConfiguration {
 
   @Bean("hardware_root")

@@ -53,7 +53,6 @@ public class ComponentTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -76,7 +75,6 @@ public class ComponentTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -261,7 +259,7 @@ public class ComponentTests {
             .withErrorContaining("Missing bean definitions for spring beans bob,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClass)
-            .onLine(12)
+            .onLine(11)
             .and()
             .withErrorContaining("Missing bean definitions for spring beans bob,"
                 + " create definitions or list them in @Verified's expected field")
@@ -277,15 +275,15 @@ public class ComponentTests {
             .that(Arrays.asList(definitionClass, componentClassTwoConstructorsWithCircularDeps))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("Cycle in @Configuration class @Imports")
+            .withErrorContaining("Cycle in @Imports")
             .in(definitionClass)
-            .onLine(15)
+            .onLine(14)
             .and()
-            .withErrorContaining("Cycle in @Configuration class @Imports")
+            .withErrorContaining("Cycle in @Imports")
             .in(definitionClass)
-            .onLine(18)
+            .onLine(17)
             .and()
-            .withErrorContaining("Cycle in @Configuration class @Imports")
+            .withErrorContaining("Cycle in @Imports")
             .in(componentClassTwoConstructorsWithCircularDeps)
             .onLine(15);
     

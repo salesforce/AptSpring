@@ -51,7 +51,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -74,7 +73,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified(expectedBeans={\"value5\"})",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -97,7 +95,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -120,7 +117,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified(expectedBeans={\"value5\"})",
-      "  @Configuration",
       "  @Import(TestClass2.class)",
       "  public class TestClass1 {",
       "",
@@ -144,7 +140,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified(expectedBeans={\"value5\"})",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -167,7 +162,6 @@ public class ExpectedTests {
       "import org.springframework.context.annotation.Import;",
       "",
       "  @com.salesforce.aptspring.Verified",
-      "  @Configuration",
       "  public class TestClass2 {",
       "",
       "    @Bean(name = \"value3\")",
@@ -188,12 +182,12 @@ public class ExpectedTests {
             .withErrorContaining("Missing bean definitions for spring beans value5,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClass2MissingExpected)
-            .onLine(11)
+            .onLine(10)
             .and()
             .withErrorContaining("Missing bean definitions for spring beans value5,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClass2MissingExpected)
-            .onLine(14);
+            .onLine(13);
     
   }
   
@@ -215,12 +209,12 @@ public class ExpectedTests {
             .withErrorContaining("Missing bean definitions for spring beans value5,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClassNotExpectingValue5)
-            .onLine(12)
+            .onLine(11)
             .and()
             .withErrorContaining("Missing bean definitions for spring beans value5,"
                 + " create definitions or list them in @Verified's expected field")
             .in(definitionClass2MissingExpected)
-            .onLine(14);
+            .onLine(13);
     
   }
   
@@ -240,7 +234,7 @@ public class ExpectedTests {
             .failsToCompile()
             .withErrorContaining("Expected bean name is unnecessary value5 found in test.TestClass1")
             .in(definitionClassHasAndExpectsValue5)
-            .onLine(12);
+            .onLine(11);
   }
   
 }

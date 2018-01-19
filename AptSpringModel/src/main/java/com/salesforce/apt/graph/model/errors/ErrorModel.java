@@ -61,7 +61,8 @@ public class ErrorModel {
   }
   
   /**
-   * A non cyclic error
+   * A non cyclic error.
+   *
    * @param message {@link ErrorType} of this represents
    * @param causes models at fault.
    * @param involved models the error should be displayed on.

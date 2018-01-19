@@ -64,14 +64,14 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
     Filer filer = env.getFiler();
     messager = env.getMessager();
     ErrorMessages errorMessages = ErrorMessages.builder()
-        .cycleInDefinitionSources("Cycle in @Configuration class @Imports {0}")
+        .cycleInDefinitionSources("Cycle in @Imports {0}")
         .cycleInObjectDefinitions("Cycle in spring bean dependencies {0}")
         .duplicateObjectDefinitions("Duplicate in spring beans {0}")
         .nonLiteralStaticMemberVariables("Non literal static member variables can break class instantiation and leak state")
         .knownDamagingClass("Known damaging class import (contains non-literal static member variables)")
         .missingBeanDefinitions("Missing bean definitions for spring beans {0},"
            + " create definitions or list them in @Verified'''s expected field")
-        .missingRelevantAnnotations("Missing @Verified or @Configuration on classes {0}")
+        .missingRelevantAnnotations("Missing @Verified on classes {0}")
         .unmatchedTypes("Unmatched types {0}")
         .duplicatedMatchingDependencies("Duplicated matching dependencies {0}")
         .duplicatedMatchingDefinitions("Duplicated matching definitions {0}")
@@ -79,8 +79,8 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
         .unusedExpected("Expected bean name is unnecessary {0}")
         .couldNotStore("Could not store incremental build file for {0}")
         .couldNotRead("Could not read incremental build file for {0}")
-        .dependencyShaMismatch("Sha256 mismatch of dependency model of prior analyzed @Configuration model")
-        .rootNodeImported("@Verfied(root=true) may not be @Imported by other @Verified @Configuration classes: {0}")
+        .dependencyShaMismatch("Sha256 mismatch of dependency model of prior analyzed @Verified class model")
+        .rootNodeImported("@Verfied(root=true) may not be @Imported by other @Verified classes: {0}")
         .build();
     definitionAggregator = new AptParsingContext(errorMessages, filer, elementUtils, typeUtils);
   }

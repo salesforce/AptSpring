@@ -29,13 +29,11 @@ package com.salesforce.aptspring;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.salesforce.aptspring.objects.ItemType;
 
 @Verified(root = true)
-@Configuration
 @Import(ComputerHardwareConfiguration.class)
 public class RootApplicationConfiguration {
 

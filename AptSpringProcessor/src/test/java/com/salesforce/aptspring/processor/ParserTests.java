@@ -70,7 +70,7 @@ public class ParserTests {
   }
   
   @Test
-  public void testConfigurationBeanMethodMustHaveAtLeastOneName() throws IOException {
+  public void testLiteBeanMethodMustHaveAtLeastOneName() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
         "test.TestClass",
         "package test;",
@@ -79,7 +79,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean",
@@ -93,11 +92,11 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("All @Bean annotations must define at least one name for a bean")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
 
   @Test
-  public void testConfigurationBeanMethodMayHaveManyNames() throws IOException {
+  public void testLiteBeanMethodMayHaveManyNames() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
         "test.TestClass",
         "package test;",
@@ -106,7 +105,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(name={\"name1\",\"name2\"})",
@@ -121,7 +119,7 @@ public class ParserTests {
   }
   
   @Test
-  public void testMustHaveConfiguration() throws IOException {
+  public void testMustNotHaveConfiguration() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
         "test.TestClass",
         "package test;",
@@ -129,6 +127,7 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
+        "@Configuration",
         "public class TestClass {",
         "",
         "  private static final String someVariable = \"I AM GOOD!\";",
@@ -139,14 +138,14 @@ public class ParserTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("@Verified annotation must only be used on @Configuration or @Component classes")
+            .withErrorContaining("@Verified annotation must only be used on @Bean LITE factory classes or @Component classes")
             .in(definitionClass)
-            .onLine(6);
+            .onLine(7);
   }
   
   
   @Test
-  public void testConfigurationMethodMustHaveBean() throws IOException {
+  public void testNonComponentsMustHaveBeanOrImport() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
         "test.TestClass",
         "package test;",
@@ -154,7 +153,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  private String getValue() { return \"I AM NOT GOOD!\"; }",
@@ -167,7 +165,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("All methods on @Configuration must have @Bean annotation")
             .in(definitionClass)
-            .onLine(9);
+            .onLine(8);
   }
   
   @Test
@@ -180,7 +178,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(name = {\"stuff\",\"stuff2\"})",
@@ -194,7 +191,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("@Bean methods must be marked public")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
   
   @Test
@@ -207,7 +204,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(name=\"stuff\")",
@@ -221,7 +217,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("@Bean methods must return an Object")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
   
   @Test
@@ -234,7 +230,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(name=\"stuff\")",
@@ -248,7 +243,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("@Bean methods must return an Object")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
   
   @Test
@@ -261,7 +256,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(name=\"stuff\")",
@@ -275,7 +269,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("Illegal modifiers found on spring @Bean method: STATIC")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
   
   @Test
@@ -288,7 +282,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         " public TestClass(String s) {",
@@ -303,7 +296,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("@Configuration should not have any non-defualt constructors.")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
   
   @Test
@@ -316,7 +309,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         " private TestClass() {",
@@ -330,7 +322,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("@Configuration should not have any non-public constructors.")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
   
   @Test
@@ -344,7 +336,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.ComponentScan;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "@ComponentScan(\"stuff1\")",
         "public class TestClass {",
         "",
@@ -359,7 +350,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("You may not use @ComponentScan(s) on @Verified classes")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
   
   @Test
@@ -406,7 +397,6 @@ public class ParserTests {
         "import org.springframework.beans.factory.annotation.Qualifier;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(value=\"stuff1\")",
@@ -426,7 +416,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("All parameters must have an @Qualifier or a @Value annotation")
             .in(definitionClass)
-            .onLine(20);
+            .onLine(19);
   }
   
   @Test
@@ -439,7 +429,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  public enum Day { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };",
@@ -453,7 +442,7 @@ public class ParserTests {
             .withErrorContaining("Only @Bean methods, private static final literals,"
                 + " and default constructors are allowed on @Configuration classes")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
 
   @Test
@@ -469,7 +458,6 @@ public class ParserTests {
         "import org.springframework.beans.factory.annotation.Qualifier;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "public class TestClass {",
         "",
         "  @Bean(value=\"stuff1\")",
@@ -487,12 +475,12 @@ public class ParserTests {
             .withErrorContaining("Only @Verified(root=true) nodes may use @Value annotations to create beans,"
                 + " decouples spring graph from environment")
             .in(definitionClass)
-            .onLine(14)
+            .onLine(13)
             .and()
             .withErrorContaining("No method may define both @Qualifier or a @Value annotations,"
                 + " keep property values in there own beans")
             .in(definitionClass)
-            .onLine(17);
+            .onLine(16);
   }
 
   @Test
@@ -508,7 +496,6 @@ public class ParserTests {
         "import org.springframework.beans.factory.annotation.Qualifier;",
         "",
         "@com.salesforce.aptspring.Verified(root=true)",
-        "@Configuration",
         "public class TestClass {",
         " ",
         "  @Bean(value=\"stuff1\")",

@@ -50,7 +50,6 @@ public class FieldTests {
         "import java.util.Date;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    private static final String someVariable = \"I AM GOOD!\";",
@@ -72,7 +71,6 @@ public class FieldTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    private static final String someVariable = null;",
@@ -85,7 +83,7 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(9);
+            .onLine(8);
   }
   
   @Test
@@ -97,7 +95,6 @@ public class FieldTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    private final String someVariable = \"x\";",
@@ -110,7 +107,7 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(9);
+            .onLine(8);
   }
   
   @Test
@@ -122,7 +119,6 @@ public class FieldTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    private static String someVariable = \"x\";",
@@ -135,7 +131,7 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(9);
+            .onLine(8);
   }
   
   @Test
@@ -147,7 +143,6 @@ public class FieldTests {
         "import org.springframework.context.annotation.Configuration;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    static final String someVariable = \"x\";",
@@ -160,7 +155,7 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(9);
+            .onLine(8);
   }
   
   @Test
@@ -173,7 +168,6 @@ public class FieldTests {
         "import java.util.Date;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    private static final Date someVariable = new Date();",
@@ -186,7 +180,7 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
   
   @Test
@@ -199,7 +193,6 @@ public class FieldTests {
         "import java.util.Date;",
         "",
         "  @com.salesforce.aptspring.Verified",
-        "  @Configuration",
         "  public class TestClass {",
         "",
         "    String someVariable = \"I AM GOOD!\";",
@@ -212,6 +205,6 @@ public class FieldTests {
             .failsToCompile()
             .withErrorContaining("Only private static final constants are permitted in @Verified @Configuration classes")
             .in(definitionClass)
-            .onLine(10);
+            .onLine(9);
   }
 }

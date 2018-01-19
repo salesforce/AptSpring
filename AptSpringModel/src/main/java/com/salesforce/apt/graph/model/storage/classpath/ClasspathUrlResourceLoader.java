@@ -53,7 +53,8 @@ public class ClasspathUrlResourceLoader implements ResourceLoader {
   }
 
   /**
-   * If the file exists, use it a root of the UrlClassLoader
+   * If the file exists, use it a root of the UrlClassLoader.
+   * 
    * @param root file system directory to include as part of the classloader.
    */
   public ClasspathUrlResourceLoader(File root) {
