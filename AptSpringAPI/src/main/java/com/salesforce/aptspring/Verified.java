@@ -64,8 +64,8 @@ import java.lang.annotation.Target;
  * </p>
  * <ul>
  *  <li>Cycles in @Import class</li>
- *  <li>Cycles in @Bean dependency definitions</li>
- *  <li>Duplicate @Bean names in the directed acyclic graph of @Bean definition classes</li>
+ *  <li>Cycles in @Bean or @Component dependency definitions</li>
+ *  <li>Duplicate names in the directed acyclic graph of @Bean or @Component defined instances</li>
  *  <li>Detect missing beans by their name reference</li>
  *  <li>Allow classes to declare beans they expect (these are the only missing beans a graph may have),
  *   see {@link Verified#expectedBeans()}</li>
@@ -80,9 +80,9 @@ import java.lang.annotation.Target;
  * Restrictions on the use of @Value annotations.
  * </p>
  * <ul>
- *   <li>@Value may only be used on method parameters.</li>  
- *   <li>@Value parameters and @Qualifier parameters may not be mixed on the same @Bean method</li>
- *   <li>It is highly encouraged that @Bean methods with @Value parameters only have one parameters (more are allowed)</li>
+ *   <li>@Value may only be used on @Bean method parameters or @Component constructors.</li>  
+ *   <li>@Value parameters and @Qualifier parameters may not be mixed on the same @Bean method or @Component constructor</li>
+ *   <li>It is highly encouraged that @Bean methods or @Component constructors with @Value parameters only have one parameters (more are allowed)</li>
  *   <li>@Value annotations may only be used on classes that are marked as {@link Verified#root()} = true</li>
  *   <li>No class may mark a {@link Verified#root()} = true class as an @Import</li>
  *   <li>Instead @Import files should use {@link Verified#expectedBeans()} to expect beans that will be required
@@ -116,7 +116,7 @@ import java.lang.annotation.Target;
  *  <li>Prune unneeded data from the persisted storage of @Bean lite classes data allowing for faster cycle detect.</li>
  * </ul>
  * <p>
- * The processing is incremental, meaning that a json file is generated in to a target directory and read when available.
+ * The processing is incremental, meaning that a file is generated to a target directory and read when available.
  * This allows for decent performance on large graphs touching hundreds of files by preventing duplicate work.  SHA-256 digests
  * are used to make sure no one gets clever and tries to swap out a jar underneath the working application.
  * </p>

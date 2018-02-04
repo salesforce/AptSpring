@@ -4,17 +4,16 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.3</version>
     </parent>
     <groupId>com.salesforce.inject</groupId>
     <artifactId>AptSpringExample</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>takari-jar</packaging>
     <properties>
-        <apt.spring.version>1.0.0-SNAPSHOT</apt.spring.version>
-        <disable.semantic.versioning>true</disable.semantic.versioning>
+        <apt.spring.version>1.1.1-SNAPSHOT</apt.spring.version>
         <github.site.location>${project.version}/${project.artifactId}</github.site.location>
         <junit.version>4.12</junit.version>
+        <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
         <plugin.maven.takari.compilerId>jdt</plugin.maven.takari.compilerId>
         <plugin.maven.takari.proc>proc</plugin.maven.takari.proc>
         <spring.version>4.3.9.RELEASE</spring.version>

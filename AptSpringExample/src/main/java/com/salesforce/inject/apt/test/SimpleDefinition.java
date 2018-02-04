@@ -28,12 +28,10 @@ package com.salesforce.inject.apt.test;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import com.salesforce.aptspring.Verified;
 
 @Verified(expectedBeans = "value2")
-@Configuration
 public class SimpleDefinition {
 
   private static final String listish = "";

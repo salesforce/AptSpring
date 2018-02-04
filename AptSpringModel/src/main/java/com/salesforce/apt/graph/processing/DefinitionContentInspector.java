@@ -215,6 +215,33 @@ public class DefinitionContentInspector {
    */
   private Map<String, InstanceModel> ensureSingleInstanceOfEachName(DefinitionModel definition,
       Consumer<ErrorModel> errorListener) {
+    Map<String, Map<String, InstanceModel>> instancesByNameAndLocationDedupped = 
+        definitionToAllInstancesByNameAndSourceLocation(definition);
+    
+    final Map<String, InstanceModel> resolvedDependencies = new HashMap<>();
+    boolean errored = false;    
+    for (Entry<String, Map<String, InstanceModel>> entry : instancesByNameAndLocationDedupped.entrySet()) {
+      if (entry.getValue().size() == 1) {
+        resolvedDependencies.put(entry.getKey(), entry.getValue().values().iterator().next()); //get only InstanceModel.
+      } else {
+        errored = true;
+        errorListener.accept(errorForDuplicateInstanceModels(definition, entry.getValue().values().stream()
+            .sorted((i1, i2) -> i1.getElementLocation().compareTo(i2.getElementLocation()))
+            .collect(Collectors.toList())));
+      }
+    }
+    return errored ? null : resolvedDependencies;
+  }
+  
+  /**
+   * Give a definition model, extract all instances from this definition, and all imported definitions.
+   * Group the instances by name, and then map them from source location to InstanceModel.
+   *  
+   * @param definition model to extract all instance information from, including imported definitions.
+   * @return a map of maps, [name -> [sourceLocation -> instanceModel]]
+   */
+  private Map<String, Map<String, InstanceModel>> definitionToAllInstancesByNameAndSourceLocation(
+      DefinitionModel definition) {
     //create a stream of all imported Definition's InstanceModels
     Stream<InstanceModel> imported = definition.getDependencies().stream()
         .map(d -> d.getProvidedInstances()).flatMap(x -> x.stream());
@@ -230,20 +257,7 @@ public class DefinitionContentInspector {
                     im -> im, //identity function for first insert
                     //choose the one with source element on merge, if any
                     (im1, im2) -> im1.getSourceElement().isPresent() ? im1 : im2))));
-    
-    final Map<String, InstanceModel> resolvedDependencies = new HashMap<>();
-    boolean errored = false;    
-    for (Entry<String, Map<String, InstanceModel>> entry : instancesByNameAndLocationDedupped.entrySet()) {
-      if (entry.getValue().size() == 1) {
-        resolvedDependencies.put(entry.getKey(), entry.getValue().values().iterator().next()); //get only InstanceModel.
-      } else {
-        errored = true;
-        errorListener.accept(errorForDuplicateInstanceModels(definition, entry.getValue().values().stream()
-            .sorted((i1, i2) -> i1.getElementLocation().compareTo(i2.getElementLocation()))
-            .collect(Collectors.toList())));
-      }
-    }
-    return errored ? null : resolvedDependencies;
+    return instancesByNameAndLocationDedupped;
   }
 
   /**
