@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.3</version>
     </parent>
     <groupId>com.salesforce.inject.example</groupId>
     <artifactId>AptSpringProcessorExampleTest</artifactId>
@@ -26,13 +26,13 @@
         <dependency>
             <groupId>com.salesforce.aptspring</groupId>
             <artifactId>AptSpringAPI</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.salesforce.aptspring</groupId>
-            <artifactId>AptSpringProcessor</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
-            <scope>provided</scope>
+          <groupId>com.salesforce.aptspring</groupId>
+          <artifactId>AptSpringProcessor</artifactId>
+          <version>2.0.0</version>
+          <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

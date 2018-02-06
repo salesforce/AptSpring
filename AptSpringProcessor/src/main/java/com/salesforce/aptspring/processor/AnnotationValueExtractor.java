@@ -56,7 +56,7 @@ public class AnnotationValueExtractor {
   
   /**
    * Utility method to extract the value of annotation on a class.
-   * Hooks to honor spring's {@link org.springframework.core.annotation.AliasFor} annotation.
+   * Hooks to honor spring's AliasFor annotation, see {@link AnnotationValueExtractor#ALIAS_TYPE}.
    * 
    * @param e the element to inspect
    * @param annotationTypeName the fully qualified name of the annotation class.

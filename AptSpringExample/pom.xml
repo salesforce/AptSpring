@@ -10,7 +10,7 @@
     <artifactId>AptSpringExample</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <properties>
-        <apt.spring.version>1.1.1-SNAPSHOT</apt.spring.version>
+        <apt.spring.version>2.0.0</apt.spring.version>
         <github.site.location>${project.version}/${project.artifactId}</github.site.location>
         <junit.version>4.12</junit.version>
         <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
@@ -40,16 +40,28 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.salesforce.aptspring</groupId>
-            <artifactId>AptSpringProcessor</artifactId>
-            <version>${apt.spring.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.takari.maven.plugins</groupId>
+                <artifactId>takari-lifecycle-plugin</artifactId>
+                <configuration>
+                    <processorpath>
+                        <dependency>
+                            <groupId>com.salesforce.aptspring</groupId>
+                            <artifactId>AptSpringProcessor</artifactId>
+                            <version>${apt.spring.version}</version>
+                            <scope>provided</scope>
+                        </dependency>
+                    </processorpath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

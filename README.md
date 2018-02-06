@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/salesforce/AptSpring.svg?branch=master)](https://travis-ci.org/salesforce/AptSpring)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salesforce/AptSpring&amp;utm_campaign=Badge_Grade)
 [![codebeat badge](https://codebeat.co/badges/a0528ed4-185e-4ac2-90c5-a93477656a7a)](https://codebeat.co/projects/github-com-salesforce-aptspring-master)
-[![Maven Site](https://img.shields.io/badge/maven_site-1.1.0-green.svg)](https://salesforce.github.com/AptSpring/1.1.0/index.html)
+[![Maven Site](https://img.shields.io/badge/maven_site-2.0.0-green.svg)](https://salesforce.github.com/AptSpring/2.0.0/index.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent)
 [![codecov](https://codecov.io/gh/salesforce/AptSpring/branch/master/graph/badge.svg)](https://codecov.io/gh/salesforce/AptSpring)
 
@@ -34,20 +34,35 @@ By defining the spring graph in a type safe and introspectable manner the releva
 
 In your pom file, include the version of spring you wish to use (3+ should be fine)
 
-Include these dependencies:
+Include this dependency:
 
 ```xml
-        <dependency>
-            <groupId>com.salesforce.aptspring</groupId>
-            <artifactId>AptSpringAPI</artifactId>
-            <version>${apt.spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.salesforce.aptspring</groupId>
-            <artifactId>AptSpringProcessor</artifactId>
-            <version>${apt.spring.version}</version>
-            <scope>provided</scope>
-        </dependency>
+    <dependency>
+        <groupId>com.salesforce.aptspring</groupId>
+        <artifactId>AptSpringAPI</artifactId>
+        <version>${apt.spring.version}</version>
+    </dependency>
+
+```
+
+Include this takari-lifecycle configuration if you are using takari -- hint: you should be.
+
+```xml
+    <plugin>
+        <groupId>io.takari.maven.plugins</groupId>
+        <artifactId>takari-lifecycle-plugin</artifactId>
+        <configuration>
+            <processorpath>
+                <dependency>
+                    <groupId>com.salesforce.aptspring</groupId>
+                    <artifactId>AptSpringProcessor</artifactId>
+                    <version>${apt.spring.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </processorpath>
+        </configuration>
+    </plugin>
+
 ```
 
 Include the ```@Verified``` annotation on your spring classes with ```@Bean``` methods.
