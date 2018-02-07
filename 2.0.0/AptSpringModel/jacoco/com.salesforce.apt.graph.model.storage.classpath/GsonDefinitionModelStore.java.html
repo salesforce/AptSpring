@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GsonDefinitionModelStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.model.storage.classpath</a> &gt; <span class="el_source">GsonDefinitionModelStore.java</span></div><h1>GsonDefinitionModelStore.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.model.storage.classpath;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.salesforce.apt.graph.model.DefinitionModel;
+import com.salesforce.apt.graph.model.storage.DefinitionModelStore;
+import com.salesforce.apt.graph.model.storage.DefinitionOutputStreamProvider;
+import com.salesforce.apt.graph.model.storage.Resource;
+import com.salesforce.apt.graph.model.storage.ResourceLoader;
+
+public class GsonDefinitionModelStore implements DefinitionModelStore {
+  
+  private final ResourceLoader resourceLocator;
+  
+  private final DefinitionOutputStreamProvider definitionModelToStore;
+
+  private final Gson gson;
+  
+  protected Gson getGson() {
+<span class="nc" id="L59">    return gson;</span>
+  }
+
+  protected DefinitionOutputStreamProvider getDefinitionOutputStreamProvider() {
+<span class="nc" id="L63">    return definitionModelToStore;</span>
+  }
+
+  protected ResourceLoader getResourceLocator() {
+<span class="nc" id="L67">    return resourceLocator;</span>
+  }
+  
+<span class="fc" id="L70">  public GsonDefinitionModelStore(ResourceLoader resourceLocator,</span>
+      DefinitionOutputStreamProvider definitionModelToStore) {
+<span class="fc" id="L72">    gson = new GsonBuilder().setPrettyPrinting().create();</span>
+<span class="fc" id="L73">    this.resourceLocator = resourceLocator; </span>
+<span class="fc" id="L74">    this.definitionModelToStore = definitionModelToStore;</span>
+<span class="fc" id="L75">  }</span>
+  
+  /**
+   * Find definitions by name.
+   * 
+   * @param name the name of the definition to find.
+   * @return A list of all definitions that happen to have the name (from multiple jars?)
+   */
+  @Override
+  public List&lt;DefinitionModel&gt; lookup(String name) {
+<span class="fc" id="L85">    List&lt;DefinitionModel&gt; output = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    for (Resource resource : resourceLocator.getEntries(name)) {    </span>
+<span class="fc" id="L87">      try (DigestInputStream digestInputStream = new DigestInputStream(resource.getInputStream(), getSha256Digest()); </span>
+<span class="fc" id="L88">          Reader reader = new InputStreamReader(digestInputStream, StandardCharsets.UTF_8)) {</span>
+<span class="fc" id="L89">        DefinitionModel definitionModel = gson.fromJson(reader, DefinitionModel.class);</span>
+<span class="fc" id="L90">        definitionModel.setSourceLocation(resource.getLocation());</span>
+<span class="fc" id="L91">        definitionModel.setSha256(bytesToHex(digestInputStream.getMessageDigest().digest()));</span>
+<span class="fc" id="L92">        output.add(definitionModel);</span>
+<span class="pc bpc" id="L93" title="13 of 16 branches missed.">      } catch (IOException ex) {</span>
+<span class="fc" id="L94">        return null;</span>
+      }
+    }
+<span class="fc" id="L97">    return output;</span>
+  }
+ 
+  /**
+   * Hex encoded bytes from the input array. presented as a String 
+   * @param bytes to convert
+   * @return String of hex values representing the byte array.
+   */
+  public static String bytesToHex(byte[] bytes) {
+<span class="fc" id="L106">    final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};</span>
+<span class="fc" id="L107">    char[] hexChars = new char[bytes.length * 2];</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">    for (int j = 0; j &lt; bytes.length; j++) {</span>
+<span class="fc" id="L109">      int value = bytes[j] &amp; 0xFF;</span>
+<span class="fc" id="L110">      hexChars[j * 2] = hexArray[value &gt;&gt;&gt; 4];</span>
+<span class="fc" id="L111">      hexChars[j * 2 + 1] = hexArray[value &amp; 0x0F];</span>
+    }
+<span class="fc" id="L113">    return new String(hexChars);</span>
+  }
+
+  @Override
+  public boolean store(DefinitionModel model) {
+<span class="fc" id="L118">    OutputStream stream = null;</span>
+    try {
+<span class="fc" id="L120">      stream = definitionModelToStore.store(model);</span>
+<span class="fc" id="L121">      DigestOutputStream digesterStream = new DigestOutputStream(stream, getSha256Digest());</span>
+<span class="fc" id="L122">      try (OutputStreamWriter writer = new OutputStreamWriter(digesterStream, StandardCharsets.UTF_8)) {</span>
+<span class="fc" id="L123">        gson.toJson(model, writer);</span>
+<span class="pc bpc" id="L124" title="7 of 8 branches missed.">      }</span>
+<span class="fc" id="L125">      digesterStream.flush();</span>
+<span class="fc" id="L126">      model.setSha256(bytesToHex(digesterStream.getMessageDigest().digest()));</span>
+
+      //when in incremental mode, the underlying streams throw exceptions if closed multiple times.
+      try {
+<span class="fc" id="L130">        digesterStream.close();</span>
+<span class="pc" id="L131">      } catch (IOException ioe) {</span>
+        //prevent m2e not letting the underlying stream be closed multiple times from
+        //causing an IOException that would cause storage to appear to break.
+      }
+      try {
+<span class="fc" id="L136">        stream.close();</span>
+<span class="pc" id="L137">      } catch (IOException ioe) {</span>
+        //prevent m2e not letting the underlying stream be closed multiple times from
+        //causing an IOException that would cause storage to appear to break.
+      }
+<span class="fc" id="L141">      return true;</span>
+<span class="fc" id="L142">    } catch (IOException ex) {</span>
+      //indicate that the file could not be stored.
+<span class="fc" id="L144">      return false;</span>
+    }
+  }
+  
+  /**
+   * Get the standard SHA-256 message digest.   Every implementation of MessageDigest must
+   * provide SHA-256 message digest
+   * @return SHA-256 message digest
+   */
+  protected MessageDigest getSha256Digest() {
+    try {
+<span class="fc" id="L155">      return MessageDigest.getInstance(&quot;SHA-256&quot;);</span>
+<span class="nc" id="L156">    } catch (NoSuchAlgorithmException nsae) {</span>
+<span class="nc" id="L157">      throw new IllegalStateException(&quot;Your jvm doesn't implement the default MessageDigesters... namely sha256.  Fail.&quot;);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
