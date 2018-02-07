@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpringAnnotationParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.aptspring.processor</a> &gt; <span class="el_source">SpringAnnotationParser.java</span></div><h1>SpringAnnotationParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.aptspring.processor;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.tools.Diagnostic.Kind;
+
+import com.salesforce.apt.graph.model.DefinitionModel;
+import com.salesforce.apt.graph.model.ExpectedModel;
+import com.salesforce.apt.graph.model.InstanceDependencyModel;
+import com.salesforce.apt.graph.model.InstanceModel;
+import com.salesforce.aptspring.Verified;
+
+<span class="fc" id="L53">public class SpringAnnotationParser {</span>
+  
+<span class="fc" id="L55">  private static final List&lt;Modifier&gt; DISALLOWED_ON_METHOD = Collections.unmodifiableList(Arrays.asList(</span>
+<span class="fc" id="L56">      Modifier.ABSTRACT,</span>
+<span class="fc" id="L57">      Modifier.DEFAULT,</span>
+<span class="fc" id="L58">      Modifier.FINAL,</span>
+<span class="fc" id="L59">      Modifier.NATIVE,</span>
+<span class="fc" id="L60">      Modifier.STATIC,</span>
+<span class="fc" id="L61">      Modifier.VOLATILE</span>
+      //Modifier.PRIVATE, //checks to see if the method is public, these checks would be redundant.
+      //Modifier.PROTECTED
+      ));
+  
+  private static final String QUALIFIER_TYPE = &quot;org.springframework.beans.factory.annotation.Qualifier&quot;;
+  
+  private static final String VALUE_TYPE = &quot;org.springframework.beans.factory.annotation.Value&quot;;
+  
+  private static final String COMPONENTSCAN_TYPE = &quot;org.springframework.context.annotation.ComponentScan&quot;;
+  
+  private static final String COMPONENTSCANS_TYPE = &quot;org.springframework.context.annotation.ComponentScans&quot;;
+  
+  private static final String CONFIGURATION_TYPE = &quot;org.springframework.context.annotation.Configuration&quot;;
+  
+  private static final String COMPONENT_TYPE = &quot;org.springframework.stereotype.Component&quot;;
+    
+  private static final String AUTOWIRED_TYPE = &quot;org.springframework.beans.factory.annotation.Autowired&quot;;
+  
+<span class="fc" id="L80">  private static final String DEFAULT_ANNOTATION_VALUE = &quot;value&quot;;</span>
+
+  /**
+   * Will return true if a class level contains exactly a constant final static private literal field.
+   */
+<span class="fc" id="L85">  private Predicate&lt;VariableElement&gt; staticPrivateFinalLiteralField = ve -&gt; ve.getModifiers()</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">      &amp;&amp; ve.getModifiers().size() == 3</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">      &amp;&amp; ve.getConstantValue() != null;</span>
+
+  /**
+   * Will return true if a class level contains exactly a final private field without a constant value.
+   */
+<span class="fc" id="L93">  private Predicate&lt;VariableElement&gt; privateFinalField = ve -&gt; ve.getModifiers()</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">      &amp;&amp; ve.getModifiers().size() == 2</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">      &amp;&amp; ve.getConstantValue() == null;  </span>
+ 
+  /**
+   * Read a TypeElement to get application structure.
+   * 
+   * @param te definition type element.
+   * @param messager presents error messages for the compiler to pass to the user.
+   * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
+   * @deprecated please see {@link SpringAnnotationParser#extractDefinition(TypeElement, Messager)}
+   */
+  public static DefinitionModel parseDefinition(TypeElement te, Messager messager) {  
+<span class="nc" id="L107">    return new SpringAnnotationParser().extractDefinition(te, messager);</span>
+  }
+  
+  /**
+   * Read a TypeElement to get application structure.
+   * 
+   * @param te definition type element.
+   * @param messager presents error messages for the compiler to pass to the user.
+   * @return the {@link DefinitionModel} parsed from a properly annotated {@link TypeElement}
+   */
+  public DefinitionModel extractDefinition(TypeElement te, Messager messager) {  
+<span class="fc" id="L118">    Verified verified = te.getAnnotation(Verified.class);</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());</span>
+
+<span class="fc" id="L121">    errorIfInvalidClass(te, messager);</span>
+    
+<span class="fc" id="L123">    model.addDependencyNames(getImportsTypes(te));</span>
+<span class="fc" id="L124">    String[] configurationBeanNames  = AnnotationValueExtractor</span>
+<span class="fc" id="L125">        .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc" id="L126">    String[] componentBeanNames  = AnnotationValueExtractor</span>
+<span class="fc" id="L127">        .getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc bfc" id="L128" title="All 4 branches covered.">    if (configurationBeanNames == null &amp;&amp; componentBeanNames == null) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">      for (Element enclosed : te.getEnclosedElements()) {</span>
+<span class="fc" id="L130">        handleEnclosedElements(messager, model, enclosed);</span>
+      }
+<span class="fc" id="L132">    } else {</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      if (componentBeanNames != null) {</span>
+<span class="fc" id="L134">        addModelsFromComponent(te, model, componentBeanNames, messager);</span>
+<span class="fc" id="L135">      } else {</span>
+<span class="fc" id="L136">        messager.printMessage(Kind.ERROR, &quot;@Verified annotation must only be used on &quot;</span>
+<span class="fc" id="L137">            + &quot;@Bean LITE factory classes or @Component classes&quot;, te);</span>
+      }
+    }
+    
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    for (String expectedBean : verified.expectedBeans()) {</span>
+<span class="fc" id="L142">      model.addDefinition(new ExpectedModel(expectedBean, te));</span>
+    }
+<span class="fc" id="L144">    return model;</span>
+  }
+  
+  private List&lt;Modifier&gt; getIllegalModifiers(Set&lt;Modifier&gt; existing, List&lt;Modifier&gt; illegal) {
+<span class="fc" id="L148">    List&lt;Modifier&gt; modifiers = new ArrayList&lt;&gt;(existing);</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">    modifiers.removeIf(modifier -&gt; !illegal.contains(modifier));</span>
+<span class="pc" id="L150">    modifiers.sort((m1, m2) -&gt;  m1.name().compareTo(m2.name())); //in case someone reorders</span>
+<span class="fc" id="L151">    return modifiers;</span>
+  }
+  
+  private boolean parseBeanMethod(ExecutableElement beanMethod, String[] beanNames, Messager messager) {
+<span class="fc" id="L155">    boolean valid = true;</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">    if (beanNames.length == 0) {</span>
+<span class="fc" id="L157">      valid = false;</span>
+<span class="fc" id="L158">      messager.printMessage(Kind.ERROR, &quot;All @Bean annotations must define at least one name for a bean.&quot;, beanMethod);</span>
+    }
+<span class="fc bfc" id="L160" title="All 2 branches covered.">    if (beanMethod.getReturnType().getKind() != TypeKind.DECLARED) {</span>
+<span class="fc" id="L161">      valid = false;</span>
+<span class="fc" id="L162">      messager.printMessage(Kind.ERROR, &quot;@Bean methods must return an Object&quot;, beanMethod);</span>
+    }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">    if (!beanMethod.getModifiers().contains(Modifier.PUBLIC)) {</span>
+<span class="fc" id="L165">      valid = false;</span>
+<span class="fc" id="L166">      messager.printMessage(Kind.ERROR, &quot;@Bean methods must be marked public&quot;, beanMethod);</span>
+    }
+<span class="fc" id="L168">    List&lt;Modifier&gt; illegalModifiers = getIllegalModifiers(beanMethod.getModifiers(), DISALLOWED_ON_METHOD);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">    if (illegalModifiers.size() != 0) {</span>
+<span class="fc" id="L170">      valid = false;</span>
+<span class="fc" id="L171">      messager.printMessage(Kind.ERROR, &quot;Illegal modifiers found on spring @Bean method: &quot;</span>
+<span class="fc" id="L172">           + illegalModifiers.stream().map(m -&gt; m.name()).collect(Collectors.joining(&quot;, &quot;)),</span>
+<span class="fc" id="L173">          beanMethod);</span>
+    }
+<span class="fc" id="L175">    return valid;</span>
+  }
+
+  private void handleEnclosedElements(Messager messager, DefinitionModel model, Element enclosed) {
+<span class="fc bfc" id="L179" title="All 5 branches covered.">    switch (enclosed.getKind()) {</span>
+      case METHOD: 
+<span class="fc" id="L181">        ExecutableElement execelement = (ExecutableElement) enclosed;</span>
+<span class="fc" id="L182">        String[] beanNames = AnnotationValueExtractor</span>
+<span class="fc" id="L183">            .getAnnotationValue(execelement, &quot;org.springframework.context.annotation.Bean&quot;, &quot;name&quot;);</span>
+        
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (beanNames != null) {</span>
+<span class="fc" id="L186">          List&lt;InstanceDependencyModel&gt; dependencies = execElementDependency(messager, model, execelement);          </span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">          if (parseBeanMethod(execelement, beanNames, messager)) {</span>
+<span class="fc" id="L188">            List&lt;String&gt; names = new ArrayList&lt;&gt;(Arrays.asList(beanNames));</span>
+<span class="fc" id="L189">            String defaultName = names.get(0);</span>
+<span class="fc" id="L190">            names.remove(defaultName);</span>
+<span class="fc" id="L191">            model.addDefinition(new InstanceModel(defaultName, model.getIdentity(), execelement,</span>
+<span class="fc" id="L192">                execelement.getReturnType().toString(), dependencies, names));</span>
+          }
+<span class="fc" id="L194">        } else {</span>
+<span class="fc" id="L195">          messager.printMessage(Kind.ERROR, &quot;All methods on @Configuration must have @Bean annotation&quot;, execelement);</span>
+        }
+<span class="fc" id="L197">        break;</span>
+      case FIELD:
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        if (!staticPrivateFinalLiteralField.test((VariableElement) enclosed)) {</span>
+<span class="fc" id="L200">          messager.printMessage(Kind.ERROR, &quot;Only private static final constants are permitted in @Verified @Configuration classes&quot;,</span>
+<span class="fc" id="L201">              enclosed);</span>
+        }
+<span class="fc" id="L203">        break;</span>
+      case ENUM_CONSTANT: 
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if (!staticPrivateFinalLiteralField.test((VariableElement) enclosed)) {</span>
+<span class="fc" id="L206">          messager.printMessage(Kind.ERROR, &quot;Only private static final constants are permitted in @Verified @Configuration classes&quot;,</span>
+<span class="fc" id="L207">              enclosed);</span>
+        }
+<span class="fc" id="L209">        break;</span>
+      case CONSTRUCTOR:
+<span class="fc" id="L211">        ExecutableElement constelement = (ExecutableElement) enclosed;</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        if (!constelement.getModifiers().contains(Modifier.PUBLIC)) {</span>
+<span class="fc" id="L213">          messager.printMessage(Kind.ERROR, &quot;@Configuration should not have any non-public constructors.&quot;, enclosed);</span>
+        }
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (constelement.getParameters().size() &gt; 0) {</span>
+<span class="fc" id="L216">          messager.printMessage(Kind.ERROR, &quot;@Configuration should not have any non-defualt constructors.&quot;, enclosed);</span>
+        }
+<span class="fc" id="L218">        break;</span>
+      default:
+<span class="fc" id="L220">        messager.printMessage(Kind.ERROR, &quot;Only @Bean methods, private static final literals, and default constructors &quot;</span>
+<span class="fc" id="L221">            + &quot;are allowed on @Configuration classes&quot;, enclosed);</span>
+        break;
+    }
+<span class="fc" id="L224">  }</span>
+
+  /**
+   * This method is called on {@link ExecutableElement}.
+   * Bean methods on an @Configuration bean, or Constructors on @Component classes.
+   * This method parses the @Qualifier, or @Value annotations if a @Verified=root, and reads the types of each parameter.
+   * That data is used to build a list of {@link InstanceDependencyModel}'s which are part of an {@link InstanceModel}.
+   * All parameters must have an @Qualifier or @Value, and the annotations can not be mixed, errors will result otherwise.
+   * 
+   * @param messager APT messager that will receive error messages.
+   * @param model the DefinitionModel being parse, which may be a @Configuration or @Component annotated entity.
+   * @param execelement the bean method if an @Configuration, or the constructor if an @Component.
+   * @return the dependencies of the to be constructed {@link InstanceModel}
+   */
+  private List&lt;InstanceDependencyModel&gt; execElementDependency(Messager messager, DefinitionModel model,
+      ExecutableElement execelement) {
+<span class="fc" id="L240">    List&lt;InstanceDependencyModel&gt; dependencies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L241">    boolean hasValues = false;</span>
+<span class="fc" id="L242">    boolean hasQualifiers = false;</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">    for (VariableElement varelement : execelement.getParameters()) {</span>
+      
+<span class="fc" id="L245">      String[] qualifierNames = AnnotationValueExtractor</span>
+<span class="fc" id="L246">          .getAnnotationValue(varelement, QUALIFIER_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc" id="L247">      String[] valueNames = AnnotationValueExtractor</span>
+<span class="fc" id="L248">          .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);</span>
+      
+<span class="fc bfc" id="L250" title="All 4 branches covered.">      if (qualifierNames == null &amp;&amp; valueNames == null) {</span>
+<span class="fc" id="L251">        messager.printMessage(Kind.ERROR, &quot;All parameters must have an @Qualifier or a @Value annotation&quot;, varelement);</span>
+      } 
+<span class="fc bfc" id="L253" title="All 2 branches covered.">      if (qualifierNames != null) {</span>
+<span class="fc" id="L254">        dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));</span>
+<span class="fc" id="L255">        hasQualifiers = true;</span>
+      }
+<span class="fc bfc" id="L257" title="All 2 branches covered.">      if (valueNames != null) {</span>
+        //ignore values as they will be used to build beans and pass the data on, and
+        //are not beans themselves... and cannot be intermingled with @Qualifiers.
+<span class="fc" id="L260">        hasValues = true;</span>
+      }
+    }
+<span class="fc bfc" id="L263" title="All 4 branches covered.">    if (hasValues &amp;&amp; hasQualifiers) {</span>
+<span class="fc" id="L264">      messager.printMessage(Kind.ERROR, &quot;No method may define both @Qualifier or a @Value annotations,&quot;</span>
+<span class="fc" id="L265">          + &quot; keep property values in there own beans&quot;, execelement);</span>
+    }
+<span class="fc bfc" id="L267" title="All 4 branches covered.">    if (hasValues &amp;&amp;  !model.isRootNode()) {</span>
+<span class="fc" id="L268">      messager.printMessage(Kind.ERROR, &quot;Only @Verified(root=true) nodes may use @Value annotations to create beans,&quot;</span>
+<span class="fc" id="L269">          + &quot; decouples spring graph from environment&quot;, execelement);</span>
+    }
+<span class="fc" id="L271">    return dependencies;</span>
+  }
+
+  /**
+   * Builds an instance model by finding the autowired constructor of an @Component model.
+   * 
+   * @param te the TypeElement corresponding to the @Component class.
+   * @param dm the definitionModel built from the @Component.
+   * @param names the list if names in an @Component annotation.  Users must explicitly define one.
+   * @param messager errors are added to this APT messager.
+   */
+  private void addModelsFromComponent(TypeElement te, DefinitionModel dm, String[] names, Messager messager) {
+<span class="fc" id="L283">    List&lt;InstanceDependencyModel&gt; dependencies = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L284">    ExecutableElement chosenConstructor = findAutowiredConstructor(extractConstructorsFromComponent(te));</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">    if (chosenConstructor == null) {</span>
+<span class="fc" id="L286">      messager.printMessage(Kind.ERROR, &quot;No single default constructor or single @Autowired constructor&quot;, te);</span>
+<span class="fc" id="L287">    } else {</span>
+<span class="fc" id="L288">      dependencies = execElementDependency(messager, dm, chosenConstructor);</span>
+      //dm.getExpectedDefinitions()
+    }
+<span class="fc" id="L291">    te.getEnclosedElements().stream()</span>
+<span class="fc" id="L292">        .filter(el -&gt; el instanceof VariableElement)</span>
+<span class="fc" id="L293">        .map(el -&gt; (VariableElement) el)</span>
+<span class="fc bfc" id="L294" title="All 4 branches covered.">        .filter(ve -&gt; !staticPrivateFinalLiteralField.test(ve) &amp;&amp; !privateFinalField.test(ve))</span>
+<span class="fc" id="L295">        .forEach(ve -&gt; messager</span>
+<span class="fc" id="L296">            .printMessage(Kind.ERROR, &quot;@Component classes my only have static final constant fields or final private fields&quot;, ve));</span>
+    
+<span class="fc" id="L298">    InstanceModel model = new InstanceModel(names[0],</span>
+<span class="fc" id="L299">        dm.getIdentity(), </span>
+<span class="fc" id="L300">        chosenConstructor, </span>
+<span class="fc" id="L301">        te.getQualifiedName().toString(),</span>
+<span class="fc" id="L302">        dependencies, </span>
+<span class="fc" id="L303">        new ArrayList&lt;&gt;());</span>
+    
+<span class="fc" id="L305">    dm.addDefinition(model);</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">    for (InstanceDependencyModel dep : dependencies) {</span>
+<span class="fc" id="L307">      ExpectedModel expectedModel = new ExpectedModel(dep.getIdentity());</span>
+<span class="fc" id="L308">      expectedModel.addDefinitionReferenceToType(model.getIdentity(), dep.getType());</span>
+<span class="fc" id="L309">      dm.addDefinition(expectedModel);</span>
+    }
+<span class="fc" id="L311">  }</span>
+
+  /**
+   * Analyzes a list of constructors from an @Component, looking for a single constructor, or if multiple
+   * constructors exist, a single constructor marked with @Autowire.
+   *
+   * @param constructors a list of constructors from an @Component.
+   * @return the executable element, or null.
+   */
+  private ExecutableElement findAutowiredConstructor(List&lt;ExecutableElement&gt; constructors) {
+<span class="fc" id="L321">    ExecutableElement chosenConstructor = null;</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">    if (constructors.size() == 1) {</span>
+<span class="fc" id="L323">      chosenConstructor = constructors.get(0);</span>
+<span class="fc" id="L324">    } else {</span>
+<span class="fc" id="L325">      chosenConstructor = constructors.stream()</span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">        .filter(ex -&gt; AnnotationValueExtractor.getAnnotationValue(ex, AUTOWIRED_TYPE, &quot;&quot;) != null)</span>
+<span class="fc" id="L327">        .limit(2) //stop at two. efficiency.</span>
+<span class="pc" id="L328">        .reduce((a, b) -&gt; null) //if more than one return null.</span>
+<span class="fc" id="L329">        .orElse(null);</span>
+    }
+<span class="fc" id="L331">    return chosenConstructor;</span>
+  }
+
+  /**
+   * Given an @Component's {@link TypeElement} find's all constructors of that type.
+   * 
+   * @param te a representation of an @Component class.
+   * @return a list of executable elements representing all found constructors.
+   */
+  private List&lt;ExecutableElement&gt; extractConstructorsFromComponent(TypeElement te) {
+<span class="fc" id="L341">    return te.getEnclosedElements().stream()</span>
+<span class="fc" id="L342">      .filter(enclosed -&gt; enclosed instanceof ExecutableElement)</span>
+<span class="fc" id="L343">      .filter(enclosed -&gt; &quot;&lt;init&gt;&quot;.equals(enclosed.getSimpleName().toString()))</span>
+<span class="fc" id="L344">      .map(enclosed -&gt; (ExecutableElement) enclosed)</span>
+<span class="fc" id="L345">      .collect(Collectors.toList());</span>
+  }
+
+  private void errorIfInvalidClass(TypeElement te, Messager messager) {
+<span class="fc bfc" id="L349" title="All 2 branches covered.">    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {</span>
+<span class="fc" id="L350">      messager.printMessage(Kind.ERROR, &quot;The class must be a top level class, not an internal class&quot;, te);</span>
+    }
+<span class="fc bfc" id="L352" title="All 2 branches covered.">    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, &quot;basePackages&quot;) != null</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, &quot;basePackages&quot;) != null) {</span>
+<span class="fc" id="L354">      messager.printMessage(Kind.ERROR, &quot;You may not use @ComponentScan(s) on @Verified classes&quot;, te);</span>
+    }
+<span class="fc" id="L356">  }</span>
+  
+  private List&lt;String&gt; getImportsTypes(TypeElement element) {
+<span class="fc" id="L359">    String[] values = AnnotationValueExtractor</span>
+<span class="fc" id="L360">        .getAnnotationValue(element, &quot;org.springframework.context.annotation.Import&quot;, DEFAULT_ANNOTATION_VALUE);</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">    if (values == null) {</span>
+<span class="fc" id="L362">      return new ArrayList&lt;&gt;();</span>
+    } else {
+<span class="fc" id="L364">      return Arrays.asList(values);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
