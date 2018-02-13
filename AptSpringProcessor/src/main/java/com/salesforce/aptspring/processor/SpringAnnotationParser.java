@@ -213,7 +213,7 @@ public class SpringAnnotationParser {
           messager.printMessage(Kind.ERROR, "@Configuration should not have any non-public constructors.", enclosed);
         }
         if (constelement.getParameters().size() > 0) {
-          messager.printMessage(Kind.ERROR, "@Configuration should not have any non-defualt constructors.", enclosed);
+          messager.printMessage(Kind.ERROR, "@Configuration should not have any non-default constructors.", enclosed);
         }
         break;
       default:
