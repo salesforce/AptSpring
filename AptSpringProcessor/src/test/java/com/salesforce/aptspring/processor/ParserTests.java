@@ -294,7 +294,7 @@ public class ParserTests {
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("@Configuration should not have any non-defualt constructors.")
+            .withErrorContaining("@Configuration should not have any non-default constructors.")
             .in(definitionClass)
             .onLine(9);
   }
