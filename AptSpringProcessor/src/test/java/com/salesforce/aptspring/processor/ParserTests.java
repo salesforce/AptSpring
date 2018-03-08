@@ -364,7 +364,6 @@ public class ParserTests {
         "import org.springframework.context.annotation.ComponentScan;",
         "",
         "@com.salesforce.aptspring.Verified",
-        "@Configuration",
         "@ComponentScan(\"stuff1\")",
         "@ComponentScan(\"stuff2\")",
         "public class TestClass {",
@@ -380,7 +379,7 @@ public class ParserTests {
             .failsToCompile()
             .withErrorContaining("You may not use @ComponentScan(s) on @Verified classes")
             .in(definitionClass)
-            .onLine(11);
+            .onLine(10);
   }
   
   
