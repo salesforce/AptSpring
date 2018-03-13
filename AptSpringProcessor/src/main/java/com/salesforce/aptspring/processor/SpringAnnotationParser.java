@@ -107,6 +107,23 @@ public class SpringAnnotationParser {
           entry(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes"),
           entry(COMPONENT_TYPE, "You may not use @Component on @Verified classes with @Bean methods")))
       .collect(entriesToMap()));
+
+  
+  /**
+   * Will return true if a class level contains exactly a constant final static private literal field.
+   */
+  private Predicate<VariableElement> staticPrivateFinalLiteralField = ve -> ve.getModifiers()
+      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))
+      && ve.getModifiers().size() == 3
+      && ve.getConstantValue() != null;
+
+  /**
+   * Will return true if a class level contains exactly a final private field without a constant value.
+   */
+  private Predicate<VariableElement> privateFinalField = ve -> ve.getModifiers()
+      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))
+      && ve.getModifiers().size() == 2
+      && ve.getConstantValue() == null;  
   
   /**
    * Used to construct entries for maps
@@ -124,23 +141,7 @@ public class SpringAnnotationParser {
    */
   private static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
     return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
-  }
-  
-  /**
-   * Will return true if a class level contains exactly a constant final static private literal field.
-   */
-  private Predicate<VariableElement> staticPrivateFinalLiteralField = ve -> ve.getModifiers()
-      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL))
-      && ve.getModifiers().size() == 3
-      && ve.getConstantValue() != null;
-
-  /**
-   * Will return true if a class level contains exactly a final private field without a constant value.
-   */
-  private Predicate<VariableElement> privateFinalField = ve -> ve.getModifiers()
-      .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))
-      && ve.getModifiers().size() == 2
-      && ve.getConstantValue() == null;  
+  } 
  
   /**
    * Read a TypeElement to get application structure.
