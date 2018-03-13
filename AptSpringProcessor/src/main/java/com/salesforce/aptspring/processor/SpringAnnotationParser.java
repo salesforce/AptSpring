@@ -26,16 +26,18 @@
  */
 package com.salesforce.aptspring.processor;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -86,30 +88,43 @@ public class SpringAnnotationParser {
   
   private static final String DEFAULT_ANNOTATION_VALUE = "value";
   
-  @SuppressWarnings("serial")
-  private static final Map<String, String> BANNED_ALL_ANNOTATIONS = Collections.unmodifiableMap(new HashMap<String, String>() {{ 
-      put(COMPONENTSCAN_TYPE, "You may not use @ComponentScan(s) on @Verified classes");
-      put(COMPONENTSCANS_TYPE, "You may not use @ComponentScan(s) on @Verified classes");
-      put(IMPORT_RESOURCE_TYPE, "You may not use @ImportResource on @Verified classes");
-    }
-  });
+  /**
+   * Used to construct entries for maps
+   * @param key entry's key
+   * @param value entry's value
+   * @return the SimpleEntry we want to construct.
+   */
+  private static <K, V> Map.Entry<K, V> entry(K key, V value) {
+    return new AbstractMap.SimpleEntry<>(key, value);
+  }
 
-  @SuppressWarnings("serial")
-  private static final Map<String, String> BANNED_COMPONENT_ANNOTATIONS =
-      Collections.unmodifiableMap(new HashMap<String, String>() {{ 
-          put(IMPORT_TYPE, "You may not use @Import on @Verified @Component classes");
-          putAll(BANNED_ALL_ANNOTATIONS);
-        }
-      });
-  
-  @SuppressWarnings("serial")
-  private static final Map<String, String> BANNED_BEANLITE_ANNOTATIONS =
-      Collections.unmodifiableMap(new HashMap<String, String>() {{ 
-          put(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes");
-          put(COMPONENT_TYPE, "You may not use @Component on @Verified classes with @Bean methods");
-          putAll(BANNED_ALL_ANNOTATIONS);
-        }
-      });
+  /**
+   * Converts a Stream&lt;Entry&lt;X,Y&gt;&gt; to a Map&lt;X,Y&gt;.
+   * @return a Map representing the contents of the stream.
+   */
+  private static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
+    return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+  }
+
+  private static final Map<String, String> bannedAnnotations = Collections.unmodifiableMap(Stream.of(
+        entry(COMPONENTSCAN_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
+        entry(COMPONENTSCANS_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
+        entry(IMPORT_RESOURCE_TYPE, "You may not use @ImportResource on @Verified classes"))
+      .collect(entriesToMap()));
+ 
+  private static final Map<String, String> componentBannedAnnotations = Collections.unmodifiableMap(
+      Stream.concat(bannedAnnotations.entrySet().stream(),
+         Stream.of(
+           entry(IMPORT_TYPE, "You may not use @Import on @Verified @Component classes")))
+      .collect(entriesToMap()));  
+          
+
+  private static final Map<String, String> beanLiteBannedAnnotations = Collections.unmodifiableMap(
+      Stream.concat(bannedAnnotations.entrySet().stream(),
+        Stream.of(
+          entry(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes"),
+          entry(COMPONENT_TYPE, "You may not use @Component on @Verified classes with @Bean methods")))
+      .collect(entriesToMap()));
   
   /**
    * Will return true if a class level contains exactly a constant final static private literal field.
@@ -155,10 +170,10 @@ public class SpringAnnotationParser {
     model.addDependencyNames(getImportsTypes(te));
     String[] componentBeanNames  = AnnotationValueExtractor.getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);
     if (componentBeanNames != null) {
-      errorOnBannedTypeToMessage(te, messager, BANNED_COMPONENT_ANNOTATIONS);
+      errorOnBannedTypeToMessage(te, messager, componentBannedAnnotations);
       addModelsFromComponent(te, model, componentBeanNames, messager);
     } else {
-      errorOnBannedTypeToMessage(te, messager, BANNED_BEANLITE_ANNOTATIONS);
+      errorOnBannedTypeToMessage(te, messager, beanLiteBannedAnnotations);
       for (Element enclosed : te.getEnclosedElements()) {
         addBeanMethodsFromBeanLiteConfig(messager, model, enclosed);
       }
