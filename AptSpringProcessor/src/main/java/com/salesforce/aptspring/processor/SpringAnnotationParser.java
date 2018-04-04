@@ -26,13 +26,18 @@
  */
 package com.salesforce.aptspring.processor;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -74,11 +79,36 @@ public class SpringAnnotationParser {
   private static final String CONFIGURATION_TYPE = "org.springframework.context.annotation.Configuration";
   
   private static final String COMPONENT_TYPE = "org.springframework.stereotype.Component";
+  
+  private static final String IMPORT_TYPE = "org.springframework.context.annotation.Import";
+  
+  private static final String IMPORT_RESOURCE_TYPE = "org.springframework.context.annotation.ImportResource";
     
   private static final String AUTOWIRED_TYPE = "org.springframework.beans.factory.annotation.Autowired";
   
   private static final String DEFAULT_ANNOTATION_VALUE = "value";
 
+  private static final Map<String, String> BANNED_ANNOTATIONS = Collections.unmodifiableMap(Stream.of(
+            entry(COMPONENTSCAN_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
+            entry(COMPONENTSCANS_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
+            entry(IMPORT_RESOURCE_TYPE, "You may not use @ImportResource on @Verified classes"))
+          .collect(entriesToMap()));
+
+  private static final Map<String, String> COMPONENT_BANNED_ANNOTATIONS = Collections.unmodifiableMap(
+      Stream.concat(BANNED_ANNOTATIONS.entrySet().stream(),
+         Stream.of(
+           entry(IMPORT_TYPE, "You may not use @Import on @Verified @Component classes")))
+      .collect(entriesToMap()));  
+          
+
+  private static final Map<String, String> BEAN_LITE_BANNED_ANNOTATIONS = Collections.unmodifiableMap(
+      Stream.concat(BANNED_ANNOTATIONS.entrySet().stream(),
+        Stream.of(
+          entry(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes"),
+          entry(COMPONENT_TYPE, "You may not use @Component on @Verified classes with @Bean methods")))
+      .collect(entriesToMap()));
+
+  
   /**
    * Will return true if a class level contains exactly a constant final static private literal field.
    */
@@ -94,6 +124,24 @@ public class SpringAnnotationParser {
       .containsAll(Arrays.asList(Modifier.PRIVATE, Modifier.FINAL))
       && ve.getModifiers().size() == 2
       && ve.getConstantValue() == null;  
+  
+  /**
+   * Used to construct entries for maps
+   * @param key entry's key
+   * @param value entry's value
+   * @return the SimpleEntry we want to construct.
+   */
+  private static <K, V> Map.Entry<K, V> entry(K key, V value) {
+    return new AbstractMap.SimpleEntry<>(key, value);
+  }
+  
+  /**
+   * Converts a Stream&lt;Entry&lt;X,Y&gt;&gt; to a Map&lt;X,Y&gt;.
+   * @return a Map representing the contents of the stream.
+   */
+  private static <K, U> Collector<Map.Entry<K, U>, ?, Map<K, U>> entriesToMap() {
+    return Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue());
+  } 
  
   /**
    * Read a TypeElement to get application structure.
@@ -118,23 +166,17 @@ public class SpringAnnotationParser {
     Verified verified = te.getAnnotation(Verified.class);
     DefinitionModel model = new DefinitionModel(te, verified == null ? false : verified.root());
 
-    errorIfInvalidClass(te, messager);
+    errorIfInnerClass(te, messager);
     
     model.addDependencyNames(getImportsTypes(te));
-    String[] configurationBeanNames  = AnnotationValueExtractor
-        .getAnnotationValue(te, CONFIGURATION_TYPE, DEFAULT_ANNOTATION_VALUE);
-    String[] componentBeanNames  = AnnotationValueExtractor
-        .getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);
-    if (configurationBeanNames == null && componentBeanNames == null) {
-      for (Element enclosed : te.getEnclosedElements()) {
-        handleEnclosedElements(messager, model, enclosed);
-      }
+    String[] componentBeanNames  = AnnotationValueExtractor.getAnnotationValue(te, COMPONENT_TYPE, DEFAULT_ANNOTATION_VALUE);
+    if (componentBeanNames != null) {
+      errorOnBannedTypeToMessage(te, messager, COMPONENT_BANNED_ANNOTATIONS);
+      addModelsFromComponent(te, model, componentBeanNames, messager);
     } else {
-      if (componentBeanNames != null) {
-        addModelsFromComponent(te, model, componentBeanNames, messager);
-      } else {
-        messager.printMessage(Kind.ERROR, "@Verified annotation must only be used on "
-            + "@Bean LITE factory classes or @Component classes", te);
+      errorOnBannedTypeToMessage(te, messager, BEAN_LITE_BANNED_ANNOTATIONS);
+      for (Element enclosed : te.getEnclosedElements()) {
+        addBeanMethodsFromBeanLiteConfig(messager, model, enclosed);
       }
     }
     
@@ -175,7 +217,7 @@ public class SpringAnnotationParser {
     return valid;
   }
 
-  private void handleEnclosedElements(Messager messager, DefinitionModel model, Element enclosed) {
+  private void addBeanMethodsFromBeanLiteConfig(Messager messager, DefinitionModel model, Element enclosed) {
     switch (enclosed.getKind()) {
       case METHOD: 
         ExecutableElement execelement = (ExecutableElement) enclosed;
@@ -345,19 +387,23 @@ public class SpringAnnotationParser {
       .collect(Collectors.toList());
   }
 
-  private void errorIfInvalidClass(TypeElement te, Messager messager) {
+  private void errorIfInnerClass(TypeElement te, Messager messager) {
     if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
       messager.printMessage(Kind.ERROR, "The class must be a top level class, not an internal class", te);
     }
-    if (AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCAN_TYPE, "basePackages") != null
-        || AnnotationValueExtractor.getAnnotationValue(te, COMPONENTSCANS_TYPE, "basePackages") != null) {
-      messager.printMessage(Kind.ERROR, "You may not use @ComponentScan(s) on @Verified classes", te);
-    }
+  }
+  
+  private void errorOnBannedTypeToMessage(Element el, Messager messager, Map<String, String> typeToMessage) {
+    for (Entry<String, String> banned : typeToMessage.entrySet()) {
+      if (AnnotationValueExtractor.getAnnotationValue(el, banned.getKey(), "") != null) {
+        messager.printMessage(Kind.ERROR, banned.getValue(), el);
+      }
+    } 
   }
   
   private List<String> getImportsTypes(TypeElement element) {
     String[] values = AnnotationValueExtractor
-        .getAnnotationValue(element, "org.springframework.context.annotation.Import", DEFAULT_ANNOTATION_VALUE);
+        .getAnnotationValue(element, IMPORT_TYPE, DEFAULT_ANNOTATION_VALUE);
     if (values == null) {
       return new ArrayList<>();
     } else {
