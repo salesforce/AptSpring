@@ -82,7 +82,8 @@ import java.lang.annotation.Target;
  * <ul>
  *   <li>@Value may only be used on @Bean method parameters or @Component constructors.</li>  
  *   <li>@Value parameters and @Qualifier parameters may not be mixed on the same @Bean method or @Component constructor</li>
- *   <li>It is highly encouraged that @Bean methods or @Component constructors with @Value parameters only have one parameters (more are allowed)</li>
+ *   <li>It is highly encouraged that @Bean methods or @Component constructors with @Value
+ *   parameters only have one parameters (more are allowed)</li>
  *   <li>@Value annotations may only be used on classes that are marked as {@link Verified#root()} = true</li>
  *   <li>No class may mark a {@link Verified#root()} = true class as an @Import</li>
  *   <li>Instead @Import files should use {@link Verified#expectedBeans()} to expect beans that will be required
