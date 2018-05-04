@@ -43,6 +43,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.SpringVersion;
 
+import com.salesforce.apt.graph.model.storage.classpath.FileStore;
 import com.salesforce.aptspring.Verified;
 import com.salesforce.aptspring.processor.SpringAnnotationParser;
 
@@ -112,18 +113,18 @@ public class TakariIncrementalCompileTests {
     File generatedSources = new File(basedir, "target/generated-sources/annotations");
 
     File configurationSourceFile = (new File(generatedSources,
-        "com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.java"));
+        "com/salesforce/aptspring/ComputerHardwareConfiguration_" + FileStore.STANDARD.getPath() + ".java"));
     assertThat(configurationSourceFile).exists().canRead();
 
     File configurationClass = (new File(compiledClasses,
-        "com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class"));
+        "com/salesforce/aptspring/ComputerHardwareConfiguration_" + FileStore.STANDARD.getPath() + ".class"));
     assertThat(configurationClass).exists().canRead();
 
     maven.executeMojo(session, project, "testCompile", newParameter("compilerId", compilerId),
         newParameter(PROC, PROC));
     File compiledTestClasses = new File(basedir, "target/test-classes");
     File configurationTestClass = (new File(compiledTestClasses,
-        "com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.class"));
+        "com/salesforce/aptspring/RootApplicationConfiguration_" + FileStore.STANDARD.getPath() + ".class"));
     assertThat(configurationTestClass).exists().canRead();
   }
 }
