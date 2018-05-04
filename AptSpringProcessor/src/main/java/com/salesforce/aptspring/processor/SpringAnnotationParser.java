@@ -126,7 +126,7 @@ public class SpringAnnotationParser {
       && ve.getConstantValue() == null;  
   
   /**
-   * Used to construct entries for maps
+   * Used to construct entries for maps.
    * @param key entry's key
    * @param value entry's value
    * @return the SimpleEntry we want to construct.
@@ -337,18 +337,22 @@ public class SpringAnnotationParser {
         .forEach(ve -> messager
             .printMessage(Kind.ERROR, "@Component classes my only have static final constant fields or final private fields", ve));
     
-    InstanceModel model = new InstanceModel(names[0],
-        dm.getIdentity(), 
-        chosenConstructor, 
-        te.getQualifiedName().toString(),
-        dependencies, 
-        new ArrayList<>());
-    
-    dm.addDefinition(model);
-    for (InstanceDependencyModel dep : dependencies) {
-      ExpectedModel expectedModel = new ExpectedModel(dep.getIdentity());
-      expectedModel.addDefinitionReferenceToType(model.getIdentity(), dep.getType());
-      dm.addDefinition(expectedModel);
+    if (names.length > 0) {
+      InstanceModel model = new InstanceModel(names[0],
+          dm.getIdentity(), 
+          chosenConstructor, 
+          te.getQualifiedName().toString(),
+          dependencies, 
+          new ArrayList<>());
+      
+      dm.addDefinition(model);
+      for (InstanceDependencyModel dep : dependencies) {
+        ExpectedModel expectedModel = new ExpectedModel(dep.getIdentity());
+        expectedModel.addDefinitionReferenceToType(model.getIdentity(), dep.getType());
+        dm.addDefinition(expectedModel);
+      }
+    } else {
+      messager.printMessage(Kind.ERROR, "@Component classes must have a name", te);
     }
   }
 

@@ -211,6 +211,34 @@ public class ComponentTests {
       "}");
   
   
+  private JavaFileObject componentNoName = JavaFileObjects.forSourceLines(
+      "test.TestClass1",
+      "package test;",
+      "",
+      "import org.springframework.stereotype.Component;",
+      "",
+      "@com.salesforce.aptspring.Verified",
+      "@Component",
+      "public class TestClass1 {",
+      "",
+      "}");
+  
+  
+  @Test
+  public void testComponentNo() throws IOException {
+    File outputDir = Files.createTempDir();
+    System.out.println("Generating into " + outputDir.getAbsolutePath());
+
+    assertAbout(javaSources())
+            .that(Arrays.asList(componentNoName))
+            .processedWith(new VerifiedSpringConfiguration())
+            .failsToCompile()
+            .withErrorContaining("@Component classes must have a name")
+            .in(componentNoName)
+            .onLine(7);  
+  }
+  
+  
   @Test
   public void testComponentImport() throws IOException {
     File outputDir = Files.createTempDir();
