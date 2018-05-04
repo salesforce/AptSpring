@@ -27,7 +27,7 @@
 package com.salesforce.apt.graph.model.storage.classpath;
 
 public enum FileStore {
-  STANDARD("forceInjectData");
+  STANDARD("aptSpring");
 
   private final String location; 
 
