@@ -392,9 +392,24 @@ public class SpringAnnotationParser {
   }
 
   private void errorIfInnerClass(TypeElement te, Messager messager) {
-    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
+    if (te.getEnclosingElement().getKind() != ElementKind.PACKAGE && !isTest(te)) {
       messager.printMessage(Kind.ERROR, "The class must be a top level class, not an internal class", te);
     }
+  }
+  
+  /**
+   * Returns true if the verified class is in a class that maven
+   * would consider a test.   May give false positives in class dir.
+   * TODO: should probably have a property to say if in tests.
+   * @param te the enclosed type
+   * @return true if determined to be in a test.
+   */
+  private boolean isTest(TypeElement te) {
+    String className = te.getEnclosingElement().getSimpleName().toString();
+    return className.startsWith("Test") 
+        || className.endsWith("Test") 
+        || className.endsWith("Tests")
+        || className.endsWith("TestCase");
   }
   
   private void errorOnBannedTypeToMessage(Element el, Messager messager, Map<String, String> typeToMessage) {

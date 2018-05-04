@@ -27,9 +27,11 @@
 package com.salesforce.apt.graph.naming;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 
 public class NamingTools {
   
+  /*
   public String elementToName(Element element) {
     switch (element.getKind()) {
       case CLASS:
@@ -41,6 +43,46 @@ public class NamingTools {
       default:
         return element.toString();
     }
+  }*/
+
+  public String elementToName(Element element) {
+    return elementToFileName(element);
+  }
+
+  /**
+   * Creates a unique name (suitable for storage) from an element.
+   * Note that nested class names must be delimited by '$' so that
+   * they may be used as filenames.
+   * 
+   * @param element to turn in to a name.
+   * @return a uniquely identifying string.
+   */
+  public String elementToFileName(Element element) {
+    switch (element.getKind()) {
+      //case PACKAGE:
+      //  //so looks like there is difference between jdt and jdk here.... sigh.
+      //  //jdk returns the full package name on toString, jdt returns on the last part.
+      //  return element.asType().toString();  
+      case CLASS:
+        return  calculateClassName(element,  element.getSimpleName().toString());
+      case METHOD:
+        return elementToFileName(element.getEnclosingElement()) + "." + element.toString();
+      case CONSTRUCTOR:
+        return elementToFileName(element.getEnclosingElement()) + "." + element.toString();
+      default:
+        return element.toString();
+    }
+  }
+  
+  private String calculateClassName(Element element, String current) {
+    Element enclosing = element.getEnclosingElement();
+    if (enclosing.getKind() == ElementKind.PACKAGE) {
+      return element.toString().substring(0, element.toString().lastIndexOf(".")) + "." + current;
+    }
+    if (enclosing.getKind() == ElementKind.CLASS) {
+      return calculateClassName(element.getEnclosingElement(), enclosing.getSimpleName().toString() + "$" + current);
+    }
+    return element.toString();
   }
 
 }

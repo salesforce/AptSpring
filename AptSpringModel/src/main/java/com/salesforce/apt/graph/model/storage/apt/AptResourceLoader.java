@@ -51,7 +51,7 @@ public class AptResourceLoader implements ResourceLoader {
   @Override
   public List<Resource> getEntries(String name) {
     List<Resource> resources = new ArrayList<>();
-    String location = name + "_" + FileStore.STANDARD.getPath();
+    String location = name.replace('$', '.') + "_" + FileStore.STANDARD.getPath();
     TypeElement element = elements.getTypeElement(location);
     if (element != null) {
       VariableElement dataField = (VariableElement) element.getEnclosedElements().stream()

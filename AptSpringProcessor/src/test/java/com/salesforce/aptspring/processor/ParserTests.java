@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 import org.junit.Test;
 
@@ -41,15 +42,15 @@ import com.google.testing.compile.JavaFileObjects;
 public class ParserTests {
 
   @Test
-  public void testFieldIsAllGood() throws IOException {
+  public void testNonTopLevelClassMayNotBeVerified() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
-        "test.TestClass",
+        "test.ImportantClass",
         "package test;",
         "",
         "import org.springframework.context.annotation.Configuration;",
         "import java.util.Date;",
         "",
-        "public class TestClass {",
+        "public class ImportantClass {",
         "",
         "  @com.salesforce.aptspring.Verified",
         "  @Configuration",
@@ -68,6 +69,33 @@ public class ParserTests {
             .in(definitionClass)
             .onLine(10);
   }
+  
+  @Test
+  public void testShowsTestClassMayContainVerified() throws IOException {
+    JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
+        "test.TestClass",
+        "package test;",
+        "",
+        "import org.springframework.context.annotation.Configuration;",
+        "import java.util.Date;",
+        "",
+        "public class TestClass {",
+        "",
+        "  @com.salesforce.aptspring.Verified",
+        "  public static class TestClass1 {",
+        "",
+        "    private static final String someVariable = \"I AM GOOD!\";",
+        "  }",
+        "",
+        "}");
+
+    assertAbout(javaSources())
+            .that(Arrays.asList(definitionClass))
+            .processedWith(new VerifiedSpringConfiguration())
+            .compilesWithoutError()
+            .and()
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass$TestClass1_aptSpring.java");
+  }  
   
   @Test
   public void testLiteBeanMethodMustHaveAtLeastOneName() throws IOException {
@@ -115,7 +143,9 @@ public class ParserTests {
     assertAbout(javaSources())
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
-            .compilesWithoutError();
+            .compilesWithoutError()
+            .and()
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_aptSpring.java");
   }
   
   @Test
@@ -505,7 +535,9 @@ public class ParserTests {
     assertAbout(javaSources())
             .that(Arrays.asList(definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
-            .compilesWithoutError();
+            .compilesWithoutError()
+            .and()
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_aptSpring.java");
   }
 
 

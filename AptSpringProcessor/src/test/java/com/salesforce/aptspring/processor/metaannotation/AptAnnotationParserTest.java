@@ -33,10 +33,12 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 import org.junit.Test;
 
 import com.google.testing.compile.JavaFileObjects;
+import com.salesforce.apt.graph.model.storage.classpath.FileStore;
 import com.salesforce.aptspring.processor.VerifiedSpringConfiguration;
 
 public class AptAnnotationParserTest {
@@ -90,7 +92,11 @@ public class AptAnnotationParserTest {
     assertAbout(javaSources())
             .that(Arrays.asList(annotation, definitionClass))
             .processedWith(new VerifiedSpringConfiguration())
-            .compilesWithoutError();
+            .compilesWithoutError()
+            .and()
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_" + FileStore.STANDARD.getPath() + ".java")
+            .and()
+            .generatesFileNamed(StandardLocation.CLASS_OUTPUT, "test", "TestClass_" + FileStore.STANDARD.getPath() + ".class");
   }
   
   @Test
