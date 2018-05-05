@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NamingTools.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.naming</a> &gt; <span class="el_source">NamingTools.java</span></div><h1>NamingTools.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.naming;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+
+<span class="nc" id="L32">public class NamingTools {</span>
+  
+  /*
+  public String elementToName(Element element) {
+    switch (element.getKind()) {
+      case CLASS:
+        return element.toString();
+      case METHOD:
+        return element.getEnclosingElement().toString() + &quot;.&quot; + element.toString();
+      case CONSTRUCTOR:
+        return element.getEnclosingElement().toString() + &quot;.&quot; + element.toString();
+      default:
+        return element.toString();
+    }
+  }*/
+
+  public String elementToName(Element element) {
+<span class="nc" id="L49">    return elementToFileName(element);</span>
+  }
+
+  /**
+   * Creates a unique name (suitable for storage) from an element.
+   * Note that nested class names must be delimited by '$' so that
+   * they may be used as filenames.
+   * 
+   * @param element to turn in to a name.
+   * @return a uniquely identifying string.
+   */
+  public String elementToFileName(Element element) {
+<span class="nc bnc" id="L61" title="All 4 branches missed.">    switch (element.getKind()) {</span>
+      //case PACKAGE:
+      //  //so looks like there is difference between jdt and jdk here.... sigh.
+      //  //jdk returns the full package name on toString, jdt returns on the last part.
+      //  return element.asType().toString();  
+      case CLASS:
+<span class="nc" id="L67">        return  calculateClassName(element,  element.getSimpleName().toString());</span>
+      case METHOD:
+<span class="nc" id="L69">        return elementToFileName(element.getEnclosingElement()) + &quot;.&quot; + element.toString();</span>
+      case CONSTRUCTOR:
+<span class="nc" id="L71">        return elementToFileName(element.getEnclosingElement()) + &quot;.&quot; + element.toString();</span>
+      default:
+<span class="nc" id="L73">        return element.toString();</span>
+    }
+  }
+  
+  private String calculateClassName(Element element, String current) {
+<span class="nc" id="L78">    Element enclosing = element.getEnclosingElement();</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">    if (enclosing.getKind() == ElementKind.PACKAGE) {</span>
+<span class="nc" id="L80">      return element.toString().substring(0, element.toString().lastIndexOf(&quot;.&quot;)) + &quot;.&quot; + current;</span>
+    }
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    if (enclosing.getKind() == ElementKind.CLASS) {</span>
+<span class="nc" id="L83">      return calculateClassName(element.getEnclosingElement(), enclosing.getSimpleName().toString() + &quot;$&quot; + current);</span>
+    }
+<span class="nc" id="L85">    return element.toString();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
