@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ErrorModel.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="../index.html" class="el_bundle">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.model.errors</a> &gt; <span class="el_source">ErrorModel.java</span></div><h1>ErrorModel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.model.errors;
+
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import com.salesforce.apt.graph.model.AbstractModel;
+
+public class ErrorModel {
+
+  private final ErrorType message;
+  private final List&lt;AbstractModel&gt; causes;
+  private final List&lt;AbstractModel&gt; involved;
+  
+  public ErrorType getMessage() {
+<span class="fc" id="L44">    return message;</span>
+  }
+
+  public List&lt;AbstractModel&gt; getCauses() {
+<span class="fc" id="L48">    return causes;</span>
+  }
+  
+  public List&lt;AbstractModel&gt; getInvolved() {
+<span class="fc" id="L52">    return involved;</span>
+  }
+  
+  public boolean isCyclic() {
+<span class="fc" id="L56">    return message.isCycle();</span>
+  }
+  
+  public String toString() {
+<span class="nc" id="L60">    return message.name() + &quot; on &quot; + involved.toString() + &quot; caused by &quot; + causes;</span>
+  }
+  
+  /**
+   * A non cyclic error.
+   *
+   * @param message {@link ErrorType} of this represents
+   * @param causes models at fault.
+   * @param involved models the error should be displayed on.
+   */
+  public ErrorModel(ErrorType message, List&lt;? extends AbstractModel&gt; causes, List&lt;? extends AbstractModel&gt; involved) {
+<span class="fc" id="L71">    super();</span>
+<span class="fc" id="L72">    this.message = message;</span>
+<span class="fc bfc" id="L73" title="All 4 branches covered.">    if (message.isCycle() &amp;&amp; !causes.equals(involved)) {</span>
+<span class="fc" id="L74">      throw new IllegalArgumentException(&quot;Malformed ErrorModel&quot;);</span>
+    }
+<span class="fc" id="L76">    this.causes = Collections.unmodifiableList(causes);</span>
+<span class="fc" id="L77">    this.involved = Collections.unmodifiableList(involved);   </span>
+<span class="fc" id="L78">  }</span>
+  
+  /**
+   * Returns a contextualized error message for the error, from the model's perspective.
+   * 
+   * @param on an AbstractModel that is &quot;involved&quot; in this error
+   * @param converter presents an error message for this error model to be displayed on the AbstractModel, on,
+   *     that contributed to the error.
+   * @return an error message from the context of the failed model member.
+   */
+  public String getMessageOn(AbstractModel on, Function&lt;ErrorType, String&gt; converter) {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    if (!isCyclic()) {</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">      if (getCauses().size() == 1) {</span>
+<span class="fc" id="L91">        return MessageFormat.format(converter.apply(getMessage()), getCauses().get(0));</span>
+      } else {
+<span class="fc" id="L93">        return MessageFormat.format(converter.apply(getMessage()), </span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            getCauses().stream().filter(m -&gt; !m.equals(on)).map(m -&gt; m.toString()).collect(Collectors.joining(&quot;, &quot;))); </span>
+      }
+    }
+<span class="fc" id="L97">    StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L98">    int index = getInvolved().indexOf(on);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">    if (index != -1) {</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">      for (int i = index; i &lt; getInvolved().size(); i++) {</span>
+<span class="fc" id="L101">        builder.append(getInvolved().get(i).toString());</span>
+<span class="fc bfc" id="L102" title="All 4 branches covered.">        if (i + 1 &lt; getInvolved().size() || index != 0) {</span>
+<span class="fc" id="L103">          builder.append(&quot; -&gt; &quot;);</span>
+        }
+      }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">      for (int i = 0; i &lt; index; i++) {</span>
+<span class="fc" id="L107">        builder.append(getInvolved().get(i).toString());</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (i + 1 &lt; index) {</span>
+<span class="fc" id="L109">          builder.append(&quot; -&gt; &quot;);</span>
+        }
+      }
+    }
+<span class="fc" id="L113">    return MessageFormat.format(converter.apply(getMessage()), builder.toString());</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

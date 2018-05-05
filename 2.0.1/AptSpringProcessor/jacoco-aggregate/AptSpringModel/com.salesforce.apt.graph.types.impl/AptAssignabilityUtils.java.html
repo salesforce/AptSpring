@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AptAssignabilityUtils.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="../index.html" class="el_bundle">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.types.impl</a> &gt; <span class="el_source">AptAssignabilityUtils.java</span></div><h1>AptAssignabilityUtils.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.types.impl;
+
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
+import com.salesforce.apt.graph.model.InstanceModel;
+import com.salesforce.apt.graph.naming.NamingTools;
+import com.salesforce.apt.graph.types.AssignabilityUtils;
+
+/**
+ * Compares types stored in the DefinitionGraph with the best available utils, Types and Elements in the case of apt.
+ */
+public class AptAssignabilityUtils implements AssignabilityUtils {
+
+  private Types typeUtils;
+  private Elements elementUtils;
+  
+<span class="fc" id="L47">  public AptAssignabilityUtils(Types types, Elements elements) {</span>
+<span class="fc" id="L48">    typeUtils = types;</span>
+<span class="fc" id="L49">    elementUtils = elements;</span>
+<span class="fc" id="L50">  }</span>
+  
+  /**
+   * Given two instances models, the subject and target, it is determined
+   * if the subject can be assigned to the dependency on the subject, from the
+   * target.
+   *
+   * @param subject instance to be injected in to the target
+   * @param target instance to have the subject injected in to it.
+   * @return whether the target can be safely injected in to the correct parameter of the target.
+   */
+  public boolean isAssignableFrom(InstanceModel subject, InstanceModel target) {
+<span class="fc" id="L62">    ExecutableElement factoryOrConstructor = lookUpElement(subject);</span>
+<span class="fc" id="L63">    TypeMirror subjectElementType = null;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    if (&quot;&lt;init&gt;&quot;.equals(factoryOrConstructor.getSimpleName().toString())) {</span>
+<span class="fc" id="L65">      subjectElementType = factoryOrConstructor.getEnclosingElement().asType();</span>
+<span class="fc" id="L66">    } else {</span>
+<span class="fc" id="L67">      subjectElementType = factoryOrConstructor.getReturnType();</span>
+    }
+<span class="fc" id="L69">    int count = 0;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    while (!target.getDependencies().get(count).getIdentity().equals(subject.getIdentity())) {</span>
+<span class="fc" id="L71">      count ++;</span>
+    }
+<span class="fc" id="L73">    TypeMirror targetElementType = lookUpElement(target).getParameters().get(count).asType();</span>
+<span class="fc" id="L74">    return typeUtils.isAssignable(subjectElementType, targetElementType);</span>
+  }
+  
+  /**
+   * Find's the executable element that will have the necessary type
+   * information extracted from it.
+   * 
+   * @param target the instance model that is our target
+   * @return the element in question
+   */
+  public ExecutableElement lookUpElement(final InstanceModel target) {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">    if (target.getSourceElement().isPresent()) {</span>
+<span class="fc" id="L86">      return (ExecutableElement) target.getSourceElement().get();</span>
+    } else {
+<span class="fc" id="L88">      TypeElement type = elementUtils.getTypeElement(target.getOwningDefinition());</span>
+<span class="fc" id="L89">      final NamingTools names = new NamingTools();</span>
+<span class="fc" id="L90">      return type.getEnclosedElements().stream().filter(e -&gt; </span>
+<span class="pc bpc" id="L91" title="1 of 4 branches missed.">        names.elementToName(e).equals(target.getElementLocation()) &amp;&amp; ExecutableElement.class.isAssignableFrom(e.getClass()))</span>
+<span class="fc" id="L92">          .findFirst()</span>
+<span class="fc" id="L93">          .map(e -&gt; (ExecutableElement) e)</span>
+<span class="fc" id="L94">          .get();</span>
+    }
+  }  
+  
+  /* If the above doesn't work, this handles all but ?, &amp;, | in types.
+   * 
+  public boolean isAssignableFrom(String subject, String target) {
+    ParseType subjectType = ParseType.parse(subject);
+    ParseType targetType = ParseType.parse(target);
+    return typeUtils.isAssignable(from(subjectType),
+        from(targetType));
+  }
+  
+  public TypeMirror from(ParseType parsed) {
+    return typeUtils.getDeclaredType(elementUtils.getTypeElement(parsed.getType()),
+        parsed.getParameters().stream().map(p -&gt; from(p)).toArray(i -&gt; new TypeMirror[i]));
+  }
+  */
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

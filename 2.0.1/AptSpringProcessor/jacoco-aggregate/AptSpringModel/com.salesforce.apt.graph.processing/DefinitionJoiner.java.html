@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>DefinitionJoiner.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="../index.html" class="el_bundle">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.processing</a> &gt; <span class="el_source">DefinitionJoiner.java</span></div><h1>DefinitionJoiner.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.processing;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import com.salesforce.apt.graph.model.DefinitionModel;
+import com.salesforce.apt.graph.model.errors.ErrorModel;
+import com.salesforce.apt.graph.model.errors.ErrorType;
+import com.salesforce.apt.graph.model.storage.DefinitionModelStore;
+
+<span class="fc" id="L43">public class DefinitionJoiner {</span>
+  
+  /**
+   * Mutates DefinitionModels, links them to their dependencies.
+   * 
+   * @param definitions definitions to join.
+   * @param store a means to lookup and store definitions that have been, and have just completed being processed.
+   * @param el error listeners, pass error models to it to report them to users.
+   */
+  public void joinDefinitions(Collection&lt;DefinitionModel&gt; definitions,
+      DefinitionModelStore store, Consumer&lt;ErrorModel&gt; el) {
+    
+    //Map of identity to models for passed in Definitions
+<span class="fc" id="L56">    Map&lt;String, DefinitionModel&gt; idToDefinition = definitions.stream()</span>
+<span class="fc" id="L57">        .collect(Collectors.toMap(dm -&gt; dm.getIdentity(), Function.identity()));</span>
+    
+    //Function that merges the available models pre-computed on the system with the models found during processing.
+<span class="fc" id="L60">    Function&lt;String, List&lt;DefinitionModel&gt;&gt; availableModels = s -&gt; {</span>
+<span class="fc" id="L61">      DefinitionModel definied = idToDefinition.get(s);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">      if (definied != null) {</span>
+<span class="fc" id="L63">        return Arrays.asList(definied); //it was asked to be processed in this build.</span>
+      }
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">      if (store == null || store.lookup(s) == null) {</span>
+<span class="fc" id="L66">        return null;</span>
+      }
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">      return store.lookup(s).stream().filter(item -&gt; item != null).collect(Collectors.toList());</span>
+    };
+    
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (DefinitionModel model : definitions) {</span>
+<span class="fc" id="L72">      errorIfModelBeingProcessedExistsMoreThanOnce(model, availableModels, el);</span>
+<span class="fc" id="L73">      errorModelIfMissingOrDupDependencies(model, availableModels, el);</span>
+    }    
+<span class="fc" id="L75">  }</span>
+
+  /**
+   * Looks for depends of the model in available models in the availableModels function (data source)
+   * Register errors if available models are too many, too few, or if the array returned is null
+   * we assume a read error occurred.
+   * 
+   * @param model who's dependencies we'll look up
+   * @param availableModels a function returning all models with the same id as a list
+   * @param el where we register errors.
+   */
+  private void errorModelIfMissingOrDupDependencies(DefinitionModel model, 
+      Function&lt;String, List&lt;DefinitionModel&gt;&gt; availableModels, Consumer&lt;ErrorModel&gt; el) {
+<span class="fc" id="L88">    List&lt;String&gt; missingDependencies = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    for (String dependencyIdentity : model.getDependencyNames()) {</span>
+<span class="fc" id="L90">      List&lt;DefinitionModel&gt; options = availableModels.apply(dependencyIdentity);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">      if (options == null) {</span>
+<span class="fc" id="L92">        el.accept(new ErrorModel(ErrorType.COULD_NOT_READ,</span>
+<span class="fc" id="L93">            Arrays.asList(new DefinitionModel(dependencyIdentity)),</span>
+<span class="fc" id="L94">            Arrays.asList(model)));</span>
+<span class="fc" id="L95">      } else {</span>
+<span class="pc bpc" id="L96" title="1 of 3 branches missed.">        switch (options.size()) {</span>
+          case 0: 
+<span class="fc" id="L98">            missingDependencies.add(dependencyIdentity); </span>
+<span class="fc" id="L99">            break;</span>
+          case 1:
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            if (options.get(0).isRootNode()) {</span>
+<span class="fc" id="L102">              el.accept(new ErrorModel(ErrorType.ROOT_NODE_IMPORTED,</span>
+<span class="fc" id="L103">                  Arrays.asList(options.get(0)),</span>
+<span class="fc" id="L104">                  Arrays.asList(model)));</span>
+            }
+<span class="fc" id="L106">            model.addDependency(options.get(0));</span>
+<span class="fc" id="L107">            break;</span>
+          default:
+<span class="nc" id="L109">            el.accept(new ErrorModel(ErrorType.DUPLICATED_MATCHING_DEPENDENCIES,</span>
+<span class="nc" id="L110">                availableModels.apply(dependencyIdentity),</span>
+<span class="nc" id="L111">                Arrays.asList(model)));</span>
+            break;
+        }
+      }
+    }
+<span class="fc bfc" id="L116" title="All 2 branches covered.">    if (missingDependencies.size() &gt; 0) {</span>
+<span class="fc" id="L117">      el.accept(new ErrorModel(ErrorType.MISSING_NECESSARY_ANNOTATIONS,</span>
+<span class="fc" id="L118">            missingDependencies.stream()</span>
+<span class="fc" id="L119">              .map(s -&gt; new DefinitionModel(s)).collect(Collectors.toList()),</span>
+<span class="fc" id="L120">            Arrays.asList(model)));</span>
+    }
+<span class="fc" id="L122">  }</span>
+
+  /**
+   * Checks whether the model has a conflicting source of data, if so, errors out, 
+   * if the array returned by availableModels is null by we assume a read error occurred.
+   * 
+   * @param model in question
+   * @param availableModels a function returning all models with the same id as a list
+   * @param el where we register errors.
+   */
+  private void errorIfModelBeingProcessedExistsMoreThanOnce(DefinitionModel model, Function&lt;String, 
+      List&lt;DefinitionModel&gt;&gt; availableModels, Consumer&lt;ErrorModel&gt; el) {
+<span class="fc" id="L134">    List&lt;DefinitionModel&gt; allModelsOfIdentity =  availableModels.apply(model.getIdentity());</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    if (allModelsOfIdentity == null) {</span>
+<span class="nc" id="L136">      el.accept(new ErrorModel(ErrorType.COULD_NOT_READ,</span>
+<span class="nc" id="L137">          Arrays.asList(new DefinitionModel(model.getIdentity())),</span>
+<span class="nc" id="L138">          Arrays.asList(model)));</span>
+<span class="nc" id="L139">    } else {</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">      if (allModelsOfIdentity.size() &gt; 1) {</span>
+<span class="nc" id="L141">        el.accept(new ErrorModel(ErrorType.DUPLICATED_MATCHING_DEFINITIONS,</span>
+<span class="nc" id="L142">            allModelsOfIdentity,</span>
+<span class="nc" id="L143">            Arrays.asList(model)));</span>
+      }
+    }
+<span class="fc" id="L146">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
