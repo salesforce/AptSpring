@@ -64,9 +64,6 @@ import org.junit.Test;
 
 import com.google.testing.compile.JavaFileObjects;
 
-/**
- * Only works on jdt/eclipse processor.
- */
 public class BeanTests {
 
   @Test
@@ -208,7 +205,6 @@ public class BeanTests {
   }
   
   
-  /*
   @Test
   public void testMissingBeansThatAreExpected() throws IOException {
     JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
@@ -221,8 +217,7 @@ public class BeanTests {
         "import org.springframework.context.annotation.Configuration;",
         "import org.springframework.context.annotation.Import;",
         "",
-        "  @com.salesforce.aptspring.Verified(expectedBeans=\"{value1}\")",
-        "  @Configuration",
+        "  @com.salesforce.aptspring.Verified(expectedBeans={\"value1\"})",
         "  public class TestClass2 {",
         "",
         "    @Bean(name = \"value3\")",
@@ -238,6 +233,5 @@ public class BeanTests {
             .processedWith(new VerifiedSpringConfiguration())
             .compilesWithoutError();
   }
-  */
 
 }

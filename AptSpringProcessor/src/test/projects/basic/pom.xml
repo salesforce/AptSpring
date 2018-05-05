@@ -24,14 +24,16 @@
             <version>3.3.0</version>
         </dependency>
         <dependency>
-            <groupId>com.salesforce.aptspring</groupId>
-            <artifactId>AptSpringAPI</artifactId>
-            <version>2.0.0</version>
+          <groupId>com.salesforce.aptspring</groupId>
+          <artifactId>AptSpringAPI</artifactId>
+          <!-- this is confusing, but it is supplied by the classpath running the test -->
+          <version>[2.0.0,)</version>
         </dependency>
         <dependency>
           <groupId>com.salesforce.aptspring</groupId>
           <artifactId>AptSpringProcessor</artifactId>
-          <version>2.0.0</version>
+          <!-- this is confusing, but it is supplied by the classpath running the test -->
+          <version>[2.0.0,)</version>
           <scope>provided</scope>
         </dependency>
         <dependency>

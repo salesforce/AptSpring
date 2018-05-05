@@ -38,6 +38,7 @@ import javax.tools.StandardLocation;
 import org.junit.Test;
 
 import com.google.testing.compile.JavaFileObjects;
+import com.salesforce.apt.graph.model.storage.classpath.FileStore;
 
 public class ParserTests {
 
@@ -94,7 +95,8 @@ public class ParserTests {
             .processedWith(new VerifiedSpringConfiguration())
             .compilesWithoutError()
             .and()
-            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass$TestClass1_aptSpring.java");
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test",
+                "TestClass$TestClass1_" + FileStore.STANDARD.getPath() + ".java");
   }  
   
   @Test
@@ -145,7 +147,7 @@ public class ParserTests {
             .processedWith(new VerifiedSpringConfiguration())
             .compilesWithoutError()
             .and()
-            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_aptSpring.java");
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_" + FileStore.STANDARD.getPath() + ".java");
   }
   
   @Test
@@ -537,7 +539,7 @@ public class ParserTests {
             .processedWith(new VerifiedSpringConfiguration())
             .compilesWithoutError()
             .and()
-            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_aptSpring.java");
+            .generatesFileNamed(StandardLocation.SOURCE_OUTPUT, "test", "TestClass_" + FileStore.STANDARD.getPath() + ".java");
   }
 
 

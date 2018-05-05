@@ -34,6 +34,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.salesforce.apt.graph.model.storage.classpath.FileStore;
+
 import io.takari.maven.testing.TestResources;
 import io.takari.maven.testing.executor.MavenRuntime;
 import io.takari.maven.testing.executor.MavenRuntime.MavenRuntimeBuilder;
@@ -69,12 +71,14 @@ public class BetterTakariCompileTest {
     assertThat(targetdir).exists().isDirectory();
     
     TestResources.assertFilesPresent(targetdir,
-        "classes/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.class");
+        "classes/com/salesforce/aptspring/ComputerHardwareConfiguration_" + FileStore.STANDARD.getPath() + ".class");
     TestResources.assertFilesPresent(targetdir,
-        "generated-sources/annotations/com/salesforce/aptspring/ComputerHardwareConfiguration_forceInjectData.java");
+        "generated-sources/annotations/com/salesforce/aptspring/ComputerHardwareConfiguration_"
+         + FileStore.STANDARD.getPath() + ".java");
     TestResources.assertFilesPresent(targetdir,
-        "test-classes/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.class");
+        "test-classes/com/salesforce/aptspring/RootApplicationConfiguration_" + FileStore.STANDARD.getPath() + ".class");
     TestResources.assertFilesPresent(targetdir,
-        "generated-test-sources/test-annotations/com/salesforce/aptspring/RootApplicationConfiguration_forceInjectData.java");
+        "generated-test-sources/test-annotations/com/salesforce/aptspring/RootApplicationConfiguration_"
+         + FileStore.STANDARD.getPath() + ".java");
   }
 }
