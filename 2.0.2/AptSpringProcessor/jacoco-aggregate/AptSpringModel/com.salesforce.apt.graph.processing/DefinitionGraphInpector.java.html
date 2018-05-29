@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>DefinitionGraphInpector.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="../index.html" class="el_bundle">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.processing</a> &gt; <span class="el_source">DefinitionGraphInpector.java</span></div><h1>DefinitionGraphInpector.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.processing;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
+import com.salesforce.apt.graph.model.DefinitionModel;
+import com.salesforce.apt.graph.model.errors.ErrorModel;
+import com.salesforce.apt.graph.model.errors.ErrorType;
+
+<span class="fc" id="L44">public class DefinitionGraphInpector {</span>
+
+  public Set&lt;DefinitionModel&gt; inspectDefinitionGraph(Collection&lt;DefinitionModel&gt; definitions,
+      Consumer&lt;ErrorModel&gt; errorListener) {
+<span class="fc" id="L48">    DirectedGraph&lt;DefinitionModel, DefaultEdge&gt; graph = buildDefinitionGraph(definitions);</span>
+<span class="fc" id="L49">    errorForCycles(graph, errorListener);</span>
+    //TODO return all DefinitionModel needing re-evaluation
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    return graph.vertexSet().stream().filter(dm -&gt; graph.inDegreeOf(dm) == 0).collect(Collectors.toSet());</span>
+  }
+  
+  private void errorForCycles(DirectedGraph&lt;DefinitionModel, DefaultEdge&gt; definitionGraph,
+      Consumer&lt;ErrorModel&gt; errorListener) {
+<span class="fc" id="L56">    SzwarcfiterLauerSimpleCycles&lt;DefinitionModel, DefaultEdge&gt; cycleFind = new SzwarcfiterLauerSimpleCycles&lt;&gt;();</span>
+<span class="fc" id="L57">    cycleFind.setGraph(definitionGraph);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    for (List&lt;DefinitionModel&gt; list : cycleFind.findSimpleCycles()) {</span>
+<span class="fc" id="L59">      errorListener.accept(new ErrorModel(ErrorType.CYCLE_IN_DEFINITION_SOURCES, list, list));</span>
+    }
+<span class="fc" id="L61">  }</span>
+  
+  private DirectedGraph&lt;DefinitionModel, DefaultEdge&gt; buildDefinitionGraph(Collection&lt;DefinitionModel&gt; definitions) {
+<span class="fc" id="L64">    DirectedGraph&lt;DefinitionModel, DefaultEdge&gt; definitionGraph = new DefaultDirectedGraph&lt;&gt;(DefaultEdge.class);</span>
+<span class="fc" id="L65">    buildDefinitionGraph(definitions, definitionGraph);</span>
+<span class="fc" id="L66">    return definitionGraph;</span>
+  }
+
+  private void buildDefinitionGraph(Collection&lt;DefinitionModel&gt; definitions,
+      DirectedGraph&lt;DefinitionModel, DefaultEdge&gt; definitionGraph) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    for (DefinitionModel definition : definitions) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">      if (!definitionGraph.containsVertex(definition)) {</span>
+<span class="fc" id="L73">        definitionGraph.addVertex(definition);</span>
+<span class="fc" id="L74">        buildDefinitionGraph(definition.getDependencies(), definitionGraph);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (DefinitionModel dependency : definition.getDependencies()) {</span>
+<span class="fc" id="L76">          definitionGraph.addEdge(definition, dependency);</span>
+        }
+      }
+    }
+<span class="fc" id="L80">  }</span>
+  
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
