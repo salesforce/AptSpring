@@ -82,17 +82,22 @@ public class AptAssignabilityUtils implements AssignabilityUtils {
    * @return the element in question
    */
   public ExecutableElement lookUpElement(final InstanceModel target) {
-    if (target.getSourceElement().isPresent()) {
-      return (ExecutableElement) target.getSourceElement().get();
-    } else {
-      TypeElement type = elementUtils.getTypeElement(target.getOwningDefinition());
-      final NamingTools names = new NamingTools();
-      return type.getEnclosedElements().stream().filter(e -> 
+    //Prior I had used the cached instances of the source element, since idea reuses compiler instances, 
+    //and hence AptProcessor instances that proves dangerous as the Type references for the same class/type
+    //are not portable across different compilation rounds.
+    //
+    // Leaving this as a warning to my future self.
+    //
+    //if (target.getSourceElement().isPresent()) {
+    //  return (ExecutableElement) target.getSourceElement().get();
+    //} else {
+    TypeElement type = elementUtils.getTypeElement(target.getOwningDefinition().replace('$', '.'));
+    final NamingTools names = new NamingTools();
+    return type.getEnclosedElements().stream().filter(e -> 
         names.elementToName(e).equals(target.getElementLocation()) && ExecutableElement.class.isAssignableFrom(e.getClass()))
           .findFirst()
           .map(e -> (ExecutableElement) e)
           .get();
-    }
   }  
   
   /* If the above doesn't work, this handles all but ?, &, | in types.
