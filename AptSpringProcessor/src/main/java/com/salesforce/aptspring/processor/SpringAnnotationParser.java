@@ -289,14 +289,15 @@ public class SpringAnnotationParser {
       String[] valueNames = AnnotationValueExtractor
           .getAnnotationValue(varelement, VALUE_TYPE, DEFAULT_ANNOTATION_VALUE);
       
-      if (qualifierNames == null && valueNames == null) {
-        messager.printMessage(Kind.ERROR, "All parameters must have an @Qualifier or a @Value annotation", varelement);
+      if ((qualifierNames == null || qualifierNames.length == 0) 
+          && (valueNames == null || valueNames.length == 0)) {
+        messager.printMessage(Kind.ERROR, "All parameters must have an @Qualifier or a @Value annotation with a value", varelement);
       } 
-      if (qualifierNames != null) {
+      if (qualifierNames != null && qualifierNames.length > 0) {
         dependencies.add(new InstanceDependencyModel(qualifierNames[0], varelement.asType().toString()));
         hasQualifiers = true;
       }
-      if (valueNames != null) {
+      if (valueNames != null && valueNames.length > 0) {
         //ignore values as they will be used to build beans and pass the data on, and
         //are not beans themselves... and cannot be intermingled with @Qualifiers.
         hasValues = true;

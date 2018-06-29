@@ -233,5 +233,37 @@ public class BeanTests {
             .processedWith(new VerifiedSpringConfiguration())
             .compilesWithoutError();
   }
+  
+  @Test
+  public void testEmptyQualiferErrors() throws IOException {
+    JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
+        "test.TestClass2",
+        "package test;",
+        "",
+        "import org.springframework.beans.factory.annotation.Qualifier;",
+        "import org.springframework.context.annotation.Bean;",
+        "import org.springframework.context.annotation.ComponentScan;",
+        "import org.springframework.context.annotation.Configuration;",
+        "import org.springframework.context.annotation.Import;",
+        "",
+        "  @com.salesforce.aptspring.Verified",
+        "  public class TestClass2 {",
+        "",
+        "    @Bean(name = \"value3\")",
+        "    public String value3(@Qualifier() String x) { return \"\";}",
+        "",
+        "    @Bean(name = \"value4\")",
+        "    public String value4() { return \"\";}",
+        "",
+        "}");
+
+    assertAbout(javaSources())
+            .that(Arrays.asList(definitionClass))
+            .processedWith(new VerifiedSpringConfiguration())
+            .failsToCompile()
+            .withErrorContaining("All parameters must have an @Qualifier or a @Value annotation with a value")
+            .in(definitionClass)
+            .onLine(13);
+  }
 
 }

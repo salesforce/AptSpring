@@ -173,4 +173,7 @@ public class ConfigurationTests {
             .onLine(11);
   }
   
+  //TODO A test with the bottom half of a diamond shape between configuration classes.
+  //SHA checking logic was over eager trying to validate the shas of files that had yet to be written.
+  
 }

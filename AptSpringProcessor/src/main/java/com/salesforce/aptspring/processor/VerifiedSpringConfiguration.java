@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -79,7 +80,7 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
         .unusedExpected("Expected bean name is unnecessary {0}")
         .couldNotStore("Could not store incremental build file for {0}")
         .couldNotRead("Could not read incremental build file for {0}")
-        .dependencyShaMismatch("Sha256 mismatch of dependency model of prior analyzed @Verified class model")
+        .dependencyShaMismatch("Sha256 mismatch of dependency model of prior analyzed @Verified class model {0}")
         .rootNodeImported("@Verfied(root=true) may not be @Imported by other @Verified classes: {0}")
         .build();
     definitionAggregator = new AptParsingContext(errorMessages, filer, elementUtils, typeUtils);
@@ -89,9 +90,13 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
     try  {
       if (env.processingOver()) {
+     	 messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing over on: " 
+   	          + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         definitionAggregator.outputErrors(messager);
       } else {
         AptElementVisitor visitor = new AptElementVisitor(te -> new SpringAnnotationParser().extractDefinition(te, messager));
+        messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing on: " 
+     	          + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         for (Element annotatedElement : env.getElementsAnnotatedWith(Verified.class)) {
           visitor.visit(annotatedElement, definitionAggregator);        
         }

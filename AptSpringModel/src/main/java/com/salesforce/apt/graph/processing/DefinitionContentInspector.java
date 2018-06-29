@@ -70,13 +70,24 @@ public class DefinitionContentInspector {
          .findAny().orElseGet(() -> possibilities.iterator().next());
   }
   
-  public boolean verifiedShas(DefinitionModel model, DefinitionModelStore store) {
+  /**
+   * The the sha 256 of dependencies against the stored data.
+   * 
+   * @param model model who's dependencies we will inspect
+   * @param store the store of all the model data (abstraction, will likely be in memory or class files)
+   * @param errorListener if any shas mismatch will report here.
+   * @return true if all shas match.
+   */
+  public boolean verifiedShas(DefinitionModel model, DefinitionModelStore store, Consumer<ErrorModel> errorListener) {
     boolean verified = true;
-    for (Entry<String, String> depNameToSha256 : model.getDependencyNameToSha256().entrySet()) {
-      DefinitionModel dep = store.lookup(depNameToSha256.getKey()).get(0);
-      if (model.getDependencyNameToSha256().get(dep.getIdentity()) != null) {
-        verified = verified && verifiedShas(dep, store); 
-        verified = verified && model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256());
+    for (DefinitionModel dep : model.getDependencies()) {
+      if (!dep.getSourceElement().isPresent()  //not recompiling
+          && model.getDependencyNameToSha256().containsKey(dep.getIdentity())) { //model already has a sha256 of it
+         if (!model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256())) {
+            errorListener.accept(new ErrorModel(ErrorType.DEPENDENCY_SHA_MISMATCH,
+                Arrays.asList(model, dep),  Arrays.asList(model)));
+            verified = false;
+         }
       }
     }
     return verified;
@@ -102,10 +113,8 @@ public class DefinitionContentInspector {
           return true; // no need to continue.
         }
       } else {
-        if (!verifiedShas(dependency, store)) {
+        if (!verifiedShas(dependency, store, errorListener)) {
           errored = true;
-          errorListener.accept(
-              new ErrorModel(ErrorType.DEPENDENCY_SHA_MISMATCH, Arrays.asList(dependency), Arrays.asList(definition)));
         }
       }
     }

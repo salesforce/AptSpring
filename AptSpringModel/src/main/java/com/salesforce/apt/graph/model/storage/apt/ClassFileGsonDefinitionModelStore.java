@@ -48,7 +48,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
   public ClassFileGsonDefinitionModelStore(ResourceLoader resourceLocator, DefinitionOutputStreamProvider definitionModelToStore) {
     super(resourceLocator, definitionModelToStore);
   }
-
+  
   @Override
   public boolean store(DefinitionModel model) {
     String packageName = model.getSourcePackage();
