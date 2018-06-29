@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnnotationValueExtractor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.aptspring.processor</a> &gt; <span class="el_source">AnnotationValueExtractor.java</span></div><h1>AnnotationValueExtractor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Saleforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.aptspring.processor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.util.SimpleAnnotationValueVisitor8;
+
+<span class="nc" id="L41">public class AnnotationValueExtractor {</span>
+
+  private static final String ALIAS_TYPE = &quot;org.springframework.core.annotation.AliasFor&quot;;
+  
+  private static final String ALIAS_TARGET_TYPE = &quot;annotation&quot;;
+
+  private static final String ALIAS_TARGET_FIELD = &quot;attribute&quot;;
+  
+  private static final String DEFAULT_ANNOTATION_VALUE = &quot;value&quot;;
+
+  
+<span class="fc" id="L52">  private static class AliasData {</span>
+<span class="fc" id="L53">    private String targetAnnotation = null;</span>
+<span class="fc" id="L54">    private String targetField = null;</span>
+  }
+  
+  /**
+   * Utility method to extract the value of annotation on a class.
+   * Hooks to honor spring's AliasFor annotation, see {@link AnnotationValueExtractor#ALIAS_TYPE}.
+   * 
+   * @param e the element to inspect
+   * @param annotationTypeName the fully qualified name of the annotation class.
+   * @param methodName the name of the annotation value
+   * @return an array of Strings representing the value of annotation parameter or it's alias.
+   *     null if the annotation is not present (or is in a wrapper annotation as an array of values),
+   *     an empty array is returned if the annotation is present, but the method does not exist.
+   */
+  public static String[] getAnnotationValue(Element e, String annotationTypeName, String methodName) {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (e instanceof TypeElement) {</span>
+      //TODO: do recursive call in to 
+<span class="fc" id="L71">      ((TypeElement) e).getSuperclass();</span>
+<span class="fc" id="L72">      ((TypeElement) e).getInterfaces();</span>
+    }
+<span class="fc bfc" id="L74" title="All 2 branches covered.">    for (AnnotationMirror a : e.getAnnotationMirrors()) {</span>
+<span class="fc" id="L75">      String[] returned = getAnnotationValue(a, annotationTypeName, methodName);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">      if (returned != null) {</span>
+<span class="fc" id="L77">        return returned;</span>
+      }
+    }
+<span class="fc" id="L80">    return null;</span>
+  }
+  
+  /**
+   * Any empty array will be returned as long as the annotation is found (regardless of whether the value is set or not).
+   * A null value is returned if the (meta) annotation is not found. Currently only supports one level of indirection through
+   * spring's AliasFor.
+   *
+   * @param am the annotation to parse for a value.
+   * @param annotationTypeName the type of the annotation we are interested in, necessary for meta-annotation processing.
+   * @param methodName the name of the parameter designating the value 
+   * @return if the annotation or meta annotation is found, the AnnotationValues are converted to strings by 
+   *    {@link AnnotationValueExtractor} and returned in an array.  
+   */
+  private static String[] getAnnotationValue(AnnotationMirror am, String annotationTypeName, String methodName) {
+<span class="fc" id="L95">    String currentType = am.getAnnotationType().toString();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    for (Entry&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; ev : am.getElementValues().entrySet()) {</span>
+<span class="fc" id="L97">      boolean aliasMatch = aliasMatch(getAlias(ev.getKey()), annotationTypeName, methodName, currentType);</span>
+<span class="fc" id="L98">      boolean foundField = ev.getKey().getSimpleName().toString().equals(methodName);</span>
+<span class="fc bfc" id="L99" title="All 6 branches covered.">      if (aliasMatch || (foundField &amp;&amp; currentType.equals(annotationTypeName))) {</span>
+<span class="fc" id="L100">        AnnotationValueExtractorVisitor ex = new AnnotationValueExtractorVisitor();</span>
+<span class="fc" id="L101">        List&lt;String&gt; values = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L102">        ex.visit(ev.getValue(), values);</span>
+<span class="fc" id="L103">        return values.toArray(new String[values.size()]); </span>
+      }
+    }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">    if (currentType.equals(annotationTypeName)) {</span>
+      //no field matched
+<span class="fc" id="L108">      return new String[]{};</span>
+    }
+    
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">    for (AnnotationMirror a : am.getAnnotationType().getAnnotationMirrors()) {</span>
+      //cachable here...
+<span class="nc bnc" id="L113" title="All 2 branches missed.">      if (!a.getAnnotationType().asElement().toString().startsWith(&quot;java.lang.annotation&quot;)) {</span>
+<span class="nc" id="L114">        String[] output = getAnnotationValue(a, annotationTypeName, methodName);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (output != null) {</span>
+<span class="nc" id="L116">          return output;</span>
+        }
+      }
+    }
+<span class="fc" id="L120">    return null;</span>
+  }
+  
+  
+  /**
+   * On an executable element (that is a value holder on annotation) extract any direct uses of @AlaisFor.
+   * 
+   * @param annotationParameter the annotation's parameter to inspect for uses of @AliasFor
+   * @return an AliasData if the the annotation is found, null otherwise.
+   */
+  private static AliasData getAlias(ExecutableElement annotationParameter) {
+<span class="fc" id="L131">    AliasData output = null;</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">    for (AnnotationMirror am : annotationParameter.getAnnotationMirrors()) {</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">      if (ALIAS_TYPE.equals(am.getAnnotationType().asElement().toString())) {</span>
+<span class="fc" id="L134">        output = new AliasData();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (Entry&lt;? extends ExecutableElement, ? extends AnnotationValue&gt; ev : am.getElementValues().entrySet()) {</span>
+<span class="fc" id="L136">          String fieldName = ev.getKey().getSimpleName().toString();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">          if (ALIAS_TARGET_TYPE.equals(fieldName)) {</span>
+<span class="pc bpc" id="L138" title="2 of 4 branches missed.">            if (ev.getValue() != null &amp;&amp; ev.getValue().getValue() != null) {</span>
+<span class="fc" id="L139">              output.targetAnnotation = ev.getValue().getValue().toString();</span>
+<span class="fc" id="L140">            } else {</span>
+<span class="nc" id="L141">              return null;</span>
+            }
+          }
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">          if (ALIAS_TARGET_FIELD.equals(fieldName) </span>
+<span class="nc bnc" id="L145" title="All 4 branches missed.">              &amp;&amp; ev.getValue() != null &amp;&amp; ev.getValue().getValue() != null) {</span>
+<span class="nc" id="L146">            output.targetField = ev.getValue().getValue().toString();</span>
+          }
+<span class="fc bfc" id="L148" title="All 2 branches covered.">          if (DEFAULT_ANNOTATION_VALUE.equals(fieldName)</span>
+<span class="pc bpc" id="L149" title="2 of 4 branches missed.">              &amp;&amp; (ev.getValue() != null &amp;&amp; ev.getValue().getValue() != null)) {</span>
+<span class="fc" id="L150">            output.targetField = ev.getValue().getValue().toString();</span>
+          }
+        }
+      }
+    }
+<span class="fc" id="L155">    return output;</span>
+  }
+  
+  /**
+   *  Checks to see if the aliasData matches the targetType and targetField.   The aliasData may have a null
+   *  targetType and if so, the currentAnnotation is used to determine if the targetType Matches.
+   *  This indicates that the AliasFor annotation is on an element in the targetType annotation itself.
+   */
+  private static boolean aliasMatch(AliasData aliasData, String targetType, String targetField, String currentAnnotation) {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">    if (aliasData == null) {</span>
+<span class="fc" id="L165">      return false;</span>
+    }
+<span class="fc" id="L167">    return (//types match</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        (targetType.equals(aliasData.targetAnnotation)</span>
+<span class="pc bpc" id="L169" title="1 of 4 branches missed.">        || (aliasData.targetAnnotation == null &amp;&amp; targetType.equals(currentAnnotation)))</span>
+        &amp;&amp; //fields match
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        targetField.equals(aliasData.targetField));</span>
+  }
+  
+  private static class AnnotationValueExtractorVisitor extends SimpleAnnotationValueVisitor8&lt;Void, List&lt;String&gt;&gt; {
+
+    @Override
+    protected Void defaultAction(Object o, List&lt;String&gt; values) {
+<span class="fc" id="L178">      values.add(o.toString());</span>
+<span class="fc" id="L179">      return null;</span>
+    }
+
+    public Void visitEnumConstant(VariableElement c, List&lt;String&gt; values) {
+<span class="nc" id="L183">      values.add(c.getSimpleName().toString());</span>
+<span class="nc" id="L184">      return null;</span>
+    }
+
+    public Void visitAnnotation(AnnotationMirror a, List&lt;String&gt; values) {
+      // should probably do something here, but what? return annotation types?
+<span class="nc" id="L189">      return defaultAction(a, values);</span>
+    }
+
+    public Void visitArray(List&lt;? extends AnnotationValue&gt; vals, List&lt;String&gt; values) {
+<span class="fc bfc" id="L193" title="All 2 branches covered.">      for (AnnotationValue val : vals) {</span>
+<span class="fc" id="L194">        visit(val, values);</span>
+      }
+<span class="fc" id="L196">      return null;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

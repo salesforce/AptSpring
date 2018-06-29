@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AptSpringProcessor,com.salesforce.aptspring.processor,VerifiedSpringConfiguration,3,181,0,4,0,45,1,8,1,6
+AptSpringProcessor,com.salesforce.aptspring.processor,SpringAnnotationParser,15,830,9,96,1,184,12,75,3,30
+AptSpringProcessor,com.salesforce.aptspring.processor,AnnotationValueExtractor.AnnotationValueExtractorVisitor,13,25,0,2,3,5,2,3,2,2
+AptSpringProcessor,com.salesforce.aptspring.processor,AnnotationValueExtractor.AliasData,0,9,0,0,0,3,0,1,0,1
+AptSpringProcessor,com.salesforce.aptspring.processor,AnnotationValueExtractor,40,232,16,40,8,42,13,20,1,4
