@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>DefinitionContentInspector xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/com/salesforce/apt/graph/processing/DefinitionContentInspector.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright © 2017, Saleforce.com, Inc</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * All rights reserved.</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * Redistribution and use in source and binary forms, with or without</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * modification, are permitted provided that the following conditions are met:</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> *     * Redistributions of source code must retain the above copyright</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *       notice, this list of conditions and the following disclaimer.</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *     * Redistributions in binary form must reproduce the above copyright</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *       notice, this list of conditions and the following disclaimer in the</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *       documentation and/or other materials provided with the distribution.</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> *     * Neither the name of the &lt;organization&gt; nor the</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> *       names of its contributors may be used to endorse or promote products</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> *       derived from this software without specific prior written permission.</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_comment"> * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_comment"> * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_comment"> * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_comment"> * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_comment"> * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_comment"> * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">package</strong> com.salesforce.apt.graph.processing;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.AbstractMap.SimpleEntry;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.Collection;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> java.util.Map.Entry;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> java.util.function.Consumer;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Stream;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> org.jgrapht.DirectedGraph;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> org.jgrapht.graph.DefaultDirectedGraph;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> org.jgrapht.graph.DefaultEdge;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.AbstractModel;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.BaseInstanceModel;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.DefinitionModel;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.ExpectedModel;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.InstanceDependencyModel;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.InstanceModel;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.errors.ErrorModel;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.errors.ErrorType;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.model.storage.DefinitionModelStore;
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <strong class="jxr_keyword">import</strong> com.salesforce.apt.graph.types.AssignabilityUtils;
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/salesforce/apt/graph/processing/DefinitionContentInspector.html">DefinitionContentInspector</a> {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> inspectDefinitionGraph(Set&lt;DefinitionModel&gt; definitionGraphHeads,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>        Consumer&lt;ErrorModel&gt; errorListener, <a href="../../../../../com/salesforce/apt/graph/types/AssignabilityUtils.html">AssignabilityUtils</a> assignabilityUtils, <a href="../../../../../com/salesforce/apt/graph/model/storage/DefinitionModelStore.html">DefinitionModelStore</a> store) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">for</strong> (DefinitionModel definition : definitionGraphHeads) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>        depthFirstExpectedsInspector(definition, errorListener, assignabilityUtils, store);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>    
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/salesforce/apt/graph/model/InstanceModel.html">InstanceModel</a> getOneWithSourceElementElseAny(<strong class="jxr_keyword">final</strong> Collection&lt;InstanceModel&gt; possibilities) {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">return</strong> possibilities.stream()
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>           .filter(im -&gt; im.getSourceElement().isPresent())
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>           .findAny().orElseGet(() -&gt; possibilities.iterator().next());
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">   * The the sha 256 of dependencies against the stored data.</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">   * @param model model who's dependencies we will inspect</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">   * @param store the store of all the model data (abstraction, will likely be in memory or class files)</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">   * @param errorListener if any shas mismatch will report here.</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">   * @return true if all shas match.</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> verifiedShas(<a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> model, <a href="../../../../../com/salesforce/apt/graph/model/storage/DefinitionModelStore.html">DefinitionModelStore</a> store, Consumer&lt;ErrorModel&gt; errorListener) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">boolean</strong> verified = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">for</strong> (DefinitionModel dep : model.getDependencies()) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>        <strong class="jxr_keyword">if</strong> (!dep.getSourceElement().isPresent()  <em class="jxr_comment">//not recompiling</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>            &amp;&amp; model.getDependencyNameToSha256().containsKey(dep.getIdentity())) { <em class="jxr_comment">//model already has a sha256 of it</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>           <strong class="jxr_keyword">if</strong> (!model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256())) {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              errorListener.accept(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.DEPENDENCY_SHA_MISMATCH,
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  Arrays.asList(model, dep),  Arrays.asList(model)));
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              verified = false;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>           }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>        }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">return</strong> verified;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>    
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>    
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">   * Verify that all expected entities are marked expected.</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">   * Verify that the types of provided entities satisfy all expected types....</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">   * &lt;p/&gt;</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">   * if a child record was freshly process, so too must all parent ( if the md5 has changed ).</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">   *  </em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">   * @param definition the head of current tree of definitions linked by imports</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">   * @param errorListener registers all errors found </em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> depthFirstExpectedsInspector(<a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, Consumer&lt;ErrorModel&gt; errorListener,
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>       <a href="../../../../../com/salesforce/apt/graph/types/AssignabilityUtils.html">AssignabilityUtils</a> assignabilityUtils, <a href="../../../../../com/salesforce/apt/graph/model/storage/DefinitionModelStore.html">DefinitionModelStore</a> store) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">boolean</strong> errored = false;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">for</strong> (DefinitionModel dependency : definition.getDependencies()) {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>       <strong class="jxr_keyword">if</strong> (!dependency.isLockedAnalyzed()) {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         errored = depthFirstExpectedsInspector(dependency, errorListener, assignabilityUtils, store) || errored;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">if</strong> (errored) {
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>; <em class="jxr_comment">// no need to continue.</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">if</strong> (!verifiedShas(dependency, store, errorListener)) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>           errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>       }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">if</strong> (errored) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>       <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_comment">//check that each object has only one source ( could be the imported from a dependency, in a diamond pattern )</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <em class="jxr_comment">//validate the expected beans are correct.</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     Map&lt;String, InstanceModel&gt; resolvedInstances = ensureSingleInstanceOfEachName(definition, errorListener);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     <em class="jxr_comment">//short circuit if dependencies couldn't be resolved.</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">if</strong> (resolvedInstances == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>       <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <em class="jxr_comment">//looks for cycles and unexpected missing entities.</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     errored = detectCyclesInEntityGraph(definition, resolvedInstances, errorListener);
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_comment">//check types of non-expected dependencies</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     errored = checkInstancesTypesInDefinition(definition, resolvedInstances, errorListener, assignabilityUtils) || errored;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> 
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <em class="jxr_comment">//check all definitions with expected, that each instance expecting a definition can use the supplied.</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     errored = checkProvidedSupplyCorrectTypes(definition, resolvedInstances, errorListener, assignabilityUtils) || errored;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <em class="jxr_comment">//prune all edged from graph that don't end in an expected</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_comment">//store computed expects with all types that must satisfied.</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">if</strong> (!errored) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>       <em class="jxr_comment">//store as provided dependencies</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>       definition.addAllProvidedInstances(resolvedInstances.values());
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>       <strong class="jxr_keyword">for</strong> (DefinitionModel dep : definition.getDependencies()) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         definition.addDependencyNameToSha256(dep.getIdentity(), dep.getSha256());
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>       }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>       <em class="jxr_comment">//storing will lock a the definition, as will reading.</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>       <strong class="jxr_keyword">if</strong> (!store.store(definition)) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         errorListener.accept(
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.COULD_NOT_STORE, Arrays.asList(definition), Arrays.asList(definition)));
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>       }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>   }
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a> errorForMismatchedExpected(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <a href="../../../../../com/salesforce/apt/graph/model/ExpectedModel.html">ExpectedModel</a> computedExpected,
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>       <strong class="jxr_keyword">final</strong> Map&lt;String, InstanceModel&gt; nameToEntity, <a href="../../../../../com/salesforce/apt/graph/types/AssignabilityUtils.html">AssignabilityUtils</a> assignabilityUtils) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <em class="jxr_comment">//that which is to fill all the expectedInstance references.</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     <a href="../../../../../com/salesforce/apt/graph/model/InstanceModel.html">InstanceModel</a> providedInstance = nameToEntity.get(computedExpected.getIdentity());
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <em class="jxr_comment">//the top level definition model should have declared this an expectedBean - maybe move that error here?</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">if</strong> (providedInstance == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <em class="jxr_comment">//Instances which expect to use the provided instance</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     List&lt;InstanceModel&gt; mistmatchedExpectantEntities = computedExpected.getDefinitionReferenceToType().keySet().stream()
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         .map(name -&gt; nameToEntity.get(name))
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         .filter(expectantInstance -&gt; !assignabilityUtils.isAssignableFrom(providedInstance, expectantInstance))
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">if</strong> (mistmatchedExpectantEntities.size() == 0) {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>       List&lt;InstanceModel&gt; involved = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>       involved.add(providedInstance);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>       involved.addAll(mistmatchedExpectantEntities);
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.UNMATCHED_TYPES, involved, Arrays.asList(definition, providedInstance));
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>   }
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>   
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> checkProvidedSupplyCorrectTypes(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <strong class="jxr_keyword">final</strong> Map&lt;String, InstanceModel&gt; nameToEntity,
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>       <strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListner, <a href="../../../../../com/salesforce/apt/graph/types/AssignabilityUtils.html">AssignabilityUtils</a> assignabilityUtils) {
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     List&lt;ErrorModel&gt; errors = definition.getDependencies().stream()
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         .flatMap(dependency -&gt; dependency.getComputedExpected().stream())
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         .filter(expectedModel -&gt; !definition.getExpectedDefinitions().stream()
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             .anyMatch(ed -&gt; ed.getIdentity().equals(expectedModel.getIdentity())))
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         .map(em -&gt; errorForMismatchedExpected(definition, em, nameToEntity, assignabilityUtils))
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         .filter(errorModel -&gt; errorModel != <strong class="jxr_keyword">null</strong>)
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>         .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     errors.stream().forEach(errorListner);
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">return</strong> errors.size() &gt; 0;
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>   }
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>   
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>   
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>   <strong class="jxr_keyword">private</strong> List&lt;Entry&lt;String, InstanceModel&gt;&gt; getEntryListForNameAndAlias(<a href="../../../../../com/salesforce/apt/graph/model/InstanceModel.html">InstanceModel</a> instanceModel) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     List&lt;Entry&lt;String, InstanceModel&gt;&gt; output = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     output.add(<strong class="jxr_keyword">new</strong> SimpleEntry&lt;&gt;(instanceModel.getIdentity(), instanceModel));
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">for</strong> (String alias : instanceModel.getAliases()) {
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>       <strong class="jxr_keyword">if</strong> (!alias.equals(instanceModel.getIdentity())) {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         output.add(<strong class="jxr_keyword">new</strong> SimpleEntry&lt;&gt;(alias, instanceModel));
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>       }
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">return</strong> output;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>   }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>   
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">   * Verify that a single named instance model is correctly identifiable composed of owningDefinition/ElementLocation/Identity.</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> <em class="jxr_javadoccomment">   * @param definition the definition of </em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> <em class="jxr_javadoccomment">   * @param errorListener accepts and displays all errors produced by analyzing the models.</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">   * @return returns a map of each instance name to the single model that the has been resolved to. </em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, InstanceModel&gt; ensureSingleInstanceOfEachName(<a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition,
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>       Consumer&lt;ErrorModel&gt; errorListener) {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     Map&lt;String, Map&lt;String, InstanceModel&gt;&gt; instancesByNameAndLocationDedupped = 
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         definitionToAllInstancesByNameAndSourceLocation(definition);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">final</strong> Map&lt;String, InstanceModel&gt; resolvedDependencies = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     <strong class="jxr_keyword">boolean</strong> errored = false;    
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <strong class="jxr_keyword">for</strong> (Entry&lt;String, Map&lt;String, InstanceModel&gt;&gt; entry : instancesByNameAndLocationDedupped.entrySet()) {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>       <strong class="jxr_keyword">if</strong> (entry.getValue().size() == 1) {
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         resolvedDependencies.put(entry.getKey(), entry.getValue().values().iterator().next()); <em class="jxr_comment">//get only InstanceModel.</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         errorListener.accept(errorForDuplicateInstanceModels(definition, entry.getValue().values().stream()
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>             .sorted((i1, i2) -&gt; i1.getElementLocation().compareTo(i2.getElementLocation()))
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             .collect(Collectors.toList())));
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>       }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">return</strong> errored ? <strong class="jxr_keyword">null</strong> : resolvedDependencies;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>   }
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>   
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">   * Give a definition model, extract all instances from this definition, and all imported definitions.</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">   * Group the instances by name, and then map them from source location to InstanceModel.</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   *  </em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   * @param definition model to extract all instance information from, including imported definitions.</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">   * @return a map of maps, [name -&gt; [sourceLocation -&gt; instanceModel]]</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, Map&lt;String, InstanceModel&gt;&gt; definitionToAllInstancesByNameAndSourceLocation(
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>       <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition) {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     <em class="jxr_comment">//create a stream of all imported Definition's InstanceModels</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>     Stream&lt;InstanceModel&gt; imported = definition.getDependencies().stream()
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         .map(d -&gt; d.getProvidedInstances()).flatMap(x -&gt; x.stream());
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>     <em class="jxr_comment">//merge the stream with all local instance models.</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     Stream&lt;InstanceModel&gt; instanceModelStream = Stream.concat(definition.getObjectDefinitions().stream(), imported);
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_comment">//map all instances by name and then by source location (due to diamond dependencies in definition imports.</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     Map&lt;String, Map&lt;String, InstanceModel&gt;&gt; instancesByNameAndLocationDedupped = instanceModelStream
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         .flatMap(instance -&gt; getEntryListForNameAndAlias(instance).stream()) <em class="jxr_comment">//flat map all alias to entries</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         .collect(Collectors.groupingBy(entry -&gt; entry.getKey(), <em class="jxr_comment">//group by name</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             Collectors.mapping(entry -&gt; entry.getValue(), 
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 Collectors.toMap(im -&gt; im.getElementLocation(), <em class="jxr_comment">//by location</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                     im -&gt; im, <em class="jxr_comment">//identity function for first insert</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                     <em class="jxr_comment">//choose the one with source element on merge, if any</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                     (im1, im2) -&gt; im1.getSourceElement().isPresent() ? im1 : im2))));
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">return</strong> instancesByNameAndLocationDedupped;
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>   }
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * Given a list of duplicate instance models (same identifier, different source elements) produce a </em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * well formed ErrorModel.</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * @param definition where the error was first detected.</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * @param causes the list of all instances models from the definition or any of it's imported definitions.</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * @return an well formed ErrorModel of the duplicated beans.</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a> errorForDuplicateInstanceModels(<a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, List&lt;InstanceModel&gt; causes) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>     ArrayList&lt;AbstractModel&gt; involved = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>     involved.add(definition);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>     involved.addAll(causes.stream()
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         .filter(instanceModel -&gt; instanceModel.getSourceElement().isPresent())
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>         .collect(Collectors.toList()));
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.DUPLICATE_OBJECT_DEFINITIONS, causes, involved);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>   }
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>   
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">   * Inspects the instance graph for cycles, any cycle is printed as an error.   The nameToEntity parameter doesn't list expected</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">   * instances, any instances that are not found in the nameToInstances map (they are looked for because they are referenced as a</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">   * dependency by an instance in the map) and are not found by name in the definition's expectedInstances are treated as errors</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">   * as well.</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">   * @param definition definition being processed.  Will uses it's expected list, any instances references as dependencies but</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">   *     not found, not listed as expected in this DefinitionModel, will be treated as errors.</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">   * @param nameToEntity name to unique instanceModels, verified before call.</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">   * @param errorListner accepts and displays all errors produced by analyzing the models</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">   * @return true if an error occurred, false otherwise</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> detectCyclesInEntityGraph(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <strong class="jxr_keyword">final</strong> Map&lt;String, InstanceModel&gt; nameToEntity,
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>       <strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListener) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">final</strong> Map&lt;String, ExpectedModel&gt; missing = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     <strong class="jxr_keyword">final</strong> DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph = <strong class="jxr_keyword">new</strong> DefaultDirectedGraph&lt;&gt;(DefaultEdge.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">for</strong> (BaseInstanceModel entity : nameToEntity.values()) {
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>       <strong class="jxr_keyword">if</strong> (!entityGraph.containsVertex(entity)) {
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         entityGraph.addVertex(entity);
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>       }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>       <strong class="jxr_keyword">if</strong> (InstanceModel.<strong class="jxr_keyword">class</strong>.isAssignableFrom(entity.getClass())) {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         <a href="../../../../../com/salesforce/apt/graph/model/InstanceModel.html">InstanceModel</a> instanceModel = (InstanceModel) entity;
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">for</strong> (InstanceDependencyModel instanceDependency : instanceModel.getDependencies()) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>           <a href="../../../../../com/salesforce/apt/graph/model/BaseInstanceModel.html">BaseInstanceModel</a> dependency = nameToEntity.get(instanceDependency.getIdentity());
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>           <strong class="jxr_keyword">if</strong> (dependency == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>             dependency = missing.computeIfAbsent(instanceDependency.getIdentity(), s -&gt; <strong class="jxr_keyword">new</strong> ExpectedModel(s));
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>             missing.get(instanceDependency.getIdentity())
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>               .addDefinitionReferenceToType(instanceModel.getIdentity(), instanceDependency.getType());
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>           }
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>           <strong class="jxr_keyword">if</strong> (!entityGraph.containsVertex(dependency)) {
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>             entityGraph.addVertex(dependency);
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>           }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>           entityGraph.addEdge(entity, dependency);
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         }
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>       }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     }
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">boolean</strong> errored = errorsForCycles(errorListener, entityGraph);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     errored = testAllMissingEntitiesAreExpected(definition, errorListener, missing, entityGraph) || errored;
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     errored = errorUnusedExpectedsOnDefinition(definition, errorListener, missing) || errored;
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>   }
+<a class="jxr_linenumber" name="L331" href="#L331">331</a> 
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> checkInstancesTypesInDefinition(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <strong class="jxr_keyword">final</strong> Map&lt;String, InstanceModel&gt; nameToEntity,
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>       <strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListner, <a href="../../../../../com/salesforce/apt/graph/types/AssignabilityUtils.html">AssignabilityUtils</a> assignabilityUtils) {
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     <strong class="jxr_keyword">boolean</strong> errored = false;
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     List&lt;InstanceModel&gt; instances = definition.getObjectDefinitions();
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     <strong class="jxr_keyword">for</strong> (InstanceModel instance : instances) {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>       <strong class="jxr_keyword">for</strong> (InstanceDependencyModel instanceDependency : instance.getDependencies()) {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <a href="../../../../../com/salesforce/apt/graph/model/InstanceModel.html">InstanceModel</a> dependency = nameToEntity.get(instanceDependency.getIdentity());
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         <strong class="jxr_keyword">if</strong> (dependency != <strong class="jxr_keyword">null</strong> &amp;&amp; !assignabilityUtils.isAssignableFrom(dependency, instance)) {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>           errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>           errorListner.accept(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.UNMATCHED_TYPES,
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>               Arrays.asList(instance, dependency), Arrays.asList(instance, dependency)));
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         }
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>       }
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>     }
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>   }
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> errorUnusedExpectedsOnDefinition(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListner,
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>       <strong class="jxr_keyword">final</strong> Map&lt;String, ExpectedModel&gt; missing) {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <strong class="jxr_keyword">boolean</strong> errored = false;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>     <strong class="jxr_keyword">for</strong> (ExpectedModel expected : definition.getExpectedDefinitions()) {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>       <strong class="jxr_keyword">if</strong> (!missing.keySet().contains(expected.getIdentity())) {
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>         errorListner.accept(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.UNUSED_EXPECTED, Arrays.asList(expected), Arrays.asList(definition)));
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>       }
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>   }
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> errorsForCycles(<strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListner,
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>       <strong class="jxr_keyword">final</strong> DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph) {
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>     SzwarcfiterLauerSimpleCycles&lt;BaseInstanceModel, DefaultEdge&gt; cycleFind = <strong class="jxr_keyword">new</strong> SzwarcfiterLauerSimpleCycles&lt;&gt;();
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     <strong class="jxr_keyword">boolean</strong> errored = false;
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     cycleFind.setGraph(entityGraph);
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     List&lt;List&lt;BaseInstanceModel&gt;&gt; cycles = cycleFind.findSimpleCycles();
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">for</strong> (List&lt;BaseInstanceModel&gt; cycle : cycles) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>       errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>       errorListner.accept(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.CYCLE_IN_DEFINITION_SOURCES, cycle, cycle));
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>     }
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>   }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> testAllMissingEntitiesAreExpected(<strong class="jxr_keyword">final</strong> <a href="../../../../../com/salesforce/apt/graph/model/DefinitionModel.html">DefinitionModel</a> definition, <strong class="jxr_keyword">final</strong> Consumer&lt;ErrorModel&gt; errorListner,
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>       <strong class="jxr_keyword">final</strong> Map&lt;String, ExpectedModel&gt; missing, <strong class="jxr_keyword">final</strong> DirectedGraph&lt;BaseInstanceModel, DefaultEdge&gt; entityGraph) {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>     <em class="jxr_comment">//check computed expected are actually expected</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">boolean</strong> errored = false;
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     List&lt;String&gt; expectedMissing = definition.getExpectedDefinitions().stream().map(em -&gt; em.getIdentity())
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <strong class="jxr_keyword">for</strong> (ExpectedModel expected : missing.values()) {
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>       <strong class="jxr_keyword">if</strong> (!expectedMissing.contains(expected.getIdentity())) {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         List&lt;AbstractModel&gt; dependsOnMissing = Stream.concat(
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>             Stream.of(definition), 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             entityGraph.incomingEdgesOf(expected).stream().map(edge -&gt; entityGraph.getEdgeSource(edge))
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>               .filter(m -&gt; m.getSourceElement().isPresent()))
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>             .collect(Collectors.toList());
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         errored = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         errorListner.accept(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/salesforce/apt/graph/model/errors/ErrorModel.html">ErrorModel</a>(ErrorType.MISSING_BEAN_DEFINITIONS, Arrays.asList(expected), dependsOnMissing));
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         definition.addComputedExpected(expected);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>       }
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>     }
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     <strong class="jxr_keyword">return</strong> errored;
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>   }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2017&#x2013;2018 <a href="https://github.com/salesforce/">Salesforce OSS</a>. All rights reserved.</div>
+</body>
+</html>
