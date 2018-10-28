@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, Saleforce.com, Inc
+ * Copyright © 2017, Salesforce.com, Inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,13 +90,13 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
     try  {
       if (env.processingOver()) {
-     	 messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing over on: " 
-   	          + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
+        messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing over on: " 
+              + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         definitionAggregator.outputErrors(messager);
       } else {
         AptElementVisitor visitor = new AptElementVisitor(te -> new SpringAnnotationParser().extractDefinition(te, messager));
         messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing on: " 
-     	          + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
+              + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         for (Element annotatedElement : env.getElementsAnnotatedWith(Verified.class)) {
           visitor.visit(annotatedElement, definitionAggregator);        
         }

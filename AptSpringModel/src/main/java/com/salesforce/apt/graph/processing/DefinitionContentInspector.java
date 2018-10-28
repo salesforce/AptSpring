@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, Saleforce.com, Inc
+ * Copyright © 2017, Salesforce.com, Inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,11 +83,11 @@ public class DefinitionContentInspector {
     for (DefinitionModel dep : model.getDependencies()) {
       if (!dep.getSourceElement().isPresent()  //not recompiling
           && model.getDependencyNameToSha256().containsKey(dep.getIdentity())) { //model already has a sha256 of it
-         if (!model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256())) {
-            errorListener.accept(new ErrorModel(ErrorType.DEPENDENCY_SHA_MISMATCH,
+        if (!model.getDependencyNameToSha256().get(dep.getIdentity()).equals(dep.getSha256())) {
+          errorListener.accept(new ErrorModel(ErrorType.DEPENDENCY_SHA_MISMATCH,
                 Arrays.asList(model, dep),  Arrays.asList(model)));
-            verified = false;
-         }
+          verified = false;
+        }
       }
     }
     return verified;

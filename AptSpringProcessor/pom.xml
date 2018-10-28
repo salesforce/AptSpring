@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.salesforce.aptspring</groupId>
         <artifactId>AptSpringParent</artifactId>
-        <version>2.0.3</version>
+        <version>2.0.4</version>
     </parent>
     <artifactId>AptSpringProcessor</artifactId>
     <packaging>jar</packaging>
@@ -239,17 +239,17 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.ning.maven.plugins</groupId>
-                <artifactId>maven-duplicate-finder-plugin</artifactId>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
                 <configuration>
-                    <ignoredResources>
-                        <ignoredResource>META-INF/ECLIPSE_.RSA</ignoredResource>
-                        <ignoredResource>META-INF/ECLIPSE_.SF</ignoredResource>
-                        <ignoredResource>META-INF/sisu/javax.inject.Named</ignoredResource>
-                        <ignoredResource>plugin.xml</ignoredResource>
-                        <ignoredResource>.api_description</ignoredResource>
-                        <ignoredResource>.options</ignoredResource>
-                    </ignoredResources>
+                    <ignoredResourcePatterns combine.children="append">
+                        <ignoredResourcePattern>META-INF/ECLIPSE_.RSA</ignoredResourcePattern>
+                        <ignoredResourcePattern>META-INF/ECLIPSE_.SF</ignoredResourcePattern>
+                        <ignoredResourcePattern>META-INF/sisu/javax.inject.Named</ignoredResourcePattern>
+                        <ignoredResourcePattern>plugin.xml</ignoredResourcePattern>
+                        <ignoredResourcePattern>.api_description</ignoredResourcePattern>
+                        <ignoredResourcePattern>.options</ignoredResourcePattern>
+                    </ignoredResourcePatterns>
                     <exceptions>
                         <exception>
                             <conflictingDependencies>

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2017, Saleforce.com, Inc
+ * Copyright © 2017, Salesforce.com, Inc
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
  * This is actually busted as it runs against the last packaged version of the jar.....
  */
 @RunWith(MavenJUnitTestRunner.class)
-@MavenVersions({"3.3.9"})
+@MavenVersions({"3.5.0"})
 public class BetterTakariCompileTest {
 
   @Rule
