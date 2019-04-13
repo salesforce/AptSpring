@@ -28,7 +28,7 @@
         <github.owner>salesforce</github.owner>
         <github.project>AptSpring</github.project>
         <github.site.location>${project.version}/</github.site.location>
-        <version.assertj>3.8.0</version.assertj>
+        <version.assertj>3.12.2</version.assertj>
         <version.jgrapht>1.0.1</version.jgrapht>
         <version.junit>4.12</version.junit>
         <version.slf4j>1.7.10</version.slf4j>
