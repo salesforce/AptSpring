@@ -32,7 +32,7 @@
         <version.jgrapht>1.0.1</version.jgrapht>
         <version.junit>4.12</version.junit>
         <version.slf4j>1.7.10</version.slf4j>
-        <version.spring.framework>5.0.3.RELEASE</version.spring.framework>
+        <version.spring.framework>5.1.6.RELEASE</version.spring.framework>
     </properties>
     <licenses>
         <license>
