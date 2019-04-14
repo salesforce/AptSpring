@@ -16,9 +16,14 @@
     </description>
     <properties>
         <github.site.location>${project.version}/${project.artifactId}</github.site.location>
-        <version.maven>3.3.9</version.maven>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>AptSpringAPI</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>AptSpringModel</artifactId>
@@ -27,48 +32,40 @@
         <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
-            <version>${version.jgrapht}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>AptSpringAPI</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${version.spring.framework}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>23.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.errorprone</groupId>
                     <artifactId>error_prone_annotations</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.google.auto.value</groupId>
+                    <artifactId>auto-value</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.testing.compile</groupId>
             <artifactId>compile-testing</artifactId>
-            <version>0.13</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -87,12 +84,19 @@
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.google.auto.value</groupId>
+                    <artifactId>auto-value</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.auto.value</groupId>
+                    <artifactId>auto-value-annotations</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>
             <artifactId>truth</artifactId>
-            <version>0.36</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -110,15 +114,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.takari</groupId>
-            <artifactId>incrementalbuild</artifactId>
-            <version>0.20.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.takari.maven.plugins</groupId>
             <artifactId>takari-lifecycle-plugin</artifactId>
-            <version>1.12.4</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -158,7 +155,6 @@
         <dependency>
             <groupId>io.takari.maven.plugins</groupId>
             <artifactId>takari-plugin-testing</artifactId>
-            <version>2.9.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -174,13 +170,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-compat</artifactId>
-            <version>${version.maven}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -195,12 +189,15 @@
                     <groupId>com.google.guava</groupId>
                     <artifactId>guava</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-classworlds</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>${version.maven}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -220,19 +217,16 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${version.assertj}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-component-annotations</artifactId>
-            <version>1.7.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.0.24</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -275,7 +269,6 @@
             <plugin>
                 <groupId>io.takari.maven.plugins</groupId>
                 <artifactId>takari-lifecycle-plugin</artifactId>
-                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>testProperties</id>

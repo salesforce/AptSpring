@@ -1,21 +1,19 @@
-<?xml version="1.0" encoding="UTF8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.11</version>
     </parent>
     <groupId>com.salesforce.aptspring</groupId>
     <artifactId>AptSpringParent</artifactId>
     <version>2.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>
-       This is the parent project of AptSpring.  Despite it's name, 90% of the code in this project is agnostic to spring.
+    <description>This is the parent project of AptSpring.  Despite it's name, 90% of the code in this project is agnostic to spring.
        The AptSpringProcessor however, will assert the correct of a spring graph at compile time, by demanding that the graph
-       be both type safe and fully enumerable during compilation.
-    </description>
+       be both type safe and fully enumerable during compilation.</description>
     <modules>
         <module>AptSpringModel</module>
         <module>AptSpringAPI</module>
@@ -28,12 +26,119 @@
         <github.owner>salesforce</github.owner>
         <github.project>AptSpring</github.project>
         <github.site.location>${project.version}/</github.site.location>
-        <version.assertj>3.8.0</version.assertj>
-        <version.jgrapht>1.0.1</version.jgrapht>
+        <version.assertj>3.12.2</version.assertj>
+        <version.google.compile.testing>0.15</version.google.compile.testing>
+        <version.google.guava>27.1-jre</version.google.guava>
+        <version.google.truth>0.44</version.google.truth>
+        <version.javapoet>1.11.1</version.javapoet>
+        <version.jgrapht>1.3.0</version.jgrapht>
         <version.junit>4.12</version.junit>
+        <version.maven>3.6.1</version.maven>
+        <version.org.eclipse.osgi>3.13.300</version.org.eclipse.osgi>
         <version.slf4j>1.7.10</version.slf4j>
-        <version.spring.framework>5.0.3.RELEASE</version.spring.framework>
+        <version.spring.framework>5.1.6.RELEASE</version.spring.framework>
+        <version.takari.plugin.testing>2.9.2</version.takari.plugin.testing>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${version.google.guava}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.testing.compile</groupId>
+                <artifactId>compile-testing</artifactId>
+                <version>${version.google.compile.testing}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.truth</groupId>
+                <artifactId>truth</artifactId>
+                <version>${version.google.truth}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>javapoet</artifactId>
+                <version>${version.javapoet}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.takari.maven.plugins</groupId>
+                <artifactId>takari-lifecycle-plugin</artifactId>
+                <version>${version.takari.maven.plugin}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.platform</groupId>
+                        <artifactId>org.eclipse.osgi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.takari.maven.plugins</groupId>
+                <artifactId>takari-plugin-testing</artifactId>
+                <version>${version.takari.plugin.testing}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${version.junit}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-compat</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${version.assertj}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-annotations</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.platform</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${version.org.eclipse.osgi}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${version.jgrapht}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-ext</artifactId>
+                <version>${version.jgrapht}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <licenses>
         <license>
             <name>BSD-3</name>

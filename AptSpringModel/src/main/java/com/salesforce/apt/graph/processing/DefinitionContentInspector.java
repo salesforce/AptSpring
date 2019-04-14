@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -301,7 +301,7 @@ public class DefinitionContentInspector {
   private boolean detectCyclesInEntityGraph(final DefinitionModel definition, final Map<String, InstanceModel> nameToEntity,
       final Consumer<ErrorModel> errorListener) {
     final Map<String, ExpectedModel> missing = new HashMap<>();
-    final DirectedGraph<BaseInstanceModel, DefaultEdge> entityGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+    final Graph<BaseInstanceModel, DefaultEdge> entityGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     for (BaseInstanceModel entity : nameToEntity.values()) {
       if (!entityGraph.containsVertex(entity)) {
         entityGraph.addVertex(entity);
@@ -359,7 +359,7 @@ public class DefinitionContentInspector {
   }
 
   private boolean errorsForCycles(final Consumer<ErrorModel> errorListner,
-      final DirectedGraph<BaseInstanceModel, DefaultEdge> entityGraph) {
+      final Graph<BaseInstanceModel, DefaultEdge> entityGraph) {
     SzwarcfiterLauerSimpleCycles<BaseInstanceModel, DefaultEdge> cycleFind = new SzwarcfiterLauerSimpleCycles<>();
     boolean errored = false;
     cycleFind.setGraph(entityGraph);
@@ -372,7 +372,7 @@ public class DefinitionContentInspector {
   }
 
   private boolean testAllMissingEntitiesAreExpected(final DefinitionModel definition, final Consumer<ErrorModel> errorListner,
-      final Map<String, ExpectedModel> missing, final DirectedGraph<BaseInstanceModel, DefaultEdge> entityGraph) {
+      final Map<String, ExpectedModel> missing, final Graph<BaseInstanceModel, DefaultEdge> entityGraph) {
     //check computed expected are actually expected
     boolean errored = false;
     List<String> expectedMissing = definition.getExpectedDefinitions().stream().map(em -> em.getIdentity())

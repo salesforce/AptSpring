@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -45,13 +45,13 @@ public class DefinitionGraphInpector {
 
   public Set<DefinitionModel> inspectDefinitionGraph(Collection<DefinitionModel> definitions,
       Consumer<ErrorModel> errorListener) {
-    DirectedGraph<DefinitionModel, DefaultEdge> graph = buildDefinitionGraph(definitions);
+    Graph<DefinitionModel, DefaultEdge> graph = buildDefinitionGraph(definitions);
     errorForCycles(graph, errorListener);
     //TODO return all DefinitionModel needing re-evaluation
     return graph.vertexSet().stream().filter(dm -> graph.inDegreeOf(dm) == 0).collect(Collectors.toSet());
   }
   
-  private void errorForCycles(DirectedGraph<DefinitionModel, DefaultEdge> definitionGraph,
+  private void errorForCycles(Graph<DefinitionModel, DefaultEdge> definitionGraph,
       Consumer<ErrorModel> errorListener) {
     SzwarcfiterLauerSimpleCycles<DefinitionModel, DefaultEdge> cycleFind = new SzwarcfiterLauerSimpleCycles<>();
     cycleFind.setGraph(definitionGraph);
@@ -60,14 +60,14 @@ public class DefinitionGraphInpector {
     }
   }
   
-  private DirectedGraph<DefinitionModel, DefaultEdge> buildDefinitionGraph(Collection<DefinitionModel> definitions) {
-    DirectedGraph<DefinitionModel, DefaultEdge> definitionGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
+  private Graph<DefinitionModel, DefaultEdge> buildDefinitionGraph(Collection<DefinitionModel> definitions) {
+    Graph<DefinitionModel, DefaultEdge> definitionGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
     buildDefinitionGraph(definitions, definitionGraph);
     return definitionGraph;
   }
 
   private void buildDefinitionGraph(Collection<DefinitionModel> definitions,
-      DirectedGraph<DefinitionModel, DefaultEdge> definitionGraph) {
+      Graph<DefinitionModel, DefaultEdge> definitionGraph) {
     for (DefinitionModel definition : definitions) {
       if (!definitionGraph.containsVertex(definition)) {
         definitionGraph.addVertex(definition);

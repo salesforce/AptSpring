@@ -47,7 +47,7 @@ import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
  * This is actually busted as it runs against the last packaged version of the jar.....
  */
 @RunWith(MavenJUnitTestRunner.class)
-@MavenVersions({"3.5.0"})
+@MavenVersions({"3.6.0"})
 public class BetterTakariCompileTest {
 
   @Rule
