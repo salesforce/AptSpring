@@ -38,9 +38,15 @@
         <version.slf4j>1.7.10</version.slf4j>
         <version.spring.framework>5.1.6.RELEASE</version.spring.framework>
         <version.takari.plugin.testing>2.9.2</version.takari.plugin.testing>
+        <versions.google.gson>2.8.5</versions.google.gson>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${versions.google.gson}</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
