@@ -65,5 +65,13 @@ public class ParsingContext {
   public Queue<ErrorModel> checkAndStoreValid() {
     return new Verifier().verifyDefinitions(this.definitions, assignabilityUtils, store);
   }
-
+  
+  /**
+   * Processors seem to be reused across successful builds in eclipse m2e-apt.
+   * To prevent internal state from causing issues, wipe that state by calling this
+   * method when the final round of processing is complete.
+   */
+  public void reset() {
+    definitions.clear();
+  }
 }

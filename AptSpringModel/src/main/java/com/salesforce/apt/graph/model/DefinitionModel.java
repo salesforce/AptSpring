@@ -67,7 +67,8 @@ public class DefinitionModel extends AbstractModel {
   private void failIfDefintionsMerged() {
     lockSourceRead();
     if (isLockedDefintionsMerged()) {
-      throw new IllegalStateException("Attempting to modify 'definition merge' content after definition merge is locked");
+      throw new IllegalStateException("Attempting to modify 'definition merge' content after definition merge is locked named: "
+        + getIdentity() + " sourced from: " + getSourceLocation() + " of class: " + getSourceClass());
     }
   }
   

@@ -267,17 +267,10 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>io.takari.maven.plugins</groupId>
-                <artifactId>takari-lifecycle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>testProperties</id>
-                        <goals>
-                            <goal>testProperties</goal>
-                        </goals>
-                        <phase>process-test-resources</phase>
-                    </execution>
-                </executions>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                   <proc>none</proc>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

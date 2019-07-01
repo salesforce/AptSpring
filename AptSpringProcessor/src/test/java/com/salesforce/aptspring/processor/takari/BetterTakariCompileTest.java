@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,7 @@ import io.takari.maven.testing.executor.junit.MavenJUnitTestRunner;
  */
 @RunWith(MavenJUnitTestRunner.class)
 @MavenVersions({"3.6.0"})
+@Ignore //time to drop takari.
 public class BetterTakariCompileTest {
 
   @Rule
