@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.11</version>
+        <version>1.0.12</version>
     </parent>
     <groupId>com.salesforce.aptspring</groupId>
     <artifactId>AptSpringParent</artifactId>
@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>This is the parent project of AptSpring.  Despite it's name, 90% of the code in this project is agnostic to spring.
-       The AptSpringProcessor however, will assert the correct of a spring graph at compile time, by demanding that the graph
+       The AptSpringProcessor however, will assert the correctness of a spring graph at compile time, by demanding that the graph
        be both type safe and fully enumerable during compilation.</description>
     <modules>
         <module>AptSpringModel</module>
@@ -26,6 +26,8 @@
         <github.owner>salesforce</github.owner>
         <github.project>AptSpring</github.project>
         <github.site.location>${project.version}/</github.site.location>
+        <parameter.enforcer.min.java.version>1.8.0</parameter.enforcer.min.java.version>
+        <parameter.java.version>1.8</parameter.java.version>
         <version.assertj>3.12.2</version.assertj>
         <version.google.compile.testing>0.18</version.google.compile.testing>
         <version.google.guava>28.0-jre</version.google.guava>

@@ -53,6 +53,8 @@ import com.salesforce.aptspring.Verified;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class VerifiedSpringConfiguration extends AbstractProcessor {
 
+  private int round = 0;
+
   private Messager messager;
   
   private AptParsingContext definitionAggregator;
@@ -60,6 +62,8 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
   @Override
   public synchronized void init(ProcessingEnvironment env) {
     super.init(env);
+    
+    
     Types typeUtils = env.getTypeUtils();
     Elements elementUtils = env.getElementUtils();
     Filer filer = env.getFiler();
@@ -88,16 +92,19 @@ public class VerifiedSpringConfiguration extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
+    messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing round: " + round++);
     try  {
       if (env.processingOver()) {
         messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing over on: " 
               + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         definitionAggregator.outputErrors(messager);
+        definitionAggregator.reset();
       } else {
         AptElementVisitor visitor = new AptElementVisitor(te -> new SpringAnnotationParser().extractDefinition(te, messager));
         messager.printMessage(Diagnostic.Kind.NOTE, "AptSpring processing on: " 
               + env.getElementsAnnotatedWith(Verified.class).stream().map(a -> a.toString()).collect(Collectors.joining(", ")));
         for (Element annotatedElement : env.getElementsAnnotatedWith(Verified.class)) {
+          messager.printMessage(Diagnostic.Kind.NOTE, "capturing type: " + annotatedElement.asType().toString());
           visitor.visit(annotatedElement, definitionAggregator);        
         }
       }

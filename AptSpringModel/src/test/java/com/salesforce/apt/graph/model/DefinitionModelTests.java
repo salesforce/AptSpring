@@ -96,7 +96,7 @@ public class DefinitionModelTests {
     model1.addDependencies(Arrays.asList(model1));
     model1.getDependencies().contains(model1);
     assertThatThrownBy(() -> model1.addDependencies(Arrays.asList(model2)))
-      .hasMessage("Attempting to modify 'definition merge' content after definition merge is locked")
+      .hasMessageContaining("Attempting to modify 'definition merge' content after definition merge is locked")
       .isInstanceOf(RuntimeException.class);
   }
 }

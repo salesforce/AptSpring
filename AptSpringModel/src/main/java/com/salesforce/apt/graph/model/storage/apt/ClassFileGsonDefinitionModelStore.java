@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Generated;
 import javax.lang.model.element.Modifier;
 
+import com.google.gson.internal.JavaVersion;
 import com.salesforce.apt.graph.model.DefinitionModel;
 import com.salesforce.apt.graph.model.storage.DefinitionOutputStreamProvider;
 import com.salesforce.apt.graph.model.storage.ResourceLoader;
@@ -45,6 +45,11 @@ import com.squareup.javapoet.TypeSpec;
 
 public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore {
 
+  private static final String GENERATED_JAVA9 = "javax.annotation.processing.Generated";
+
+  private static final String GENERATED_JAVA8 = "javax.annotation.Generated";
+
+  
   public ClassFileGsonDefinitionModelStore(ResourceLoader resourceLocator, DefinitionOutputStreamProvider definitionModelToStore) {
     super(resourceLocator, definitionModelToStore);
   }
@@ -64,7 +69,7 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
     TypeSpec classSpec = TypeSpec.classBuilder(className)
         .addModifiers(Modifier.PUBLIC)
         .addField(fieldSpec)
-        .addAnnotation(AnnotationSpec.builder(Generated.class).addMember("value", "$S", "SpringApt").build())
+        .addAnnotation(AnnotationSpec.builder(getGeneratedAnnotationClass()).addMember("value", "$S", "SpringApt").build())
         .build();
     
     JavaFile javaFile = JavaFile.builder(packageName, classSpec)
@@ -81,6 +86,15 @@ public class ClassFileGsonDefinitionModelStore extends GsonDefinitionModelStore 
       return true;
     } catch (IOException ex) {
       throw new IllegalStateException("Could not store model to class", ex);
+    }
+  }
+  
+  private Class<?> getGeneratedAnnotationClass() {
+    final String generatedClass = JavaVersion.isJava9OrLater() ? GENERATED_JAVA9 : GENERATED_JAVA8;
+    try {
+      return Class.forName(generatedClass);
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
     }
   }
 }
