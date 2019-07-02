@@ -10,7 +10,7 @@ AptSpringModel,com.salesforce.apt.graph.types.impl,ReflectionAssignabilityUtils,
 AptSpringModel,com.salesforce.apt.graph.types.impl,ParseType,2,238,1,31,1,60,1,25,0,10
 AptSpringModel,com.salesforce.apt.graph.types.impl,AptAssignabilityUtils,103,0,8,0,21,0,9,0,5,0
 AptSpringModel,com.salesforce.apt.graph.processing,Verifier,47,0,4,0,12,0,5,0,3,0
-AptSpringModel,com.salesforce.apt.graph.processing,DefinitionContentInspector,162,773,28,74,26,143,28,62,6,33
+AptSpringModel,com.salesforce.apt.graph.processing,DefinitionContentInspector,162,771,28,74,26,143,28,62,6,33
 AptSpringModel,com.salesforce.apt.graph.processing,Verifier.ErrorListener,39,0,4,0,10,0,6,0,4,0
 AptSpringModel,com.salesforce.apt.graph.processing,DefinitionGraphInpector,0,110,0,10,0,22,0,11,0,6
 AptSpringModel,com.salesforce.apt.graph.processing,DefinitionJoiner,62,206,6,19,8,42,6,15,1,7
@@ -20,7 +20,7 @@ AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,ClasspathUrlReso
 AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,ClasspathUrlResourceLoader.new PrivilegedAction() {...},7,29,0,0,2,5,0,2,0,2
 AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,FileStore,0,26,0,0,0,6,0,3,0,3
 AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,TestFileStore,0,58,1,7,0,11,1,5,0,2
-AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,GsonDefinitionModelStore,17,236,0,4,7,40,3,7,3,5
+AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,GsonDefinitionModelStore,17,242,0,4,7,40,3,7,3,5
 AptSpringModel,com.salesforce.apt.graph.model.storage.apt,AptFilerStore,39,0,0,0,7,0,2,0,2,0
 AptSpringModel,com.salesforce.apt.graph.model.storage.apt,ClassFileGsonDefinitionModelStore,143,0,2,0,28,0,4,0,3,0
 AptSpringModel,com.salesforce.apt.graph.model.storage.apt,AptResourceLoader,70,0,6,0,13,0,6,0,3,0
