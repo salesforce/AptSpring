@@ -10,7 +10,7 @@ AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.types.impl,Reflection
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.types.impl,ParseType,2,238,1,31,1,60,1,25,0,10
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.types.impl,AptAssignabilityUtils,0,103,1,7,0,21,1,8,0,5
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,Verifier,0,47,0,4,0,12,0,5,0,3
-AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,DefinitionContentInspector,103,832,19,83,18,151,18,72,5,34
+AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,DefinitionContentInspector,103,830,19,83,18,151,18,72,5,34
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,Verifier.ErrorListener,5,34,1,3,1,9,1,5,0,4
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,DefinitionGraphInpector,0,110,0,10,0,22,0,11,0,6
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.processing,DefinitionJoiner,62,206,6,19,8,42,6,15,1,7
@@ -20,9 +20,9 @@ AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpa
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,ClasspathUrlResourceLoader.new PrivilegedAction() {...},7,29,0,0,2,5,0,2,0,2
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,FileStore,0,26,0,0,0,6,0,3,0,3
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,TestFileStore,0,58,1,7,0,11,1,5,0,2
-AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,GsonDefinitionModelStore,11,242,0,4,5,42,1,9,1,7
+AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.classpath,GsonDefinitionModelStore,11,248,0,4,5,42,1,9,1,7
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.apt,AptFilerStore,0,39,0,0,0,7,0,2,0,2
-AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.apt,ClassFileGsonDefinitionModelStore,14,129,1,1,4,24,1,3,0,3
+AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.apt,ClassFileGsonDefinitionModelStore,15,128,1,1,4,24,1,3,0,3
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.apt,AptResourceLoader,36,34,5,1,5,8,4,2,1,2
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.model.storage.apt,StringResource,20,0,0,0,6,0,3,0,3,0
 AptSpringProcessor/AptSpringModel,com.salesforce.apt.graph.parser.apt,AptElementVisitor,10,49,1,3,2,13,3,6,2,5
