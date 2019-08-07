@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.14</version>
+        <version>1.0.15</version>
     </parent>
     <groupId>com.salesforce.aptspring</groupId>
     <artifactId>AptSpringParent</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>This is the parent project of AptSpring.  Despite it's name, 90% of the code in this project is agnostic to spring.
