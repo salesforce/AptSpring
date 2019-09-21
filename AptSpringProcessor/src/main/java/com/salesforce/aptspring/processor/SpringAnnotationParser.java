@@ -179,9 +179,11 @@ public class SpringAnnotationParser {
         addBeanMethodsFromBeanLiteConfig(messager, model, enclosed);
       }
     }
-    
-    for (String expectedBean : verified.expectedBeans()) {
-      model.addDefinition(new ExpectedModel(expectedBean, te));
+   
+    if (verified != null) {
+      for (String expectedBean : verified.expectedBeans()) {
+        model.addDefinition(new ExpectedModel(expectedBean, te));
+      }
     }
     return model;
   }

@@ -87,6 +87,8 @@ public class Verifier {
    * 
    * @param definitions found definitions in this processing
    * @param supplier already processed definitions stored as files.
+   * @param el an errorListener which aggregates error information as it is found.
+   * @param assignabilityUtils determines if type A is injectable as type B (A is, or is a subclass of B)
    * @return any errors found during the verification.  Note may not include all possible errors, as short 
    *     circuit logic is necessary in some places.
    */
@@ -97,10 +99,9 @@ public class Verifier {
       AssignabilityUtils assignabilityUtils) {
 
     /*
-     * Takes disjoint definitions that have recently been computed from scanning files and compares them against
-     * links them to each other in to a directed graph of definitions to dependencies.   The supplier will load
-     * pre-computed definitions from the file system.  No further processing is needed on the pre-computed and loaded
-     * DefinitionModels.
+     * Takes disjoint definitions that have recently been computed from scanning files and links them to each other in
+     * to a directed graph of definitions to dependencies.   The supplier will load pre-computed definitions from the 
+     * file system. No further processing is needed on the pre-computed and loaded DefinitionModels.
      * 
      * This is stage 2 of the DefinitionModel's life cycle
      */

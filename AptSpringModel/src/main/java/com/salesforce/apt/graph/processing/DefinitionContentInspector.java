@@ -295,7 +295,7 @@ public class DefinitionContentInspector {
    * @param definition definition being processed.  Will uses it's expected list, any instances references as dependencies but
    *     not found, not listed as expected in this DefinitionModel, will be treated as errors.
    * @param nameToEntity name to unique instanceModels, verified before call.
-   * @param errorListner accepts and displays all errors produced by analyzing the models
+   * @param errorListener accepts and displays all errors produced by analyzing the models
    * @return true if an error occurred, false otherwise
    */
   private boolean detectCyclesInEntityGraph(final DefinitionModel definition, final Map<String, InstanceModel> nameToEntity,
