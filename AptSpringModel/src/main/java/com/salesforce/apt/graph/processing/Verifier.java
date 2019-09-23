@@ -86,7 +86,7 @@ public class Verifier {
    * Verified the definition model.  Registers all errors with the passed in {@link ErrorListener}.
    * 
    * @param definitions found definitions in this processing
-   * @param supplier already processed definitions stored as files.
+   * @param store already processed definitions stored as files.
    * @param el an errorListener which aggregates error information as it is found.
    * @param assignabilityUtils determines if type A is injectable as type B (A is, or is a subclass of B)
    * @return any errors found during the verification.  Note may not include all possible errors, as short 
