@@ -134,6 +134,59 @@ public class AptAnnotationParserTest {
             
   }
   
+  @Test
+  public void testAnnoProcMetaAnnotationHeavyNesting() throws IOException {
+    JavaFileObject annotation = JavaFileObjects.forSourceLines(
+            "test.ServiceComponent",
+            "package test;",
+            "import org.springframework.beans.factory.annotation.Qualifier;",
+            "import org.springframework.context.annotation.Bean;",
+            "import org.springframework.stereotype.Component;",
+            "import org.springframework.core.annotation.AliasFor;",
+            "import java.lang.annotation.Documented;",
+            "import java.lang.annotation.ElementType;",
+            "import java.lang.annotation.Retention;",
+            "import java.lang.annotation.RetentionPolicy;",
+            "import java.lang.annotation.Target;",
+            "import org.springframework.beans.factory.config.BeanDefinition;",
+            "import org.springframework.context.annotation.Lazy;",
+            "import org.springframework.context.annotation.Scope;",
+            "",
+            "    @Target({ElementType.TYPE})", 
+            "    @Retention(RetentionPolicy.RUNTIME)", 
+            "    @Documented",
+            "    @Component", 
+            "    @Lazy", 
+            "    @Scope(BeanDefinition.SCOPE_SINGLETON)", 
+            "    @interface ServiceComponent {",
+            "",
+            "        @AliasFor(annotation=Component.class)",
+            "        String value() default \"\";", 
+            "    }");
   
-  
+    
+    
+    JavaFileObject definitionClass = JavaFileObjects.forSourceLines(
+            "test.TestClass",
+            "package test;",
+            "",
+            "import org.springframework.beans.factory.annotation.Qualifier;",
+            "import org.springframework.context.annotation.Bean;",
+            "import org.springframework.context.annotation.Configuration;",
+            "",
+            "  @com.salesforce.aptspring.Verified",
+            "  @ServiceComponent(\"name\")",
+            "  public class TestClass {",
+            "",
+            "    public String value2() { return \"\";}",
+            "",
+            "}");
+    
+    assertAbout(javaSources())
+            .that(Arrays.asList(annotation, definitionClass))
+            .processedWith(new VerifiedSpringConfiguration())
+            .compilesWithoutError();
+            
+  }
+
 }

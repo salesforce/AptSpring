@@ -83,7 +83,9 @@ public class AnnotationValueExtractor {
   /**
    * Any empty array will be returned as long as the annotation is found (regardless of whether the value is set or not).
    * A null value is returned if the (meta) annotation is not found. Currently only supports one level of indirection through
-   * spring's AliasFor.
+   * spring's AliasFor, meaning that an alias of another field will work, but not an alias of an alias.   TODO: This could be corrected 
+   * with an algorithm for extracting all the values off of Annotations in to another, cached, data set, but doesn't currently
+   * appear to be needed for standard spring annotations - user annotations may trip up on this.
    *
    * @param am the annotation to parse for a value.
    * @param annotationTypeName the type of the annotation we are interested in, necessary for meta-annotation processing.
@@ -122,7 +124,10 @@ public class AnnotationValueExtractor {
   
   
   /**
-   * On an executable element (that is a value holder on annotation) extract any direct uses of @AlaisFor.
+   * On an executable element (that is a value holder on annotation) extract any direct uses of @AlaisFor. 
+   * Meaning that an alias of another field will work, but not an alias of an alias.   TODO: This could be corrected 
+   * with an algorithm for extracting all the values off of Annotations in to another, cached, data set, but doesn't currently
+   * appear to be needed for standard spring annotations - user annotations may trip up on this.
    * 
    * @param annotationParameter the annotation's parameter to inspect for uses of @AliasFor
    * @return an AliasData if the the annotation is found, null otherwise.
@@ -134,25 +139,46 @@ public class AnnotationValueExtractor {
         output = new AliasData();
         for (Entry<? extends ExecutableElement, ? extends AnnotationValue> ev : am.getElementValues().entrySet()) {
           String fieldName = ev.getKey().getSimpleName().toString();
+          AnnotationValue av = ev.getValue();
           if (ALIAS_TARGET_TYPE.equals(fieldName)) {
-            if (ev.getValue() != null && ev.getValue().getValue() != null) {
-              output.targetAnnotation = ev.getValue().getValue().toString();
-            } else {
-              return null;
-            }
+            output.targetAnnotation = getAttributeValueFromAnnotationFieldAsString(av, false);
           }
-          if (ALIAS_TARGET_FIELD.equals(fieldName) 
-              && ev.getValue() != null && ev.getValue().getValue() != null) {
-            output.targetField = ev.getValue().getValue().toString();
+          //AliasFor has both "value" and "attribute" to specify the target
+          //annotation field, however, neither may be set which means that the
+          //the same name as the current annotation's field which is annotated
+          //with AliasFor will be used.
+          if (ALIAS_TARGET_FIELD.equals(fieldName)) {
+            output.targetField = getAttributeValueFromAnnotationFieldAsString(av, true);
           }
-          if (DEFAULT_ANNOTATION_VALUE.equals(fieldName)
-              && (ev.getValue() != null && ev.getValue().getValue() != null)) {
-            output.targetField = ev.getValue().getValue().toString();
+          if (DEFAULT_ANNOTATION_VALUE.equals(fieldName) && output.targetField == null) {
+            output.targetField = getAttributeValueFromAnnotationFieldAsString(av, true);
           }
+        }
+        //if the fieldName isn't declared by either "value" or "attribute"
+        //assume that the existing field's name is it's value.
+        //hmm.... not good enough this may be a meta-annotation for a canonical annotation.
+        if (output.targetAnnotation != null && output.targetField == null) {
+          output.targetField = annotationParameter.getSimpleName().toString();
         }
       }
     }
     return output;
+  }
+  
+  /**
+   * Given an annotationValue (a field on an Annotation) extract the string representation of
+   * it's single value (not for nested annotations as a value in an annotation).
+   * 
+   * @param av The annotation value to extract
+   * @param emptyStringAsNull if the return value would be an empty string instead return null;
+   * @return the string representation of the annotation or null;
+   */
+  private static String getAttributeValueFromAnnotationFieldAsString(AnnotationValue av, boolean emptyStringAsNull) {
+    if (av != null && av.getValue() != null) {
+      return av.getValue().toString().isEmpty() ? null : av.getValue().toString();
+    } else { 
+      return null;
+    }
   }
   
   /**

@@ -91,7 +91,8 @@ public class SpringAnnotationParser {
   private static final Map<String, String> BANNED_ANNOTATIONS = Collections.unmodifiableMap(Stream.of(
             entry(COMPONENTSCAN_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
             entry(COMPONENTSCANS_TYPE, "You may not use @ComponentScan(s) on @Verified classes"),
-            entry(IMPORT_RESOURCE_TYPE, "You may not use @ImportResource on @Verified classes"))
+            entry(IMPORT_RESOURCE_TYPE, "You may not use @ImportResource on @Verified classes"),
+            entry(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes"))
           .collect(entriesToMap()));
 
   private static final Map<String, String> COMPONENT_BANNED_ANNOTATIONS = Collections.unmodifiableMap(
@@ -104,7 +105,6 @@ public class SpringAnnotationParser {
   private static final Map<String, String> BEAN_LITE_BANNED_ANNOTATIONS = Collections.unmodifiableMap(
       Stream.concat(BANNED_ANNOTATIONS.entrySet().stream(),
         Stream.of(
-          entry(CONFIGURATION_TYPE, "@Verified annotation must only be used on @Bean LITE factory classes or @Component classes"),
           entry(COMPONENT_TYPE, "You may not use @Component on @Verified classes with @Bean methods")))
       .collect(entriesToMap()));
 
