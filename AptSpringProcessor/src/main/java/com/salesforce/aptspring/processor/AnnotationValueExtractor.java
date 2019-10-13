@@ -121,8 +121,7 @@ public class AnnotationValueExtractor {
     }
     return null;
   }
-  
-  
+
   /**
    * On an executable element (that is a value holder on annotation) extract any direct uses of @AlaisFor. 
    * Meaning that an alias of another field will work, but not an alias of an alias.   TODO: This could be corrected 
@@ -175,7 +174,7 @@ public class AnnotationValueExtractor {
    */
   private static String getAttributeValueFromAnnotationFieldAsString(AnnotationValue av, boolean emptyStringAsNull) {
     if (av != null && av.getValue() != null) {
-      return av.getValue().toString().isEmpty() ? null : av.getValue().toString();
+      return av.getValue().toString().isEmpty() && emptyStringAsNull ? null : av.getValue().toString();
     } else { 
       return null;
     }
