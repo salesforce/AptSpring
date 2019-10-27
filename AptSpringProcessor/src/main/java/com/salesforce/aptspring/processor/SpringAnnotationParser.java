@@ -338,7 +338,7 @@ public class SpringAnnotationParser {
         .map(el -> (VariableElement) el)
         .filter(ve -> !staticPrivateFinalLiteralField.test(ve) && !privateFinalField.test(ve))
         .forEach(ve -> messager
-            .printMessage(Kind.ERROR, "@Component classes my only have static final constant fields or final private fields", ve));
+            .printMessage(Kind.ERROR, "@Component classes may only have static final constant fields or private final fields", ve));
     
     if (names.length > 0) {
       InstanceModel model = new InstanceModel(names[0],
