@@ -28,7 +28,7 @@
         <github.site.location>${project.version}/</github.site.location>
         <parameter.enforcer.min.java.version>1.8.0</parameter.enforcer.min.java.version>
         <parameter.java.version>1.8</parameter.java.version>
-        <version.assertj>3.13.2</version.assertj>
+        <version.assertj>3.14.0</version.assertj>
         <version.google.compile.testing>0.18</version.google.compile.testing>
         <version.google.guava>28.1-jre</version.google.guava>
         <version.google.truth>0.45</version.google.truth>
