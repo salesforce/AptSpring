@@ -336,11 +336,11 @@ public class ComponentTests {
             .that(Arrays.asList(componentClassBadField))
             .processedWith(new VerifiedSpringConfiguration())
             .failsToCompile()
-            .withErrorContaining("@Component classes my only have static final constant fields or final private fields")
+            .withErrorContaining("@Component classes may only have static final constant fields or private final fields")
             .in(componentClassBadField)
             .onLine(15)
             .and()
-            .withErrorContaining("@Component classes my only have static final constant fields or final private fields")
+            .withErrorContaining("@Component classes may only have static final constant fields or private final fields")
             .in(componentClassBadField)
             .onLine(15);
   }

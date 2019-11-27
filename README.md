@@ -13,7 +13,7 @@ This project checks that spring beans in your project adhere to certain properti
 
 #### Duplicate bean name and cycle free ####
 
-Some of those properties include all beans being explicitly named, all names are unique, and all autowiring includes names via ```@Qualified``` annotations.  Cycles are prevented as well as duplicate bean names.  
+Some of those properties include all beans being explicitly named, all names are unique, and all autowiring includes names via ```@Qualifier``` annotations.  Cycles are prevented as well as duplicate bean names.  
 
 #### Type Safety ####
 
@@ -54,7 +54,7 @@ Include the ```@Verified``` annotation on your spring classes with ```@Bean``` m
 
 Use eclipse 2019.6 + (4.12) with m2e for incremental compiler support.
 
-You can also configure the APT manually in eclipse if you are not using m2e, but eclipse's default APT handling will not support referencing a ```@Bean``` lite class in another eclipse project/maven module.   You would be limited to having on one eclipse project.
+You can also configure the APT manually in eclipse if you are not using m2e, but eclipse's default APT handling will not support referencing a ```@Bean``` lite class in another eclipse project/maven module.  You would be limited to having on one eclipse project.
 
 The error messages will help clean up your code and keep it clean.
 
