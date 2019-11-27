@@ -46,7 +46,7 @@ public class AptElementVisitor extends AbstractElementVisitor8<Void, AptParsingC
 
   protected Void defaultAction(Element element, AptParsingContext definitions) {
     for (Element e1 : element.getEnclosedElements()) {
-      this.visit(e1);
+      this.visit(e1, definitions);
     }
     return null;
   }
