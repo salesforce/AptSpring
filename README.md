@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/salesforce/AptSpring.svg?branch=master)](https://travis-ci.org/salesforce/AptSpring)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7e9fe7e2a2534e9dacddaf15a9fc27e4)](https://www.codacy.com/app/rexhoffman/AptSpring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salesforce/AptSpring&amp;utm_campaign=Badge_Grade)
 [![codebeat badge](https://codebeat.co/badges/a0528ed4-185e-4ac2-90c5-a93477656a7a)](https://codebeat.co/projects/github-com-salesforce-aptspring-master)
-[![Maven Site](https://img.shields.io/badge/maven_site-2.0.6-green.svg)](https://salesforce.github.com/AptSpring/2.0.6/index.html)
+[![Maven Site](https://img.shields.io/badge/maven_site-2.0.7-green.svg)](https://salesforce.github.com/AptSpring/2.0.7/index.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.salesforce.aptspring/AptSpringParent)
 [![codecov](https://codecov.io/gh/salesforce/AptSpring/branch/master/graph/badge.svg)](https://codecov.io/gh/salesforce/AptSpring)
 
@@ -50,19 +50,10 @@ Include these dependency:
     </dependency>
 ```
 
-Include this takari-lifecycle configuration if you are using takari -- hint: you should be, though gradel claims incremental apt support now as well.
-
-```xml
-    <plugin>
-        <groupId>io.takari.maven.plugins</groupId>
-        <artifactId>takari-lifecycle-plugin</artifactId>
-    </plugin>
-
-```
-
 Include the ```@Verified``` annotation on your spring classes with ```@Bean``` methods.
 
-Use the takari lifecycle and takari-m2e support for best performance and file handling.
+Use eclipse 2019.6 + (4.12) with m2e for incremental compiler support.
+
 You can also configure the APT manually in eclipse if you are not using m2e, but eclipse's default APT handling will not support referencing a ```@Bean``` lite class in another eclipse project/maven module.   You would be limited to having on one eclipse project.
 
 The error messages will help clean up your code and keep it clean.
