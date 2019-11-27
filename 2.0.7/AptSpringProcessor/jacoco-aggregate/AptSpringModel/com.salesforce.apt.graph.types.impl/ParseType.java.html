@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ParseType.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AptSpringProcessor</a> &gt; <a href="../index.html" class="el_bundle">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.types.impl</a> &gt; <span class="el_source">ParseType.java</span></div><h1>ParseType.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Salesforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.types.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
+
+public class ParseType {
+
+  private final String type;
+<span class="fc" id="L40">  private final List&lt;ParseType&gt; parameters = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L42">  public ParseType(String type) {</span>
+<span class="fc" id="L43">    this.type = type;</span>
+<span class="fc" id="L44">  }</span>
+  
+<span class="fc" id="L46">  public ParseType(String type, ParseType... parameters) {</span>
+<span class="fc" id="L47">    this.type = type;</span>
+<span class="fc" id="L48">    this.parameters.addAll(Arrays.asList(parameters));</span>
+<span class="fc" id="L49">  }</span>
+  
+  public String getType() {
+<span class="fc" id="L52">    return type;</span>
+  }
+
+  public List&lt;ParseType&gt; getParameters() {
+<span class="fc" id="L56">    return parameters;</span>
+  }
+  
+  public static ParseType parse(String type) {
+<span class="fc" id="L60">    final String parseToken = &quot;*&quot;;</span>
+<span class="fc" id="L61">    String[] tokens = type</span>
+<span class="fc" id="L62">        .replaceAll(&quot;&lt;&quot;, parseToken + &quot;&lt;&quot; + parseToken)</span>
+<span class="fc" id="L63">        .replaceAll(&quot;&gt;&quot;, parseToken + &quot;&gt;&quot; + parseToken)</span>
+<span class="fc" id="L64">        .replaceAll(&quot;,&quot;, parseToken + &quot;,&quot; + parseToken).split(&quot;\\&quot; + parseToken);</span>
+<span class="fc" id="L65">    Queue&lt;String&gt; tokenQueue = new LinkedList&lt;&gt;(Arrays.asList(tokens).stream().map(t -&gt; t.trim()).collect(Collectors.toList())); </span>
+<span class="fc" id="L66">    return parseParameters(tokenQueue);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="fc" id="L71">    final int prime = 31;</span>
+<span class="fc" id="L72">    int result = 1;</span>
+<span class="fc" id="L73">    result = prime * result + parameters.hashCode();</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">    result = prime * result + ((type == null) ? 0 : type.hashCode());</span>
+<span class="fc" id="L75">    return result;</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">    if (this == obj) {</span>
+<span class="fc" id="L81">      return true;</span>
+    }
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    if (obj == null) {</span>
+<span class="nc" id="L84">      return false;</span>
+    }
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (getClass() != obj.getClass()) {</span>
+<span class="fc" id="L87">      return false;</span>
+    }
+<span class="fc" id="L89">    ParseType other = (ParseType)obj;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (!parameters.equals(other.parameters)) {</span>
+<span class="fc" id="L91">      return false;</span>
+    }
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (type == null) {</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">      if (other.type != null) {</span>
+<span class="fc" id="L95">        return false;</span>
+      }
+    } else {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">      if (!type.equals(other.type)) {</span>
+<span class="fc" id="L99">        return false;</span>
+      }
+    }
+<span class="fc" id="L102">    return true;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L107">    StringBuilder builder = new StringBuilder(getType());</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">    if (!getParameters().isEmpty()) {</span>
+<span class="fc" id="L109">      builder.append('&lt;');</span>
+<span class="fc" id="L110">      Iterator&lt;ParseType&gt; iter = getParameters().iterator();</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">      while (iter.hasNext()) {</span>
+<span class="fc" id="L112">        builder.append(iter.next().toString());</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (iter.hasNext()) {</span>
+<span class="fc" id="L114">          builder.append(',');</span>
+        }
+      }
+<span class="fc" id="L117">      builder.append('&gt;');</span>
+    }
+<span class="fc" id="L119">    return builder.toString();</span>
+  }
+
+  private static ParseType parseParameters(Queue&lt;String&gt; tokens) {
+<span class="fc" id="L123">    ParseType child = new ParseType(tokens.remove());</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">    if (tokens.isEmpty()) {</span>
+<span class="fc" id="L125">      return child;</span>
+    }
+<span class="fc bfc" id="L127" title="All 2 branches covered.">    if (&quot;,&quot;.equals(tokens.peek())) {</span>
+<span class="fc" id="L128">      return child;</span>
+    }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">    if (&quot;&lt;&quot;.equals(tokens.peek())) {</span>
+<span class="fc" id="L131">      tokens.remove();</span>
+<span class="fc" id="L132">      child.parameters.add(parseParameters(tokens));</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">      while (&quot;,&quot;.equals(tokens.peek())) {</span>
+<span class="fc" id="L134">        tokens.remove();</span>
+<span class="fc" id="L135">        child.parameters.add(parseParameters(tokens));</span>
+      }
+<span class="fc bfc" id="L137" title="All 2 branches covered.">      if (&quot;&gt;&quot;.equals(tokens.peek())) {</span>
+<span class="fc" id="L138">        tokens.remove();</span>
+      }
+    }
+<span class="fc" id="L141">    return child;</span>
+  }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
