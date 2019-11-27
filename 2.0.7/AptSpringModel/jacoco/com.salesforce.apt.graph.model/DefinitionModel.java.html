@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefinitionModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AptSpringModel</a> &gt; <a href="index.source.html" class="el_package">com.salesforce.apt.graph.model</a> &gt; <span class="el_source">DefinitionModel.java</span></div><h1>DefinitionModel.java</h1><pre class="source lang-java linenums">/*
+ * Copyright © 2017, Salesforce.com, Inc
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the &lt;organization&gt; nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL &lt;COPYRIGHT HOLDER&gt; BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.salesforce.apt.graph.model;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.lang.model.element.TypeElement;
+
+public class DefinitionModel extends AbstractModel {
+
+<span class="pc" id="L42">  private final List&lt;InstanceModel&gt; objectDefinitions = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L43">  private final List&lt;ExpectedModel&gt; expectedDefinitions = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L44">  private final List&lt;String&gt; dependencyNames = new ArrayList&lt;&gt;();</span>
+  
+  //because this field is transient, deserializers will not set it.  We must
+  //carefully account for this by setting the value anywhere it may be used.
+  private transient List&lt;DefinitionModel&gt; dependencies;
+<span class="pc" id="L49">  private final List&lt;InstanceModel&gt; providedInstances = new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L50">  private final Set&lt;ExpectedModel&gt; computedExpected = new HashSet&lt;&gt;();</span>
+  private String sha256;          //when read from/written to file.
+  private String sourceLocation;  //when read from file
+  private final boolean rootNode;
+  
+<span class="pc" id="L55">  private final Map&lt;String, String&gt; dependencyNameToSha256 = new HashMap&lt;&gt;();  </span>
+  
+<span class="pc" id="L57">  private transient boolean lockedSourceRead = false;                  //phase 1</span>
+<span class="pc" id="L58">  private transient boolean lockedDefintionsMerged = false;            //phase 2</span>
+<span class="pc" id="L59">  private transient boolean lockedAnalyzed = false;                    //phase 3</span>
+
+  private void failIfLockRead() {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (isLockedSourceRead()) {</span>
+<span class="fc" id="L63">      throw new IllegalStateException(&quot;Attempting to modify 'source read' content after source read is locked&quot;);</span>
+    }
+<span class="fc" id="L65">  }</span>
+  
+  private void failIfDefintionsMerged() {
+<span class="fc" id="L68">    lockSourceRead();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    if (isLockedDefintionsMerged()) {</span>
+<span class="fc" id="L70">      throw new IllegalStateException(&quot;Attempting to modify 'definition merge' content after definition merge is locked named: &quot;</span>
+<span class="fc" id="L71">        + getIdentity() + &quot; sourced from: &quot; + getSourceLocation() + &quot; of class: &quot; + getSourceClass());</span>
+    }
+<span class="fc" id="L73">  }</span>
+  
+  private void failIfLockedAnalyzed() {
+<span class="fc" id="L76">    lockDefintionsMerged();</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    if (isLockedAnalyzed()) {</span>
+<span class="nc" id="L78">      throw new IllegalStateException(&quot;Attempting to modify analyzed structure after structure has been computed&quot;);</span>
+    }
+<span class="fc" id="L80">  }</span>
+  
+  /**
+   * Is this node marked as a root node, meaning noone can depend upon it.
+   * 
+   * @return true if this is a root node, and no other nodes may depend on it.
+   */
+  public boolean isRootNode() {
+<span class="fc" id="L88">    return rootNode;</span>
+  }
+  
+  private void setDepenendencyArrayIfNull() {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">    if (dependencies == null) {</span>
+<span class="fc" id="L93">      dependencies = new ArrayList&lt;&gt;();</span>
+    }
+<span class="fc" id="L95">  }</span>
+  
+  public List&lt;DefinitionModel&gt; getDependencies() {
+<span class="fc" id="L98">    setDepenendencyArrayIfNull();</span>
+<span class="fc" id="L99">    lockDefintionsMerged();</span>
+<span class="fc" id="L100">    return Collections.unmodifiableList(dependencies);</span>
+  }
+
+  public DefinitionModel(String name) {
+<span class="fc" id="L104">    this(name, false);</span>
+<span class="fc" id="L105">  }</span>
+
+  public DefinitionModel(String name, boolean rootNode) {
+<span class="fc" id="L108">    super(name);</span>
+<span class="fc" id="L109">    this.rootNode = rootNode;</span>
+<span class="fc" id="L110">  }</span>
+  
+  public DefinitionModel(TypeElement type) {
+<span class="nc" id="L113">    this(type, false);</span>
+<span class="nc" id="L114">  }</span>
+  
+  public DefinitionModel(TypeElement type, boolean rootNode) {
+<span class="nc" id="L117">    super(type);</span>
+<span class="nc" id="L118">    this.rootNode = rootNode;</span>
+<span class="nc" id="L119">  }</span>
+
+  public void addDependency(DefinitionModel model) {
+<span class="fc" id="L122">    setDepenendencyArrayIfNull();</span>
+<span class="fc" id="L123">    failIfDefintionsMerged();</span>
+<span class="fc" id="L124">    this.dependencies.add(model);</span>
+<span class="fc" id="L125">  }</span>
+
+  public void addDependencies(List&lt;DefinitionModel&gt; model) {
+<span class="fc" id="L128">    setDepenendencyArrayIfNull();</span>
+<span class="fc" id="L129">    failIfDefintionsMerged();</span>
+<span class="fc" id="L130">    this.dependencies.addAll(model);</span>
+<span class="fc" id="L131">  }</span>
+
+  public void addDefinition(InstanceModel model) {
+<span class="fc" id="L134">    failIfLockRead();</span>
+<span class="fc" id="L135">    this.objectDefinitions.add(model);</span>
+<span class="fc" id="L136">  }</span>
+
+  public void addDefinition(ExpectedModel model) {
+<span class="fc" id="L139">    failIfLockRead();</span>
+<span class="fc" id="L140">    this.expectedDefinitions.add(model);</span>
+<span class="fc" id="L141">  }</span>
+
+  public void addDependencyNames(List&lt;String&gt; model) {
+<span class="fc" id="L144">    failIfLockRead();</span>
+<span class="fc" id="L145">    this.dependencyNames.addAll(model);</span>
+<span class="fc" id="L146">  }</span>
+  
+  public void addDependencyNames(String dependencyName) {
+<span class="fc" id="L149">    failIfLockRead();</span>
+<span class="fc" id="L150">    this.dependencyNames.add(dependencyName);</span>
+<span class="fc" id="L151">  }</span>
+
+  public List&lt;String&gt; getDependencyNames() {
+<span class="fc" id="L154">    lockSourceRead();</span>
+<span class="fc" id="L155">    return Collections.unmodifiableList(dependencyNames);</span>
+  }
+  
+  public List&lt;InstanceModel&gt; getObjectDefinitions() {
+<span class="fc" id="L159">    lockSourceRead();</span>
+<span class="fc" id="L160">    return Collections.unmodifiableList(objectDefinitions);</span>
+  }
+
+  public List&lt;ExpectedModel&gt; getExpectedDefinitions() {
+<span class="fc" id="L164">    lockSourceRead();</span>
+<span class="fc" id="L165">    return Collections.unmodifiableList(expectedDefinitions);</span>
+  }
+
+  public boolean isComplete() {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">    return getExpectedDefinitions().size() == 0;</span>
+  }
+  
+  public List&lt;InstanceModel&gt; getProvidedInstances() {
+<span class="fc" id="L173">    lockAnalyzed();</span>
+<span class="fc" id="L174">    return Collections.unmodifiableList(providedInstances);</span>
+  }
+  
+  public void addAllProvidedInstances(Collection&lt;InstanceModel&gt; providedInstances) {
+<span class="fc" id="L178">    failIfLockedAnalyzed();</span>
+<span class="fc" id="L179">    this.providedInstances.addAll(providedInstances);</span>
+<span class="fc" id="L180">  }</span>
+
+  public Set&lt;ExpectedModel&gt; getComputedExpected() {
+<span class="fc" id="L183">    lockAnalyzed();</span>
+<span class="fc" id="L184">    return Collections.unmodifiableSet(computedExpected);</span>
+  }
+  
+  public void addAllComputedExpected(Collection&lt;ExpectedModel&gt; computedExpected) {
+<span class="nc" id="L188">    failIfLockedAnalyzed();</span>
+<span class="nc" id="L189">    this.computedExpected.addAll(computedExpected);</span>
+<span class="nc" id="L190">  }</span>
+  
+  public void addComputedExpected(ExpectedModel computedExpected) {
+<span class="fc" id="L193">    failIfLockedAnalyzed();</span>
+<span class="fc" id="L194">    this.computedExpected.add(computedExpected);</span>
+<span class="fc" id="L195">  }</span>
+  
+  /**
+   * For the purposes of identification of the object definition class, the location of the class suffices.
+   *
+   * @return a unique identity representing this definition, specifically the fully qualified name of the source type.
+   */
+  public String getIdentity() {
+    //wont lockSourceRead(); as identity is read while attaching definitions.
+<span class="fc" id="L204">    return getElementLocation();</span>
+  }
+
+  /**
+   * For the purposes of identification of the object definition class, the location of the class suffices.
+   *
+   * @return the Identity of the {@link DefinitionModel}
+   */
+  public String toString() {
+<span class="nc" id="L213">    lockSourceRead();</span>
+<span class="nc" id="L214">    return getElementLocation();</span>
+  }
+
+  
+  public String getSha256() {
+<span class="fc" id="L219">    lockAnalyzed();</span>
+<span class="fc" id="L220">    return sha256;</span>
+  }
+
+  public void setSha256(String sha256) {
+<span class="fc" id="L224">    failIfLockedAnalyzed();</span>
+<span class="fc" id="L225">    lockAnalyzed();</span>
+<span class="fc" id="L226">    this.sha256 = sha256;</span>
+<span class="fc" id="L227">  }</span>
+
+  public boolean isLockedSourceRead() {
+<span class="fc" id="L230">    return lockedSourceRead;</span>
+  }
+  
+  public boolean isLockedDefintionsMerged() {
+<span class="fc" id="L234">    return lockedDefintionsMerged;</span>
+  }
+
+  public boolean isLockedAnalyzed() {
+<span class="fc" id="L238">    return lockedAnalyzed;</span>
+  }
+
+  private void lockSourceRead() {
+<span class="fc" id="L242">    lockedSourceRead = true;</span>
+<span class="fc" id="L243">  }</span>
+
+  private void lockDefintionsMerged() {
+<span class="fc" id="L246">    lockSourceRead();</span>
+<span class="fc" id="L247">    lockedDefintionsMerged = true;</span>
+<span class="fc" id="L248">  }</span>
+
+  /**
+   * Public so that once all shas are write to {@link DefinitionModel#addDependencyNameToSha256} this 
+   * can be called, locking down the definition.
+   */
+  private void lockAnalyzed() {
+<span class="fc" id="L255">    lockSourceRead();</span>
+<span class="fc" id="L256">    lockDefintionsMerged();</span>
+<span class="fc" id="L257">    lockedAnalyzed = true;</span>
+<span class="fc" id="L258">  }</span>
+
+  
+  public Map&lt;String, String&gt; getDependencyNameToSha256() {
+<span class="fc" id="L262">    lockDefintionsMerged();</span>
+<span class="fc" id="L263">    return Collections.unmodifiableMap(dependencyNameToSha256);</span>
+  }
+
+  public void addDependencyNameToSha256(String dependencyName, String sha256) {
+<span class="fc" id="L267">    failIfLockedAnalyzed();</span>
+<span class="fc" id="L268">    dependencyNameToSha256.put(dependencyName, sha256);</span>
+<span class="fc" id="L269">  }</span>
+
+  public void addAllDependencyNameToSha256(Map&lt;String, String&gt;  dependencyNameToSha256) {
+<span class="nc" id="L272">    failIfLockedAnalyzed();</span>
+<span class="nc" id="L273">    dependencyNameToSha256.putAll(dependencyNameToSha256);</span>
+<span class="nc" id="L274">  }</span>
+
+  public String getSourceLocation() {
+<span class="fc" id="L277">    return sourceLocation;</span>
+  }
+
+  public void setSourceLocation(String sourceLocation) {
+<span class="fc" id="L281">    failIfLockRead();</span>
+<span class="fc" id="L282">    this.sourceLocation = sourceLocation;</span>
+<span class="fc" id="L283">  }</span>
+
+  public String getSourcePackage() {
+<span class="nc" id="L286">    String packageName = &quot;&quot;;</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">    if (getIdentity().lastIndexOf(&quot;.&quot;) != -1) {</span>
+<span class="nc" id="L288">      packageName = getIdentity().substring(0, getIdentity().lastIndexOf(&quot;.&quot;));</span>
+    }
+<span class="nc" id="L290">    return packageName;</span>
+  }
+
+  public String getSourceClass() {
+<span class="fc" id="L294">    return getIdentity().substring(getIdentity().lastIndexOf(&quot;.&quot;) + 1);</span>
+  } 
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
