@@ -16,7 +16,7 @@
         <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
         <plugin.maven.takari.compilerId>jdt</plugin.maven.takari.compilerId>
         <plugin.maven.takari.proc>proc</plugin.maven.takari.proc>
-        <spring.version>5.1.1.RELEASE</spring.version>
+        <spring.version>5.3.13</spring.version>
     </properties>
     <dependencies>
         <dependency>
